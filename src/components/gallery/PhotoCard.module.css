@@ -1,0 +1,68 @@
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border-radius: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-base, 0.3s ease);
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity var(--transition-slow, 0.5s ease), transform var(--transition-base, 0.3s ease);
+}
+
+.image.loaded {
+  opacity: 1;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+/* 极简悬停遮罩 - 仅当有内容时显示 */
+.overlay:empty {
+  display: none;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base, 0.3s ease);
+  pointer-events: none;
+}
+
+.card:hover .overlay:not(:empty) {
+  opacity: 1;
+}
+
+.overlayText {
+  color: #FFFFFF;
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

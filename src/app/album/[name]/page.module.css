@@ -1,0 +1,11 @@
+.main {
+  min-height: 100vh;
+}
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}

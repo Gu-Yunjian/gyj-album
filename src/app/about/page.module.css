@@ -1,0 +1,79 @@
+.main {
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--page-margin);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: 500;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+  padding-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--border);
+}
+
+.name {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+}
+
+.school {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.slogan {
+  font-size: var(--font-size-lg);
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.content {
+  font-size: var(--font-size-md);
+  line-height: 2;
+  color: var(--text-secondary);
+}
+
+.content h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-md);
+}
+
+.content p {
+  margin-bottom: var(--space-md);
+}
+
+.content a {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--text-muted);
+  transition: border-color var(--transition-fast);
+}
+
+.content a:hover {
+  border-color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-xl) var(--page-margin-mobile);
+  }
+}

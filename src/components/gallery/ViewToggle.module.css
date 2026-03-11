@@ -1,0 +1,52 @@
+.toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.button {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(0, 0, 0, 0.5);
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  color: #000000;
+}
+
+.button.active {
+  color: #000000;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .toggle {
+    bottom: 16px;
+    right: 16px;
+  }
+  
+  .button {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+}

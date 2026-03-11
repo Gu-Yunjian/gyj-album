@@ -1,0 +1,82 @@
+/* 
+ * GalleryCanvas - 同心方格布局
+ * 
+ * 可调参数（在 globals.css 修改）：
+ * --gallery-cell-size: 格子大小
+ * --gallery-cell-gap: 格子间距
+ */
+
+.canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: var(--bg-primary);
+  user-select: none;
+}
+
+.content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transition: none;
+}
+
+.item {
+  position: absolute;
+  width: var(--gallery-cell-size, 280px);
+  height: var(--gallery-cell-size, 280px);
+  will-change: transform;
+}
+
+/* 中心卡片始终在最上层 */
+.centerItem {
+  z-index: 100 !important;
+}
+
+/* 普通照片卡片 */
+.item:not(.centerItem) {
+  z-index: 1;
+}
+
+/* 悬停时提升层级 */
+.item:not(.centerItem):hover {
+  z-index: 99 !important;
+}
+
+.hint {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  opacity: 0.5;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .item {
+    width: var(--gallery-cell-size-mobile, 200px);
+    height: var(--gallery-cell-size-mobile, 200px);
+  }
+  
+  .hint {
+    font-size: 11px;
+    bottom: var(--space-md);
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 375px) {
+  .item {
+    width: var(--gallery-cell-size-small, 160px);
+    height: var(--gallery-cell-size-small, 160px);
+  }
+}

@@ -1,0 +1,163 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 2001;
+  color: rgba(255, 255, 255, 0.7);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  transition: color 0.2s ease;
+}
+
+.closeBtn:hover {
+  color: #FFFFFF;
+}
+
+.prevBtn,
+.nextBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2001;
+  color: rgba(255, 255, 255, 0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 16px;
+  transition: color 0.2s ease;
+}
+
+.prevBtn {
+  left: 16px;
+}
+
+.nextBtn {
+  right: 16px;
+}
+
+.prevBtn:hover,
+.nextBtn:hover {
+  color: #FFFFFF;
+}
+
+.content {
+  position: relative;
+  z-index: 2001;
+  max-width: 85vw;
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn 0.3s ease-out;
+}
+
+.imageContainer {
+  position: relative;
+  display: inline-block;
+  max-width: 85vw;
+  max-height: 85vh;
+}
+
+.image {
+  display: block;
+  max-width: 85vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Info overlay - positioned at bottom of the image */
+.info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 24px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.title {
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exif {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .closeBtn {
+    top: 16px;
+    right: 16px;
+  }
+  
+  .prevBtn,
+  .nextBtn {
+    display: none;
+  }
+  
+  .content {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+  
+  .imageContainer {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+  
+  .image {
+    max-width: 95vw;
+    max-height: 80vh;
+  }
+  
+  .info {
+    padding: 16px;
+  }
+  
+  .title {
+    font-size: 14px;
+  }
+  
+}

@@ -1,0 +1,91 @@
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #F0F0F0;  /* 带点灰的白色 */
+  border-radius: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--transition-base, 0.3s ease);
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-lg, 24px);
+  color: var(--text-primary, #1a1a1a);
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.name {
+  font-size: var(--font-size-xl, 24px);
+  font-weight: 600;
+  margin-bottom: var(--space-xs, 8px);
+  letter-spacing: 0.05em;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.school {
+  font-size: var(--font-size-sm, 14px);
+  color: var(--text-secondary, #666666);
+  margin-bottom: var(--space-sm, 12px);
+}
+
+.slogan {
+  font-size: var(--font-size-base, 16px);
+  color: var(--text-muted, #999999);
+  font-weight: 400;
+  margin-bottom: var(--space-md, 16px);
+  line-height: 1.5;
+  max-width: 90%;
+}
+
+.more {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--text-muted, #999999);
+  padding: var(--space-xs, 8px) var(--space-sm, 12px);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
+  border-radius: 0;
+  transition: all var(--transition-fast, 0.2s ease);
+  margin-top: auto;
+}
+
+.card:hover .more {
+  color: var(--text-primary, #1a1a1a);
+  border-color: var(--text-primary, #1a1a1a);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .name {
+    font-size: var(--font-size-lg, 18px);
+  }
+  
+  .school {
+    font-size: var(--font-size-xs, 12px);
+  }
+  
+  .slogan {
+    font-size: var(--font-size-sm, 14px);
+  }
+  
+  .more {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+}
