@@ -77,8 +77,9 @@ export default function Lightbox({
     async function loadExif() {
       try {
         // 从 src 中提取文件名
-        const filename = currentPhoto.src.split('/').pop() || '';
-        const res = await fetch(`/api/photos/${encodeURIComponent(currentPhoto.album)}/${encodeURIComponent(filename)}`);
+        const album = currentPhoto.album || '';
+        const filename = (currentPhoto.src.split('/').pop() || '') as string;
+        const res = await fetch(`/api/photos/${encodeURIComponent(album)}/${encodeURIComponent(filename)}`);
         if (res.ok) {
           const data = await res.json();
           setExifData(data);
