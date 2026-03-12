@@ -13,7 +13,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "exifr": "^7.1.3",
     "next": "^15.5.12",
-    "next-mdx-remote": "^4.4.1",
+    "next-mdx-remote": "^6.0.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
