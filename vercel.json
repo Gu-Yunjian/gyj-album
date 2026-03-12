@@ -1,4 +1,5 @@
 {
   "buildCommand": "npm run build:skip-lint",
-  "installCommand": "npm install --legacy-peer-deps"
+  "installCommand": "npm install --legacy-peer-deps",
+  "rootDirectory": "."
 }

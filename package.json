@@ -7,7 +7,7 @@
     "build": "npm install --legacy-peer-deps && next build",
     "start": "next start",
     "lint": "eslint",
-    "build:skip-lint": "npm install --legacy-peer-deps && next build --no-lint"
+    "build:skip-lint": "next build --no-lint"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
