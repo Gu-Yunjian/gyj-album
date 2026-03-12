@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Static export output
+dist/
+
+# Original photos (not committed to git)
+originals/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Temporary files
+*.tmp

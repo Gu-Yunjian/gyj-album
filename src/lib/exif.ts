@@ -1,76 +1,11 @@
-// lib/exif.ts - EXIF 信息读取工具
-import fs from 'fs/promises';
-import path from 'path';
-import exifr from 'exifr';
+// lib/exif.ts - EXIF 信息工具（从 JSON 数据读取）
 
 export interface ExifInfo {
   aperture?: string;      // 光圈
   shutterSpeed?: string;  // 快门速度
   iso?: number;           // ISO
-}
-
-/**
- * 格式化快门速度
- * 将 ExposureTime 转换为可读的快门速度字符串
- */
-function formatShutterSpeed(exposureTime: number): string {
-  if (exposureTime >= 1) {
-    return `${Math.round(exposureTime * 10) / 10}"`;
-  } else {
-    const denominator = Math.round(1 / exposureTime);
-    return `1/${denominator}s`;
-  }
-}
-
-/**
- * 格式化光圈
- */
-function formatAperture(fNumber: number): string {
-  return `f/${fNumber}`;
-}
-
-/**
- * 读取照片的 EXIF 信息
- */
-export async function getExifInfo(photoPath: string): Promise<ExifInfo | null> {
-  try {
-    const buffer = await fs.readFile(photoPath);
-    
-    // 使用 exifr 解析 EXIF
-    const exif = await exifr.parse(buffer);
-
-    if (!exif) {
-      return null;
-    }
-
-    const info: ExifInfo = {};
-
-    // 光圈 (FNumber)
-    if (exif.FNumber) {
-      info.aperture = formatAperture(exif.FNumber);
-    }
-
-    // 快门速度 (ExposureTime)
-    if (exif.ExposureTime) {
-      info.shutterSpeed = formatShutterSpeed(exif.ExposureTime);
-    }
-
-    // ISO
-    if (exif.ISO !== undefined && exif.ISO !== null) {
-      info.iso = Number(exif.ISO);
-    }
-
-    // 如果有任何有效的 EXIF 数据，返回它
-    if (info.aperture || info.shutterSpeed || info.iso) {
-      return info;
-    }
-
-    return null;
-
-  } catch (error) {
-    // 不是所有照片都有 EXIF，返回 null
-    return null;
-  }
+  dateTaken?: string;     // 拍摄时间
+  camera?: string;        // 相机型号
 }
 
 /**
@@ -83,5 +18,39 @@ export function formatExifDisplay(exif: ExifInfo): string {
   if (exif.shutterSpeed) parts.push(exif.shutterSpeed);
   if (exif.iso) parts.push(`ISO ${exif.iso}`);
 
-  return parts.join(' · ');
+  return parts.join(' · ') || '';
+}
+
+/**
+ * 格式化相机型号显示
+ */
+export function formatCameraDisplay(camera: string | undefined): string {
+  if (!camera) return '';
+  
+  // 清理型号字符串
+  return camera
+    .replace('Canon ', '')
+    .replace('NIKON ', 'Nikon ')
+    .replace('SONY ', 'Sony ')
+    .replace('FUJIFILM ', 'Fujifilm ')
+    .trim();
+}
+
+/**
+ * 格式化拍摄时间
+ */
+export function formatDateTaken(dateStr: string | undefined): string {
+  if (!dateStr) return '';
+  
+  try {
+    // EXIF 日期格式: "2024:03:15 14:30:00"
+    const parts = dateStr.split(' ');
+    if (parts.length === 2) {
+      const datePart = parts[0].replace(/:/g, '-');
+      return datePart;
+    }
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
 }
