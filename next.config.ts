@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -13,6 +12,9 @@ const nextConfig: NextConfig = {
         hostname: 'picsum.photos',
       },
     ],
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['@phosphor-icons/react', 'exifr'],
   },
 };
 
