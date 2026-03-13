@@ -1,9 +1,6 @@
-import { getAlbum } from '@/lib/photos';
-import AlbumView from '@/components/album/AlbumView';
+import { getAlbum, getAllPhotosData } from '@/lib/photos';
+import AlbumViewWrapper from '@/components/album/AlbumViewWrapper';
 import styles from './page.module.css';
-
-// 禁用静态生成，使用动态渲染
-export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ name: string }>;
@@ -33,6 +30,7 @@ export default async function AlbumPage({ params }: PageProps) {
   // 解码 URL 编码的中文目录名
   const decodedName = decodeURIComponent(name);
   const album = await getAlbum(decodedName);
+  const allPhotos = await getAllPhotosData();
 
   if (!album) {
     return (
@@ -46,7 +44,7 @@ export default async function AlbumPage({ params }: PageProps) {
 
   return (
     <main className={styles.main}>
-      <AlbumView album={album} />
+      <AlbumViewWrapper album={album} allPhotos={allPhotos} />
     </main>
   );
 }

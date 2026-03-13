@@ -1,0 +1,815 @@
+{
+  "albums": [
+    {
+      "name": "111",
+      "title": "日记",
+      "subtitle": "记录美好生活",
+      "cover": "1773244921289-xjpckw.webp",
+      "photos": [
+        "1773244921289-xjpckw.webp",
+        "1773244921364-be9ehq.webp",
+        "1773244921401-3blicm.webp",
+        "1773244921517-qngo9q.webp",
+        "1773244921677-t1nkqp.webp",
+        "1773244921845-ggge7o.webp",
+        "1773244921988-r2fl94.webp",
+        "1773244922079-1uoct1.webp"
+      ],
+      "photoInfos": {},
+      "hasBgm": false,
+      "order": 0
+    },
+    {
+      "name": "ceshi1",
+      "title": "测试",
+      "subtitle": "测试",
+      "cover": "independent_photos__103_.webp",
+      "photos": [
+        "independent_photos__103_.webp",
+        "independent_photos__104_.webp",
+        "independent_photos__105_.webp",
+        "independent_photos__106_.webp",
+        "independent_photos__109_.webp",
+        "independent_photos__110_.webp",
+        "independent_photos__111_.webp",
+        "independent_photos__112_.webp",
+        "independent_photos__113_.webp",
+        "independent_photos__117_.webp",
+        "independent_photos__118_.webp",
+        "independent_photos__119_.webp",
+        "independent_photos__120_.webp"
+      ],
+      "photoInfos": {
+        "independent_photos__120_": {
+          "title": "香港"
+        },
+        "independent_photos__117_": {
+          "title": "USJ"
+        },
+        "independent_photos__118_": {
+          "title": "千岛湖",
+          "desc": "羊驼"
+        }
+      },
+      "hasBgm": false,
+      "order": 1
+    },
+    {
+      "name": "default",
+      "title": "总览",
+      "subtitle": "测试",
+      "cover": "1773242301939-xp32yx.webp",
+      "photos": [
+        "1773242301939-xp32yx.webp",
+        "1773242302220-ze79me.webp",
+        "1773242302467-kung5c.webp",
+        "1773242302532-n0qpcs.webp",
+        "1773242302587-jf5obr.webp",
+        "1773242302639-o8b6sa.webp",
+        "1773242302704-yz4l9y.webp",
+        "1773242302767-mu3zp1.webp",
+        "1773242302807-pxj8cm.webp",
+        "1773242302959-9a2fdy.webp",
+        "1773242303035-2fc3n6.webp",
+        "1773242303138-rbi9j9.webp",
+        "1773242303269-ykbphu.webp",
+        "1773242303394-08jycg.webp",
+        "1773242303533-punfm0.webp",
+        "1773242303660-xyo39l.webp",
+        "1773242303819-r5ejlr.webp",
+        "1773242303879-4nju4l.webp",
+        "1773242304276-kf9hms.webp",
+        "1773242304488-g59yg2.webp",
+        "1773242304548-6z7lyt.webp",
+        "1773242304571-pmkkjg.webp",
+        "1773242304598-c6yot4.webp",
+        "1773242304627-paillc.webp",
+        "1773242304784-5dil7y.webp",
+        "1773243195328-bq3j5b.webp",
+        "1773243234654-ocaood.webp",
+        "1773243234702-aha2f6.webp",
+        "1773243234741-jmmgdj.webp",
+        "1773243234765-ff2wpn.webp",
+        "1773243234793-f4b7jn.webp",
+        "1773243234836-qk1m82.webp"
+      ],
+      "photoInfos": {
+        "1773242301939-xp32yx": {
+          "title": "浇花",
+          "desc": "咖啡豆"
+        },
+        "1773242302220-ze79me": {
+          "title": "审视",
+          "desc": "我我我我我我我嗡嗡嗡嗡嗡嗡我我我我我我我嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡嗡哇哇哇哇哇"
+        }
+      },
+      "hasBgm": false,
+      "order": 2
+    }
+  ],
+  "allPhotos": {
+    "111/1773244921289-xjpckw": {
+      "filename": "1773244921289-xjpckw.webp",
+      "originalName": "1773244921289-xjpckw.jpg",
+      "mainSize": 111130,
+      "thumbSize": 4868,
+      "exif": {
+        "aperture": "f/2.0",
+        "shutterSpeed": "1/800s",
+        "iso": 100,
+        "dateTaken": "2024:04:27 17:28:47",
+        "camera": "GRIIIx"
+      }
+    },
+    "111/1773244921364-be9ehq": {
+      "filename": "1773244921364-be9ehq.webp",
+      "originalName": "1773244921364-be9ehq.jpg",
+      "mainSize": 889712,
+      "thumbSize": 19184,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/1250s",
+        "iso": 100,
+        "dateTaken": "2024:06:02 13:49:19",
+        "camera": "GRIIIx"
+      }
+    },
+    "111/1773244921401-3blicm": {
+      "filename": "1773244921401-3blicm.webp",
+      "originalName": "1773244921401-3blicm.jpg",
+      "mainSize": 873302,
+      "thumbSize": 13760,
+      "exif": {
+        "aperture": "f/5.6",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:06:02 16:43:07",
+        "camera": "GRIIIx"
+      }
+    },
+    "111/1773244921517-qngo9q": {
+      "filename": "1773244921517-qngo9q.webp",
+      "originalName": "1773244921517-qngo9q.jpg",
+      "mainSize": 96860,
+      "thumbSize": 4156,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/320s",
+        "iso": 100,
+        "dateTaken": "2024:01:31 17:51:21",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "111/1773244921677-t1nkqp": {
+      "filename": "1773244921677-t1nkqp.webp",
+      "originalName": "1773244921677-t1nkqp.jpg",
+      "mainSize": 393178,
+      "thumbSize": 14074,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/2000s",
+        "iso": 100,
+        "dateTaken": "2024:02:01 10:52:57",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "111/1773244921845-ggge7o": {
+      "filename": "1773244921845-ggge7o.webp",
+      "originalName": "1773244921845-ggge7o.jpg",
+      "mainSize": 383150,
+      "thumbSize": 14538,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/640s",
+        "iso": 100,
+        "dateTaken": "2024:02:01 10:58:35",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "111/1773244921988-r2fl94": {
+      "filename": "1773244921988-r2fl94.webp",
+      "originalName": "1773244921988-r2fl94.jpg",
+      "mainSize": 182862,
+      "thumbSize": 6932,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/160s",
+        "iso": 100,
+        "dateTaken": "2024:02:01 12:18:32",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "111/1773244922079-1uoct1": {
+      "filename": "1773244922079-1uoct1.webp",
+      "originalName": "1773244922079-1uoct1.jpg",
+      "mainSize": 443568,
+      "thumbSize": 6522,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:06:03 21:34:01",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__103_": {
+      "filename": "independent_photos__103_.webp",
+      "originalName": "independent_photos__103_.jpg",
+      "mainSize": 338124,
+      "thumbSize": 14980,
+      "exif": {
+        "aperture": "f/4.5",
+        "shutterSpeed": "1/1000s",
+        "iso": 100,
+        "dateTaken": "2024:03:28 11:39:49",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__104_": {
+      "filename": "independent_photos__104_.webp",
+      "originalName": "independent_photos__104_.jpg",
+      "mainSize": 714100,
+      "thumbSize": 9664,
+      "exif": {
+        "aperture": "f/4.5",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:03:28 11:52:06",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "ceshi1/independent_photos__105_": {
+      "filename": "independent_photos__105_.webp",
+      "originalName": "independent_photos__105_.jpg",
+      "mainSize": 391354,
+      "thumbSize": 15918,
+      "exif": {
+        "aperture": "f/4.5",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:03:28 12:07:17",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__106_": {
+      "filename": "independent_photos__106_.webp",
+      "originalName": "independent_photos__106_.jpg",
+      "mainSize": 827222,
+      "thumbSize": 15584,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/1600s",
+        "iso": 100,
+        "dateTaken": "2024:03:29 11:38:11",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "ceshi1/independent_photos__109_": {
+      "filename": "independent_photos__109_.webp",
+      "originalName": "independent_photos__109_.jpg",
+      "mainSize": 902242,
+      "thumbSize": 12614,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:06:10 13:25:00",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__110_": {
+      "filename": "independent_photos__110_.webp",
+      "originalName": "independent_photos__110_.jpg",
+      "mainSize": 336678,
+      "thumbSize": 14278,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/80s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 11:30:44",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__111_": {
+      "filename": "independent_photos__111_.webp",
+      "originalName": "independent_photos__111_.jpg",
+      "mainSize": 789750,
+      "thumbSize": 13336,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 12:31:49",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__112_": {
+      "filename": "independent_photos__112_.webp",
+      "originalName": "independent_photos__112_.jpg",
+      "mainSize": 886756,
+      "thumbSize": 13984,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/250s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 12:43:55",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__113_": {
+      "filename": "independent_photos__113_.webp",
+      "originalName": "independent_photos__113_.jpg",
+      "mainSize": 716422,
+      "thumbSize": 10204,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/200s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 12:48:18",
+        "camera": "GRIIIx"
+      }
+    },
+    "ceshi1/independent_photos__117_": {
+      "filename": "independent_photos__117_.webp",
+      "originalName": "independent_photos__117_.JPG",
+      "mainSize": 299142,
+      "thumbSize": 15026,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/1000s",
+        "iso": 200,
+        "dateTaken": "2024:01:15 13:50:42",
+        "camera": "RICOH GR III"
+      }
+    },
+    "ceshi1/independent_photos__118_": {
+      "filename": "independent_photos__118_.webp",
+      "originalName": "independent_photos__118_.JPG",
+      "mainSize": 913420,
+      "thumbSize": 21162,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/2000s",
+        "iso": 200,
+        "dateTaken": "2024:03:03 16:27:09",
+        "camera": "RICOH GR III"
+      }
+    },
+    "ceshi1/independent_photos__119_": {
+      "filename": "independent_photos__119_.webp",
+      "originalName": "independent_photos__119_.JPG",
+      "mainSize": 920858,
+      "thumbSize": 12400,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/2000s",
+        "iso": 100,
+        "dateTaken": "2024:03:15 15:50:23",
+        "camera": "RICOH GR III"
+      }
+    },
+    "ceshi1/independent_photos__120_": {
+      "filename": "independent_photos__120_.webp",
+      "originalName": "independent_photos__120_.JPG",
+      "mainSize": 420318,
+      "thumbSize": 14426,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/1600s",
+        "iso": 200,
+        "dateTaken": "2024:03:24 17:21:59",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242301939-xp32yx": {
+      "filename": "1773242301939-xp32yx.webp",
+      "originalName": "1773242301939-xp32yx.jpg",
+      "mainSize": 911740,
+      "thumbSize": 3470,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/60s",
+        "iso": 100,
+        "dateTaken": "2024:12:13 15:58:32",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302220-ze79me": {
+      "filename": "1773242302220-ze79me.webp",
+      "originalName": "1773242302220-ze79me.jpg",
+      "mainSize": 106232,
+      "thumbSize": 3586,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/60s",
+        "iso": 100,
+        "dateTaken": "2024:12:13 15:44:07",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302467-kung5c": {
+      "filename": "1773242302467-kung5c.webp",
+      "originalName": "1773242302467-kung5c.jpg",
+      "mainSize": 152904,
+      "thumbSize": 8086,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/60s",
+        "iso": 100,
+        "dateTaken": "2024:12:13 15:54:15",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302532-n0qpcs": {
+      "filename": "1773242302532-n0qpcs.webp",
+      "originalName": "1773242302532-n0qpcs.jpg",
+      "mainSize": 911130,
+      "thumbSize": 21970,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/125s",
+        "iso": 125,
+        "dateTaken": "2024:09:16 14:55:08",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302587-jf5obr": {
+      "filename": "1773242302587-jf5obr.webp",
+      "originalName": "1773242302587-jf5obr.jpg",
+      "mainSize": 192428,
+      "thumbSize": 5776,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/250s",
+        "iso": 100,
+        "dateTaken": "2024:03:24 14:29:31",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302639-o8b6sa": {
+      "filename": "1773242302639-o8b6sa.webp",
+      "originalName": "1773242302639-o8b6sa.jpg",
+      "mainSize": 451584,
+      "thumbSize": 10914,
+      "exif": {
+        "aperture": "f/5.0",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:10:03 11:16:59",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302704-yz4l9y": {
+      "filename": "1773242302704-yz4l9y.webp",
+      "originalName": "1773242302704-yz4l9y.jpg",
+      "mainSize": 359812,
+      "thumbSize": 23114,
+      "exif": {
+        "aperture": "f/5.6",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 13:47:32",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773242302767-mu3zp1": {
+      "filename": "1773242302767-mu3zp1.webp",
+      "originalName": "1773242302767-mu3zp1.jpg",
+      "mainSize": 381064,
+      "thumbSize": 24394,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/640s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 13:39:44",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773242302807-pxj8cm": {
+      "filename": "1773242302807-pxj8cm.webp",
+      "originalName": "1773242302807-pxj8cm.jpg",
+      "mainSize": 677586,
+      "thumbSize": 14248,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/1250s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 17:11:51",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242302959-9a2fdy": {
+      "filename": "1773242302959-9a2fdy.webp",
+      "originalName": "1773242302959-9a2fdy.jpg",
+      "mainSize": 482674,
+      "thumbSize": 19184,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/1000s",
+        "iso": 200,
+        "dateTaken": "2024:06:07 19:51:52",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242303035-2fc3n6": {
+      "filename": "1773242303035-2fc3n6.webp",
+      "originalName": "1773242303035-2fc3n6.jpg",
+      "mainSize": 852502,
+      "thumbSize": 14996,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/400s",
+        "iso": 100,
+        "dateTaken": "2024:06:14 17:12:56",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242303138-rbi9j9": {
+      "filename": "1773242303138-rbi9j9.webp",
+      "originalName": "1773242303138-rbi9j9.jpg",
+      "mainSize": 226544,
+      "thumbSize": 7826,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/2500s",
+        "iso": 100,
+        "dateTaken": "2024:01:11 15:17:24",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242303269-ykbphu": {
+      "filename": "1773242303269-ykbphu.webp",
+      "originalName": "1773242303269-ykbphu.jpg",
+      "mainSize": 268696,
+      "thumbSize": 8982,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/1600s",
+        "iso": 200,
+        "dateTaken": "2024:03:27 19:04:39",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242303394-08jycg": {
+      "filename": "1773242303394-08jycg.webp",
+      "originalName": "1773242303394-08jycg.jpg",
+      "mainSize": 433036,
+      "thumbSize": 12822,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/2500s",
+        "iso": 100,
+        "dateTaken": "2024:06:07 18:41:29",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242303533-punfm0": {
+      "filename": "1773242303533-punfm0.webp",
+      "originalName": "1773242303533-punfm0.jpg",
+      "mainSize": 164174,
+      "thumbSize": 9042,
+      "exif": {}
+    },
+    "default/1773242303660-xyo39l": {
+      "filename": "1773242303660-xyo39l.webp",
+      "originalName": "1773242303660-xyo39l.jpg",
+      "mainSize": 283490,
+      "thumbSize": 9274,
+      "exif": {}
+    },
+    "default/1773242303819-r5ejlr": {
+      "filename": "1773242303819-r5ejlr.webp",
+      "originalName": "1773242303819-r5ejlr.jpg",
+      "mainSize": 304978,
+      "thumbSize": 32952,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/80s",
+        "iso": 10000,
+        "dateTaken": "2024:03:02 18:26:35",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242303879-4nju4l": {
+      "filename": "1773242303879-4nju4l.webp",
+      "originalName": "1773242303879-4nju4l.jpg",
+      "mainSize": 381796,
+      "thumbSize": 25008,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/160s",
+        "iso": 100,
+        "dateTaken": "2024:10:04 11:37:18",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304040-yc398s": {
+      "filename": "1773242304040-yc398s.webp",
+      "originalName": "1773242304040-yc398s.jpg",
+      "mainSize": 487058,
+      "thumbSize": 21168,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/30s",
+        "iso": 2000,
+        "dateTaken": "2024:01:11 12:26:00",
+        "camera": "RICOH GR III"
+      }
+    },
+    "default/1773242304131-14dt70": {
+      "filename": "1773242304131-14dt70.webp",
+      "originalName": "1773242304131-14dt70.jpg",
+      "mainSize": 290098,
+      "thumbSize": 6956,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/80s",
+        "iso": 6400,
+        "dateTaken": "2024:03:30 19:19:20",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304276-kf9hms": {
+      "filename": "1773242304276-kf9hms.webp",
+      "originalName": "1773242304276-kf9hms.jpg",
+      "mainSize": 213936,
+      "thumbSize": 5428,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/15s",
+        "iso": 100,
+        "dateTaken": "2024:08:23 22:11:22",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304488-g59yg2": {
+      "filename": "1773242304488-g59yg2.webp",
+      "originalName": "1773242304488-g59yg2.jpg",
+      "mainSize": 229046,
+      "thumbSize": 6442,
+      "exif": {
+        "aperture": "f/4.5",
+        "shutterSpeed": "1/13s",
+        "iso": 100,
+        "dateTaken": "2024:08:23 22:34:34",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304548-6z7lyt": {
+      "filename": "1773242304548-6z7lyt.webp",
+      "originalName": "1773242304548-6z7lyt.jpg",
+      "mainSize": 408724,
+      "thumbSize": 4180,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/100s",
+        "iso": 100,
+        "dateTaken": "2024:09:15 18:35:00",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304571-pmkkjg": {
+      "filename": "1773242304571-pmkkjg.webp",
+      "originalName": "1773242304571-pmkkjg.jpg",
+      "mainSize": 378084,
+      "thumbSize": 3116,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/100s",
+        "iso": 100,
+        "dateTaken": "2024:09:15 18:27:58",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304598-c6yot4": {
+      "filename": "1773242304598-c6yot4.webp",
+      "originalName": "1773242304598-c6yot4.jpg",
+      "mainSize": 740112,
+      "thumbSize": 9164,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/60s",
+        "iso": 320,
+        "dateTaken": "2024:09:16 14:48:27",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304627-paillc": {
+      "filename": "1773242304627-paillc.webp",
+      "originalName": "1773242304627-paillc.jpg",
+      "mainSize": 860090,
+      "thumbSize": 11998,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/60s",
+        "iso": 100,
+        "dateTaken": "2024:09:16 15:38:23",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773242304784-5dil7y": {
+      "filename": "1773242304784-5dil7y.webp",
+      "originalName": "1773242304784-5dil7y.jpg",
+      "mainSize": 653176,
+      "thumbSize": 28560,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/13s",
+        "iso": 100,
+        "dateTaken": "2024:11:15 16:10:39",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773243195328-bq3j5b": {
+      "filename": "1773243195328-bq3j5b.webp",
+      "originalName": "1773243195328-bq3j5b.jpg",
+      "mainSize": 138382,
+      "thumbSize": 5670,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/125s",
+        "iso": 2000,
+        "dateTaken": "2024:06:16 17:46:25",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773243234654-ocaood": {
+      "filename": "1773243234654-ocaood.webp",
+      "originalName": "1773243234654-ocaood.jpg",
+      "mainSize": 344086,
+      "thumbSize": 10152,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/1250s",
+        "iso": 100,
+        "dateTaken": "2024:06:02 12:43:13",
+        "camera": "Canon EOS R6"
+      }
+    },
+    "default/1773243234702-aha2f6": {
+      "filename": "1773243234702-aha2f6.webp",
+      "originalName": "1773243234702-aha2f6.jpg",
+      "mainSize": 373420,
+      "thumbSize": 15464,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/1000s",
+        "iso": 100,
+        "dateTaken": "2024:06:02 13:22:34",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773243234741-jmmgdj": {
+      "filename": "1773243234741-jmmgdj.webp",
+      "originalName": "1773243234741-jmmgdj.jpg",
+      "mainSize": 877986,
+      "thumbSize": 8466,
+      "exif": {
+        "aperture": "f/5.6",
+        "shutterSpeed": "1/800s",
+        "iso": 100,
+        "dateTaken": "2024:06:03 15:21:45",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773243234765-ff2wpn": {
+      "filename": "1773243234765-ff2wpn.webp",
+      "originalName": "1773243234765-ff2wpn.jpg",
+      "mainSize": 853434,
+      "thumbSize": 6772,
+      "exif": {
+        "aperture": "f/5.6",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:06:03 14:47:33",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773243234793-f4b7jn": {
+      "filename": "1773243234793-f4b7jn.webp",
+      "originalName": "1773243234793-f4b7jn.jpg",
+      "mainSize": 830798,
+      "thumbSize": 10962,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/800s",
+        "iso": 100,
+        "dateTaken": "2024:06:06 12:13:05",
+        "camera": "GRIIIx"
+      }
+    },
+    "default/1773243234836-qk1m82": {
+      "filename": "1773243234836-qk1m82.webp",
+      "originalName": "1773243234836-qk1m82.jpg",
+      "mainSize": 890754,
+      "thumbSize": 14058,
+      "exif": {
+        "aperture": "f/4.5",
+        "shutterSpeed": "1/640s",
+        "iso": 100,
+        "dateTaken": "2024:06:06 12:24:05",
+        "camera": "GRIIIx"
+      }
+    }
+  }
+}

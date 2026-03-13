@@ -1,8 +1,8 @@
 # GU-Album 技术文档
 
-> 版本: 1.0  
-> 最后更新: 2026-03-11  
-> 技术栈: Next.js 16 + React 19 + TypeScript
+> 版本: 1.1  
+> 最后更新: 2026-03-13  
+> 技术栈: Next.js 15 + React 19 + TypeScript + Embla Carousel
 
 ---
 
@@ -10,12 +10,12 @@
 
 | 层级 | 技术 | 版本 | 用途 |
 |------|------|------|------|
-| 框架 | Next.js | 16.1.6 | App Router, SSR/SSG |
-| UI 库 | React | 19.2.3 | 组件化开发 |
+| 框架 | Next.js | 15.5.12 | App Router, SSG |
+| UI 库 | React | 19.x | 组件化开发 |
 | 语言 | TypeScript | 5.x | 类型安全 |
+| 轮播 | embla-carousel-react | latest | 硬件加速轮播 |
 | 样式 | CSS Modules | - | 组件级样式隔离 |
-| 图标 | @phosphor-icons/react | ^2.1.10 | SVG 图标库 |
-| EXIF 解析 | exifr | latest | 图片元数据提取 |
+| 图标 | @phosphor-icons/react | ^2.x | SVG 图标库 |
 | 字体 | Inter + Noto Sans SC | Google Fonts | 中西文字体 |
 
 ---
@@ -29,41 +29,23 @@ gu-album/
 │   │   ├── layout.tsx         # 根布局（字体、元数据）
 │   │   ├── page.tsx           # 首页（画廊）
 │   │   ├── globals.css        # 全局样式 + CSS 变量
-│   │   ├── HomeClient.tsx     # 首页客户端组件
 │   │   ├── collections/       # 影集列表页
 │   │   ├── album/[name]/      # 影集内容页（动态路由）
-│   │   ├── about/             # 关于页
-│   │   ├── admin/             # 管理页
-│   │   └── api/               # API 路由
-│   │       ├── albums/        # 影集 API
-│   │       ├── home-photos/   # 首页照片 API
-│   │       └── photos/        # 照片 EXIF API
+│   │   └── admin/             # 管理页
 │   ├── components/            # React 组件
-│   │   ├── ui/                # 基础 UI 组件
-│   │   │   └── Lightbox.tsx   # 灯箱组件
-│   │   ├── gallery/           # 画廊相关
-│   │   │   ├── GalleryCanvas.tsx
-│   │   │   ├── IndexView.tsx
-│   │   │   ├── PhotoCard.tsx
-│   │   │   └── CenterProfile.tsx
-│   │   ├── album/             # 影集相关
-│   │   │   ├── AlbumView.tsx      # 影集内容页主组件
-│   │   │   └── CollectionCard.tsx # 影集卡片
-│   │   └── layout/            # 布局组件
+│   │   ├── album/
+│   │   │   └── AlbumView.tsx      # 影集内容页主组件（Embla）
+│   │   ├── gallery/
+│   │   │   └── OverviewGrid.tsx   # 首页画廊
+│   │   └── layout/
 │   │       └── Navigation.tsx     # 顶部导航栏
 │   └── lib/                   # 工具库
-│       ├── photos.ts          # 照片数据读取
-│       ├── exif.ts            # EXIF 提取工具
-│       └── theme.ts           # 主题管理
+│       └── photos.ts          # 照片数据读取
 ├── public/                    # 静态资源
 │   ├── photos/                # 影集照片目录
-│   │   └── [album-name]/
-│   │       ├── info.txt       # 影集元数据 (JSON)
-│   │       ├── cover.jpg      # 封面 (可选)
-│   │       └── *.jpg          # 照片
-│   └── home-photos/           # 首页精选照片
-├── package.json
-└── tsconfig.json
+│   ├── thumbnails/            # 缩略图目录
+│   └── albums.json            # 影集元数据
+└── package.json
 ```
 
 ---
@@ -89,28 +71,14 @@ interface PhotoInfo {
   desc: string;           // 照片描述
   exif?: ExifInfo;        // EXIF 信息
 }
-
-interface GalleryPhoto {
-  src: string;            // 照片路径
-  album: string;          // 所属影集
-  albumTitle: string;     // 影集标题
-  index: string;          // 照片索引
-  info?: PhotoInfo;       // 照片信息
-  source?: 'album' | 'home-folder';  // 来源
-}
 ```
-
-**数据缓存**:
-- 服务端缓存，TTL: 5 秒
-- 缓存对象: albumsCache, photosCache, homePhotosCache
 
 **数据源**:
 1. 影集照片: `/public/photos/[album-name]/`
-2. 首页照片: `/public/home-photos/`
+2. 缩略图: `/public/thumbnails/[album-name]/`
+3. 元数据: `/public/albums.json`
 
-### 3.2 EXIF 提取 (`lib/exif.ts`)
-
-**依赖**: `exifr` (比 exif-reader 更可靠)
+### 3.2 EXIF 提取 (Python)
 
 **提取字段**:
 ```typescript
@@ -121,240 +89,143 @@ interface ExifInfo {
 }
 ```
 
-**格式化规则**:
-- 光圈: `f/${FNumber}`
-- 快门: >=1秒显示 `"${value}"`，<1秒显示 `1/${Math.round(1/value)}s`
-- ISO: 原始数字
-
-**API 路由**:
+**处理流程**:
 ```
-GET /api/photos/[album]/[filename]
-Response: { aperture?: string, shutterSpeed?: string, iso?: number }
-```
-
-### 3.3 影集元数据格式 (`info.txt`)
-
-**文件位置**: `/public/photos/[album-name]/info.txt`
-
-**JSON 格式**:
-```json
-{
-  "title": "影集标题",
-  "subtitle": "副标题/描述",
-  "photos": {
-    "filename-without-ext": {
-      "title": "照片标题",
-      "desc": "照片描述"
-    }
-  }
-}
+originals/照片.jpg
+    ↓
+process_photos.py
+    ↓
+public/photos/照片.webp (≤1MB)
+public/thumbnails/照片.webp (54px)
+public/albums.json (EXIF + 元数据)
 ```
 
-**示例**:
-```json
-{
-  "title": "北京胡同",
-  "subtitle": "2024年秋日随拍",
-  "photos": {
-    "DSC001": { "title": "晨雾", "desc": "清晨的胡同" },
-    "DSC002": { "title": "老街", "desc": "斑驳的墙面" }
-  }
-}
+### 3.3 Embla Carousel 轮播
+
+**配置**:
+```typescript
+const [emblaRef, emblaApi] = useEmblaCarousel({
+  loop: false,            // 不循环，有边界
+  align: 'center',
+  containScroll: false,
+  dragFree: false,        // 对齐到单张
+});
 ```
+
+**切换策略**:
+- 相邻切换（滑动/按钮）：平滑滑动动画
+- 远距离跳转（缩略图）：硬切，无动画
 
 ---
 
 ## 四、组件规范
 
-### 4.1 组件分类
-
-| 类型 | 目录 | 命名规范 | 示例 |
-|------|------|----------|------|
-| 页面组件 | `app/**/page.tsx` | `page.tsx` | `app/about/page.tsx` |
-| 布局组件 | `components/layout/` | PascalCase | `Navigation.tsx` |
-| 功能组件 | `components/gallery/` | PascalCase | `GalleryCanvas.tsx` |
-| 影集组件 | `components/album/` | PascalCase | `AlbumView.tsx` |
-| UI 组件 | `components/ui/` | PascalCase | `Lightbox.tsx` |
-
-### 4.2 组件文件结构
+### 4.1 AlbumView 组件架构
 
 ```tsx
-// 1. 导入
-import { useState, useCallback } from 'react';
-import styles from './Component.module.css';
-
-// 2. 类型定义
-interface ComponentProps {
-  title: string;
-  onAction?: () => void;
-}
-
-// 3. 组件实现
-export default function Component({ title, onAction }: ComponentProps) {
-  // State
-  const [active, setActive] = useState(false);
-  
-  // 处理器
-  const handleClick = useCallback(() => {
-    setActive(!active);
-    onAction?.();
-  }, [active, onAction]);
-  
-  // 渲染
-  return (
-    <div className={styles.container}>
-      <button onClick={handleClick}>{title}</button>
-    </div>
-  );
-}
+<AlbumView>
+  ├── .main                          # 主区域
+  │   ├── .mobileHeader              # 移动端顶部信息栏（面板展开时显示）
+  │   ├── .carousel (Embla)          # 轮播
+  │   ├── .controls                  # 桌面端控制按钮
+  │   └── .mobileControls            # 移动端控制按钮（默认隐藏）
+  └── .sidebar
+      ├── .desktopLayout             # 桌面端布局
+      └── .mobilePanel               # 移动端面板（可折叠）
 ```
 
-### 4.3 CSS Modules 规范
+### 4.2 移动端交互状态
 
-**文件命名**: `Component.module.css`
+| 状态 | 触发条件 | 效果 |
+|------|----------|------|
+| 控制按钮显示 | 点击照片 | 按钮栏展开，照片区域压缩（0.8s 惯性动画） |
+| 控制按钮隐藏 | 再次点击照片 | 按钮栏收起，照片区域撑满 |
+| 面板展开 | 点击▲或上滑 | 下面板升起，顶部信息栏渐显 |
+| 面板收起 | 点击▼或下滑 | 下面板降下，顶部信息栏渐隐 |
+
+### 4.3 CSS Modules 规范
 
 **类名规范**:
 - 使用 camelCase
 - 语义化命名
-- 避免嵌套过深
+- BEM 在 CSS Modules 中不必要
 
 ```css
 /* 推荐 */
 .container { }
-.imageWrapper { }
-.navButton { }
-.navButtonActive { }
-
-/* 避免 */
-.block__element--modifier { }  /* BEM 在 CSS Modules 中不必要 */
-.xxx { }  /* 无意义命名 */
+.carouselSlide { }
+.mobileHeader { }
+.thumbnailActive { }
 ```
 
 ---
 
-## 五、API 路由
+## 五、响应式设计
 
-### 5.1 影集 API
-
-```
-GET /api/albums
-Response: AlbumInfo[]
-
-GET /api/albums/[name]
-Response: AlbumInfo
-```
-
-### 5.2 首页照片 API
-
-```
-GET /api/home-photos
-Response: GalleryPhoto[]
-```
-
-### 5.3 照片 EXIF API
-
-```
-GET /api/photos/[album]/[filename]
-Response: ExifInfo | {}
-```
-
-**路径解析**:
-- `album === 'home-photos'`: 查找 `/public/home-photos/`
-- 其他: 查找 `/public/photos/[album]/`
-
----
-
-## 六、页面说明
-
-### 6.1 首页 (`/`)
-
-**功能**:
-- 瀑布流展示所有照片（影集 + home-photos）
-- 灯箱浏览
-- 个人简介居中
-
-**组件**:
-- `GalleryCanvas` - 可拖动瀑布流
-- `CenterProfile` - 个人简介
-- `Lightbox` - 灯箱
-
-### 6.2 影集列表 (`/collections`)
-
-**功能**:
-- 网格展示所有影集
-- 点击跳转影集内容页
-
-**组件**:
-- `CollectionCard` - 影集卡片
-
-### 6.3 影集内容 (`/album/[name]`)
-
-**功能**:
-- 双栏布局（照片 + 信息）
-- 照片切换（箭头/缩略图）
-- 夜间模式切换
-- EXIF 展示
-- BGM 播放（如有）
-
-**组件**:
-- `AlbumView` - 主组件
-- 内置功能，无灯箱
-
-### 6.4 关于页 (`/about`)
-
-**功能**:
-- Markdown 渲染个人介绍
-
----
-
-## 七、样式系统
-
-### 7.1 CSS 变量
-
-所有变量定义在 `globals.css` 的 `:root` 中：
-
-```css
-/* 颜色 */
---bg-primary: #FFFFFF;
---text-primary: #000000;
---text-secondary: rgba(0, 0, 0, 0.5);
-
-/* 间距 */
---space-xs: 4px;
---space-sm: 8px;
---space-md: 16px;
---space-lg: 24px;
-
-/* 字号 */
---font-size-base: 14px;
---font-size-lg: 18px;
-
-/* 过渡 */
---transition-base: 200ms ease-out;
-
-/* 圆角 */
---radius-sm: 2px;
-```
-
-### 7.2 响应式断点
+### 5.1 断点定义
 
 ```css
 @media (max-width: 768px) { /* 移动端 */ }
 @media (max-width: 1024px) { /* 平板 */ }
 ```
 
+### 5.2 布局适配
+
+| 页面 | PC | 平板 | 移动端 |
+|------|-----|------|--------|
+| 首页 | 多列瀑布流 | 2-3 列 | 2 列 |
+| 影集列表 | 网格 | 网格 | 单列 |
+| 影集内容 | 双栏（照片+侧边栏） | 单栏（面板折叠） | 单栏（面板折叠） |
+
+### 5.3 移动端特殊处理
+
+- **导航箭头**：隐藏，使用左右滑动手势
+- **控制按钮**：默认隐藏，点击照片显示
+- **九宫格**：改为单行横向滚动
+- **信息面板**：可折叠，默认收起
+- **照片切换**：触摸滑动，边界回弹
+
 ---
 
-## 八、开发规范
+## 六、动画系统
 
-### 8.1 代码提交规范
+### 6.1 过渡时长
+
+```css
+--transition-fast: 150ms ease-out;    /* 微交互 */
+--transition-base: 200ms ease-out;    /* 常规 */
+--transition-slow: 300ms ease-in-out; /* 面板展开 */
+--transition-inertia: 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 照片区域 */
+```
+
+### 6.2 动画类型
+
+| 场景 | 动画 | 时长 | 缓动 |
+|------|------|------|------|
+| 控制按钮显示 | opacity + translateY | 300ms | ease |
+| 照片区域调整 | height | 800ms | cubic-bezier（惯性） |
+| 面板展开 | transform: translateY | 300ms | ease-out |
+| 顶部信息栏 | opacity | 250ms | ease |
+| 九宫格滚动 | transform: translateY | 300ms | ease-out |
+| 轮播滑动 | transform: translateX | 350ms | ease-out |
+
+### 6.3 性能优化
+
+- 使用 `transform` 和 `opacity` 实现动画（GPU 加速）
+- 避免动画 `width`, `height`（除照片区域外）
+- 适当使用 `will-change`
+- Embla Carousel 使用 `requestAnimationFrame`
+
+---
+
+## 七、开发规范
+
+### 7.1 代码提交规范
 
 ```
 <type>(<scope>): <subject>
 
 <body>
-
-<footer>
 ```
 
 **Type**:
@@ -364,71 +235,30 @@ Response: ExifInfo | {}
 - `style`: 样式调整
 - `docs`: 文档更新
 
-**示例**:
-```
-feat(gallery): 添加首页灯箱 EXIF 展示
-
-- 使用 exifr 解析照片 EXIF
-- 展示光圈、快门速度、ISO
-
-Closes #1
-```
-
-### 8.2 TypeScript 规范
+### 7.2 TypeScript 规范
 
 - 启用 strict 模式
-- 避免 `any`，使用 `unknown` 或具体类型
-- 接口名使用 PascalCase
+- 避免 `any`，使用具体类型
 - Props 接口命名为 `ComponentNameProps`
 
-### 8.3 性能优化
+### 7.3 性能优化
 
-- 图片使用 Next.js `Image` 组件（懒加载）
-- 服务端缓存照片数据（5秒 TTL）
+- 图片使用原生 `img`（静态导出）
 - 使用 `useCallback` 缓存事件处理器
 - 动画使用 `transform` 和 `opacity`
 
 ---
 
-## 九、新增功能开发指南
+## 八、常见问题
 
-### 9.1 添加新页面
+### Q: 照片轮播卡顿？
+A: 使用 embla-carousel，确保硬件加速开启。开发模式可能有卡顿，生产环境正常。
 
-1. 创建 `app/[page]/page.tsx`
-2. 创建 `app/[page]/page.module.css`
-3. 添加到导航（如需要）
+### Q: 移动端按钮无法显示？
+A: 检查 `showMobileControls` 状态，点击照片区域触发。
 
-### 9.2 添加新组件
+### Q: 面板展开/收起异常？
+A: 检查 CSS 的 `transform` 和 `transition` 是否正确应用。
 
-1. 在合适目录创建 `ComponentName.tsx`
-2. 创建 `ComponentName.module.css`
-3. 定义 Props 接口
-4. 使用 CSS Modules 类名
-
-### 9.3 修改样式
-
-1. 优先使用 CSS 变量
-2. 组件样式在 `.module.css` 中
-3. 全局样式仅在 `globals.css`
-
-### 9.4 添加 API
-
-1. 创建 `app/api/[route]/route.ts`
-2. 使用 Next.js Route Handler 格式
-3. 返回 JSON 响应
-
----
-
-## 十、常见问题
-
-### Q: EXIF 解析失败？
-A: 确保使用 `exifr` 库，它比 `exif-reader` 更可靠。
-
-### Q: 照片不显示？
-A: 检查照片是否在 `public/photos/` 或 `public/home-photos/` 目录中。
-
-### Q: 样式不生效？
-A: CSS Modules 需要使用 `styles.className` 形式引用。
-
-### Q: 缓存导致数据不更新？
-A: 服务端缓存 TTL 为 5 秒，或重启开发服务器。
+### Q: 九宫格无法滚动？
+A: 确保 `onWheel` 事件已绑定，且 `scrollY` 状态正确更新。

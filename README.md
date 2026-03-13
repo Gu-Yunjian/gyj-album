@@ -6,8 +6,9 @@
 
 - 🖼️ **自动图片压缩**：原图自动压缩为 WebP，主图 ≤1MB，缩略图 ≤200KB
 - 📷 **EXIF 信息展示**：自动提取光圈、快门、ISO、相机型号等
+- 📱 **移动端优化**：Embla Carousel 轮播，触摸滑动，面板折叠交互
+- 🎨 **现代化界面**：响应式设计，支持灯箱浏览，夜间模式
 - 🚀 **Cloudflare Pages 部署**：全球 CDN 加速，国内访问友好
-- 🎨 **现代化界面**：响应式设计，支持灯箱浏览
 
 ## 🚀 快速开始
 
@@ -54,7 +55,7 @@ gu-album/
 ├── public/
 │   ├── photos/            # 压缩后的主图
 │   ├── thumbnails/        # 缩略图
-│   └── photos.json        # 照片元数据
+│   └── albums.json        # 影集元数据
 ├── scripts/
 │   ├── process_photos.py  # 图片处理脚本
 │   ├── deploy.bat         # 一键部署脚本（Windows）
@@ -69,6 +70,7 @@ gu-album/
 ## 🛠️ 技术栈
 
 - **框架**：Next.js 15 + React 19
+- **轮播**：embla-carousel（3KB，硬件加速）
 - **样式**：CSS Modules
 - **部署**：Cloudflare Pages（静态导出）
 - **图片处理**：Python + Pillow + piexif
@@ -76,6 +78,9 @@ gu-album/
 ## 📝 详细文档
 
 - [部署说明](./DEPLOY.md) - 完整的工作流指南
+- [设计规范](./DesignSpec.md) - UI/UX 设计规范
+- [技术文档](./TechSpec.md) - 技术架构说明
+- [代码说明](./CodeExplanation.md) - 代码库大白话讲解
 
 ## ⚠️ 注意事项
 

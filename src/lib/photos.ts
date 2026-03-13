@@ -1,10 +1,7 @@
 // lib/photos.ts - 照片数据读取 (从 JSON 文件加载)
 
-export interface PhotoInfo {
-  title: string;
-  desc: string;
-  exif?: ExifInfo;
-}
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export interface ExifInfo {
   aperture?: string;
@@ -14,12 +11,30 @@ export interface ExifInfo {
   camera?: string;
 }
 
-export interface PhotoMetadata {
+export interface PhotoInfo {
+  title: string;
+  desc: string;
+  exif?: ExifInfo;
+}
+
+export interface Photo {
   filename: string;
   originalName: string;
   mainSize: number;
   thumbSize: number;
-  exif: ExifInfo;
+  exif?: ExifInfo;
+  title?: string;
+  desc?: string;
+}
+
+export interface AlbumInfo {
+  name: string;
+  title: string;
+  subtitle: string;
+  cover: string;
+  photos: string[]; // photo filenames
+  photoInfos: Record<string, PhotoInfo>;
+  hasBgm: boolean;
 }
 
 export interface GalleryPhoto {
@@ -27,97 +42,154 @@ export interface GalleryPhoto {
   thumbSrc: string;
   album: string;
   albumTitle: string;
-  index: string;
+  index: string; // photo stem (filename without extension)
   info?: PhotoInfo;
   exif?: ExifInfo;
-  source?: 'album' | 'home-folder';
 }
 
-// 元数据缓存
-let metadataCache: Record<string, PhotoMetadata> | null = null;
+export interface AlbumsData {
+  albums: AlbumInfo[];
+  allPhotos: Record<string, Photo>; // key: "albumName/photoStem"
+}
+
+// 在服务器端直接读取 JSON 文件
+async function loadDataFromFile(): Promise<AlbumsData> {
+  try {
+    const jsonPath = path.join(process.cwd(), 'public', 'albums.json');
+    const data = await fs.readFile(jsonPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Failed to load albums metadata:', error);
+    return { albums: [], allPhotos: {} };
+  }
+}
+
+// 客户端使用 fetch
+async function loadDataFromFetch(): Promise<AlbumsData> {
+  try {
+    const response = await fetch('/albums.json');
+    if (!response.ok) {
+      throw new Error('Failed to load albums metadata');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to load albums metadata:', error);
+    return { albums: [], allPhotos: {} };
+  }
+}
+
+// 判断是否在服务器端
+function isServer(): boolean {
+  return typeof window === 'undefined';
+}
 
 /**
- * 加载照片元数据
+ * 加载影集数据
  */
-async function loadMetadata(): Promise<Record<string, PhotoMetadata>> {
-  if (metadataCache) return metadataCache;
-  
-  try {
-    const response = await fetch('/photos.json');
-    if (!response.ok) {
-      throw new Error('Failed to load photos metadata');
-    }
-    metadataCache = await response.json();
-    return metadataCache || {};
-  } catch (error) {
-    console.error('Failed to load photos metadata:', error);
-    return {};
+async function loadAlbumsData(): Promise<AlbumsData> {
+  if (isServer()) {
+    return loadDataFromFile();
+  } else {
+    return loadDataFromFetch();
   }
 }
 
 /**
- * 获取所有照片
+ * 获取所有影集
+ */
+export async function getAlbums(): Promise<AlbumInfo[]> {
+  const data = await loadAlbumsData();
+  return data.albums;
+}
+
+/**
+ * 获取单个影集
+ */
+export async function getAlbum(name: string): Promise<AlbumInfo | null> {
+  const albums = await getAlbums();
+  return albums.find(a => a.name === name) || null;
+}
+
+/**
+ * 获取所有照片（平铺，用于首页展示）
  */
 export async function getAllPhotos(): Promise<GalleryPhoto[]> {
-  const metadata = await loadMetadata();
+  const data = await loadAlbumsData();
   const photos: GalleryPhoto[] = [];
   
-  for (const [stem, data] of Object.entries(metadata)) {
-    photos.push({
-      src: `/photos/${data.filename}`,
-      thumbSrc: `/thumbnails/${data.filename}`,
-      album: 'gallery',
-      albumTitle: '相册',
-      index: stem,
-      exif: data.exif || undefined,
-      source: 'album',
-    });
+  for (const album of data.albums) {
+    for (const photoFilename of album.photos) {
+      const stem = photoFilename.replace(/\.[^/.]+$/, '');
+      const key = `${album.name}/${stem}`;
+      const photoData = data.allPhotos[key];
+      
+      if (photoData) {
+        photos.push({
+          src: `/photos/${album.name}/${photoData.filename}`,
+          thumbSrc: `/thumbnails/${album.name}/${photoData.filename}`,
+          album: album.name,
+          albumTitle: album.title,
+          index: stem,
+          info: album.photoInfos[stem],
+          exif: photoData.exif,
+        });
+      }
+    }
   }
   
-  // 按文件名排序
   return photos.sort((a, b) => a.index.localeCompare(b.index));
 }
 
 /**
- * 获取首页照片（从元数据中筛选或使用全部）
+ * 获取首页照片（从所有影集中聚合）
  */
 export async function getHomePhotos(): Promise<GalleryPhoto[]> {
-  // 目前使用所有照片作为首页照片
-  // 后续可以根据需要添加筛选逻辑
   return getAllPhotos();
 }
 
 /**
  * 获取单张照片
  */
-export async function getPhoto(index: string): Promise<GalleryPhoto | null> {
-  const metadata = await loadMetadata();
-  const data = metadata[index];
+export async function getPhoto(albumName: string, photoStem: string): Promise<GalleryPhoto | null> {
+  const album = await getAlbum(albumName);
+  if (!album) return null;
   
-  if (!data) return null;
+  const data = await loadAlbumsData();
+  const key = `${albumName}/${photoStem}`;
+  const photoData = data.allPhotos[key];
+  
+  if (!photoData) return null;
   
   return {
-    src: `/photos/${data.filename}`,
-    thumbSrc: `/thumbnails/${data.filename}`,
-    album: 'gallery',
-    albumTitle: '相册',
-    index: index,
-    exif: data.exif || undefined,
-    source: 'album',
+    src: `/photos/${albumName}/${photoData.filename}`,
+    thumbSrc: `/thumbnails/${albumName}/${photoData.filename}`,
+    album: albumName,
+    albumTitle: album.title,
+    index: photoStem,
+    info: album.photoInfos[photoStem],
+    exif: photoData.exif,
   };
-}
-
-/**
- * 清除缓存（用于重新验证）
- */
-export function clearCache() {
-  metadataCache = null;
 }
 
 /**
  * 获取照片数量统计
  */
 export async function getPhotoCount(): Promise<number> {
-  const metadata = await loadMetadata();
-  return Object.keys(metadata).length;
+  const data = await loadAlbumsData();
+  return Object.keys(data.allPhotos).length;
+}
+
+/**
+ * 获取所有照片原始数据（用于影集页面）
+ */
+export async function getAllPhotosData(): Promise<AlbumsData['allPhotos']> {
+  const data = await loadAlbumsData();
+  return data.allPhotos;
+}
+
+/**
+ * 清除缓存（用于重新验证）
+ */
+export function clearCache() {
+  // 无缓存需要清除
 }

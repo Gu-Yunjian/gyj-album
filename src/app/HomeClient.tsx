@@ -21,13 +21,16 @@ export default function HomeClient({ photos, profile }: HomeClientProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // 灯箱照片列表
+  // 灯箱照片列表 - 包含 EXIF 数据
   const lightboxPhotos = useMemo(() => {
     return photos.map(p => ({
       src: p.src,
-      alt: p.info?.title || p.albumTitle,
+      alt: p.info?.title || '',
+      photoTitle: p.info?.title || '',
       album: p.album,
+      albumTitle: p.albumTitle,
       index: p.index,
+      exif: p.exif,
     }));
   }, [photos]);
 

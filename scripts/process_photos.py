@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-图片处理脚本
+图片处理脚本 - 支持影集结构
+- 扫描 originals/ 下的子目录作为影集
 - 压缩原图为 WebP（主图 ≤1MB，缩略图 ≤200KB）
-- 提取 EXIF 信息到 JSON
-- 自动同步 originals 与 public/photos
+- 提取 EXIF 信息
+- 生成 albums.json 元数据
 """
 
 import os
@@ -11,22 +12,21 @@ import sys
 import json
 import shutil
 from pathlib import Path
-from PIL import Image
-from PIL.ExifTags import TAGS
+from PIL import Image, ImageOps
 import piexif
 
 # 配置
 ORIGINALS_DIR = Path("originals")
 PHOTOS_DIR = Path("public/photos")
 THUMBNAILS_DIR = Path("public/thumbnails")
-METADATA_FILE = Path("public/photos.json")
+METADATA_FILE = Path("public/albums.json")
 
 # 压缩参数
-MAX_MAIN_SIZE = 900 * 1024  # 900KB (留一些余量)
+MAX_MAIN_SIZE = 900 * 1024  # 900KB
 MAX_THUMB_SIZE = 150 * 1024  # 150KB
 MAIN_QUALITY = 80
 THUMB_QUALITY = 70
-THUMB_MAX_DIMENSION = 400  # 缩略图最大边长
+THUMB_MAX_DIMENSION = 400
 
 
 def get_exif_data(image_path):
@@ -37,12 +37,13 @@ def get_exif_data(image_path):
         
         exif_data = {}
         
-        # 提取常用 EXIF 字段
+        # 提取光圈
         if piexif.ExifIFD.FNumber in exif_dict.get('Exif', {}):
             fnumber = exif_dict['Exif'][piexif.ExifIFD.FNumber]
             if isinstance(fnumber, tuple):
                 exif_data['aperture'] = f"f/{fnumber[0] / fnumber[1]:.1f}"
         
+        # 提取快门速度
         if piexif.ExifIFD.ExposureTime in exif_dict.get('Exif', {}):
             exposure = exif_dict['Exif'][piexif.ExifIFD.ExposureTime]
             if isinstance(exposure, tuple):
@@ -52,6 +53,7 @@ def get_exif_data(image_path):
                 else:
                     exif_data['shutterSpeed'] = f"1/{int(denominator/numerator)}s"
         
+        # 提取 ISO
         if piexif.ExifIFD.ISOSpeedRatings in exif_dict.get('Exif', {}):
             iso = exif_dict['Exif'][piexif.ExifIFD.ISOSpeedRatings]
             if isinstance(iso, tuple):
@@ -72,19 +74,26 @@ def get_exif_data(image_path):
         return exif_data if exif_data else None
         
     except Exception as e:
-        print(f"  警告: 无法提取 EXIF: {e}")
+        print(f"  Warning: Cannot extract EXIF: {e}")
         return None
 
 
 def compress_image(input_path, output_path, max_size, quality, is_thumbnail=False):
-    """
-    压缩图片到指定大小以内
-    返回: (success, final_size)
-    """
+    """压缩图片到指定大小以内"""
     try:
         img = Image.open(input_path)
-        
-        # 转换为 RGB（处理 PNG 等带透明通道的图片）
+
+        # 处理 EXIF 方向（手机拍摄的竖图需要旋转）
+        try:
+            exif = img.getexif()
+            if exif:
+                orientation = exif.get(0x0112)  # Orientation tag
+                if orientation:
+                    img = ImageOps.exif_transpose(img)
+        except Exception:
+            pass  # 如果 EXIF 处理失败，继续使用原图
+
+        # 转换为 RGB
         if img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
         
@@ -95,7 +104,6 @@ def compress_image(input_path, output_path, max_size, quality, is_thumbnail=Fals
             # 主图：如果文件太大，先缩小尺寸
             file_size = input_path.stat().st_size
             if file_size > max_size * 2:
-                # 根据文件大小估算缩放比例
                 scale = min(1.0, (max_size * 2 / file_size) ** 0.5)
                 new_size = (int(img.width * scale), int(img.height * scale))
                 img = img.resize(new_size, Image.LANCZOS)
@@ -120,158 +128,231 @@ def compress_image(input_path, output_path, max_size, quality, is_thumbnail=Fals
             size = buffer.tell()
         
         # 保存结果
-        if size <= max_size or is_thumbnail:  # 缩略图可以稍微超一点
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(buffer.getvalue())
-            return True, size
-        else:
-            print(f"  Warning: Could not compress below {max_size/1024:.0f}KB, got {size/1024:.0f}KB")
-            # 还是保存，但标记警告
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(buffer.getvalue())
-            return True, size
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(buffer.getvalue())
+        return True, size
             
     except Exception as e:
         print(f"  Error: Compression failed: {e}")
         return False, 0
 
 
-def process_photos():
-    """主处理函数"""
-    print("=" * 60)
-    print("[Photo] Starting photo processing...")
-    print("=" * 60)
+def scan_albums():
+    """扫描 originals/ 目录下的所有影集"""
+    albums = []
     
-    # 检查原图目录
     if not ORIGINALS_DIR.exists():
         print(f"[Error] Originals directory not found: {ORIGINALS_DIR}")
-        print("   Please put original photos in this directory")
+        return albums
+    
+    # 扫描子目录作为影集
+    for item in ORIGINALS_DIR.iterdir():
+        if item.is_dir():
+            album_name = item.name
+            photos = []
+            for ext in ['*.jpg', '*.jpeg', '*.png', '*.webp', '*.JPG', '*.JPEG', '*.PNG', '*.WEBP']:
+                photos.extend(item.glob(ext))
+            
+            if photos:
+                albums.append({
+                    'name': album_name,
+                    'path': item,
+                    'photos': sorted(photos)
+                })
+    
+    # 扫描根目录下的照片作为默认影集
+    root_photos = []
+    for ext in ['*.jpg', '*.jpeg', '*.png', '*.webp', '*.JPG', '*.JPEG', '*.PNG', '*.WEBP']:
+        root_photos.extend(ORIGINALS_DIR.glob(ext))
+    
+    if root_photos:
+        albums.append({
+            'name': 'default',
+            'path': ORIGINALS_DIR,
+            'photos': sorted(root_photos)
+        })
+    
+    return albums
+
+
+def process_albums():
+    """主处理函数"""
+    print("=" * 60)
+    print("[Photo] Starting album processing...")
+    print("=" * 60)
+    
+    # 扫描影集
+    albums = scan_albums()
+    
+    if not albums:
+        print("[Error] No albums found in originals/")
         return False
     
+    print(f"[Info] Found {len(albums)} album(s)")
+    
     # 加载现有元数据
-    metadata = {}
+    albums_data = {"albums": [], "allPhotos": {}}
     if METADATA_FILE.exists():
         try:
             with open(METADATA_FILE, 'r', encoding='utf-8') as f:
-                metadata = json.load(f)
-            print(f"[Info] Loaded existing metadata: {len(metadata)} records")
+                albums_data = json.load(f)
+            print(f"[Info] Loaded existing metadata")
         except:
-            metadata = {}
+            albums_data = {"albums": [], "allPhotos": {}}
     
-    # 扫描原图
-    original_files = []
-    for ext in ['*.jpg', '*.jpeg', '*.png', '*.webp', '*.JPG', '*.JPEG', '*.PNG', '*.WEBP']:
-        original_files.extend(ORIGINALS_DIR.glob(ext))
+    # 处理每个影集
+    updated_albums = []
+    all_photos = {}
+    total_processed = 0
+    total_skipped = 0
     
-    print(f"[Info] Found {len(original_files)} original photos")
-    
-    # 跟踪已处理的文件
-    processed_names = set()
-    updated_count = 0
-    skipped_count = 0
-    error_count = 0
-    
-    for orig_path in original_files:
-        # 生成输出文件名（使用原文件名，但改为 .webp）
-        stem = orig_path.stem
-        output_name = f"{stem}.webp"
-        main_path = PHOTOS_DIR / output_name
-        thumb_path = THUMBNAILS_DIR / output_name
+    for album_info in albums:
+        album_name = album_info['name']
+        album_path = album_info['path']
+        photo_files = album_info['photos']
         
-        processed_names.add(stem)
+        print(f"\n[Album] Processing: {album_name} ({len(photo_files)} photos)")
         
-        # 检查是否需要更新（原图比输出文件新，或输出文件不存在）
-        needs_update = (
-            not main_path.exists() or 
-            not thumb_path.exists() or
-            orig_path.stat().st_mtime > main_path.stat().st_mtime
-        )
+        # 查找或创建影集信息
+        existing_album = None
+        for a in albums_data.get("albums", []):
+            if a["name"] == album_name:
+                existing_album = a
+                break
         
-        if not needs_update:
-            print(f"[Skip] {orig_path.name} (not changed)")
-            skipped_count += 1
-            continue
-        
-        print(f"\n[Process] {orig_path.name}")
-        
-        # 提取 EXIF（只在原图上提取一次）
-        exif_data = get_exif_data(orig_path)
-        
-        # 压缩主图
-        print(f"   Compressing main image...", end='')
-        success, main_size = compress_image(
-            orig_path, main_path, MAX_MAIN_SIZE, MAIN_QUALITY
-        )
-        if success:
-            print(f" OK {main_size / 1024:.1f}KB")
+        if existing_album:
+            album_meta = existing_album
         else:
-            print(f" Failed")
-            error_count += 1
-            continue
+            # 新影集，创建默认信息
+            album_meta = {
+                "name": album_name,
+                "title": album_name,
+                "subtitle": "",
+                "cover": "",
+                "photos": [],
+                "photoInfos": {},
+                "hasBgm": False
+            }
         
-        # 生成缩略图
-        print(f"   Generating thumbnail...", end='')
-        success, thumb_size = compress_image(
-            orig_path, thumb_path, MAX_THUMB_SIZE, THUMB_QUALITY, is_thumbnail=True
-        )
-        if success:
-            print(f" OK {thumb_size / 1024:.1f}KB")
-        else:
-            print(f" Warning: Using main image as thumbnail")
-            shutil.copy(main_path, thumb_path)
+        album_photos = []
+        photo_infos = album_meta.get("photoInfos", {})
         
-        # 更新元数据
-        metadata[stem] = {
-            'filename': output_name,
-            'originalName': orig_path.name,
-            'mainSize': main_size,
-            'thumbSize': thumb_size,
-            'exif': exif_data or {},
-            'processedAt': json.dumps({})[:0]  # 触发时间戳更新
-        }
+        processed_stems = set()  # 追踪已处理的照片
         
-        updated_count += 1
+        for orig_path in photo_files:
+            stem = orig_path.stem
+            
+            # 跳过重复的文件名
+            if stem in processed_stems:
+                continue
+            processed_stems.add(stem)
+            
+            output_name = f"{stem}.webp"
+            
+            main_path = PHOTOS_DIR / album_name / output_name
+            thumb_path = THUMBNAILS_DIR / album_name / output_name
+            
+            album_photos.append(output_name)
+            
+            # 检查是否需要更新
+            needs_update = (
+                not main_path.exists() or 
+                not thumb_path.exists() or
+                orig_path.stat().st_mtime > main_path.stat().st_mtime
+            )
+            
+            if not needs_update:
+                print(f"  [Skip] {orig_path.name}")
+                total_skipped += 1
+                # 从已有数据获取大小
+                key = f"{album_name}/{stem}"
+                if key in albums_data.get("allPhotos", {}):
+                    all_photos[key] = albums_data["allPhotos"][key]
+                continue
+            
+            print(f"  [Process] {orig_path.name}")
+            
+            # 提取 EXIF
+            exif_data = get_exif_data(orig_path)
+            
+            # 压缩主图
+            print(f"    Compressing main image...", end='')
+            success, main_size = compress_image(
+                orig_path, main_path, MAX_MAIN_SIZE, MAIN_QUALITY
+            )
+            if success:
+                print(f" OK {main_size / 1024:.1f}KB")
+            else:
+                print(f" Failed")
+                continue
+            
+            # 生成缩略图
+            print(f"    Generating thumbnail...", end='')
+            success, thumb_size = compress_image(
+                orig_path, thumb_path, MAX_THUMB_SIZE, THUMB_QUALITY, is_thumbnail=True
+            )
+            if success:
+                print(f" OK {thumb_size / 1024:.1f}KB")
+            else:
+                print(f" Warning: Using main image as thumbnail")
+                shutil.copy(main_path, thumb_path)
+                thumb_size = main_size
+            
+            # 更新照片数据
+            key = f"{album_name}/{stem}"
+            all_photos[key] = {
+                "filename": output_name,
+                "originalName": orig_path.name,
+                "mainSize": main_size,
+                "thumbSize": thumb_size,
+                "exif": exif_data or {}
+            }
+            
+            total_processed += 1
+        
+        # 更新影集元数据
+        album_meta["photos"] = album_photos
+        album_meta["photoInfos"] = photo_infos
+        if album_photos and not album_meta["cover"]:
+            album_meta["cover"] = album_photos[0]
+        
+        updated_albums.append(album_meta)
     
     # 清理已删除的照片
-    current_stems = set()
-    for ext in ['*.jpg', '*.jpeg', '*.png', '*.webp']:
-        current_stems.update(p.stem for p in ORIGINALS_DIR.glob(ext))
+    current_keys = set()
+    for album in updated_albums:
+        for photo in album["photos"]:
+            stem = photo.replace(".webp", "")
+            current_keys.add(f"{album['name']}/{stem}")
     
-    removed = []
-    for stem in list(metadata.keys()):
-        if stem not in current_stems:
-            removed.append(stem)
-            main_file = PHOTOS_DIR / f"{stem}.webp"
-            thumb_file = THUMBNAILS_DIR / f"{stem}.webp"
-            if main_file.exists():
-                main_file.unlink()
-            if thumb_file.exists():
-                thumb_file.unlink()
-            del metadata[stem]
-    
-    if removed:
-        print(f"\n[Clean] Removed {len(removed)} deleted photos")
+    for key in list(all_photos.keys()):
+        if key not in current_keys:
+            print(f"[Clean] Removing deleted photo: {key}")
+            del all_photos[key]
     
     # 保存元数据
+    albums_data = {
+        "albums": updated_albums,
+        "allPhotos": all_photos
+    }
+    
     METADATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(METADATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=2)
+        json.dump(albums_data, f, ensure_ascii=False, indent=2)
     
     # 统计
     print("\n" + "=" * 60)
     print("[Done] Processing complete!")
-    print(f"   Added/Updated: {updated_count}")
-    print(f"   Skipped: {skipped_count}")
-    print(f"   Removed: {len(removed)}")
-    print(f"   Errors: {error_count}")
-    print(f"   Total: {len(metadata)}")
+    print(f"   Albums: {len(updated_albums)}")
+    print(f"   Processed: {total_processed}")
+    print(f"   Skipped: {total_skipped}")
+    print(f"   Total photos: {len(all_photos)}")
     print("=" * 60)
     
     return True
 
 
 if __name__ == "__main__":
-    success = process_photos()
+    success = process_albums()
     sys.exit(0 if success else 1)

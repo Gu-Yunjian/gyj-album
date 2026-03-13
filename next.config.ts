@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 静态导出模式（用于 Cloudflare Pages 部署）
-  output: 'export',
+  // 静态导出模式（仅用于生产构建/部署到静态托管）
+  // 开发模式下保留 API routes 功能
+  output: process.env.NODE_ENV === 'development' ? undefined : 'export',
   distDir: 'dist',
   
   // 图片配置（静态导出时需要禁用图片优化）

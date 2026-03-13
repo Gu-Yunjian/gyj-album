@@ -1,4 +1,4 @@
-import { getHomePhotos } from '@/lib/photos';
+import { getHomePhotos, GalleryPhoto } from '@/lib/photos';
 import HomeClient from './HomeClient';
 
 // 个人信息
@@ -50,7 +50,7 @@ export default async function Home() {
 }
 
 // 生成占位照片
-function generateMockPhotos(count: number) {
+function generateMockPhotos(count: number): GalleryPhoto[] {
   const albums = [
     { name: '城市漫步', title: '城市漫步' },
     { name: '自然风光', title: '自然风光' },
@@ -64,7 +64,7 @@ function generateMockPhotos(count: number) {
     '高楼林立', '公园漫步', '海边听涛', '山顶远眺', '湖畔倒影',
   ];
 
-  const photos = [];
+  const photos: GalleryPhoto[] = [];
   
   for (let i = 0; i < count; i++) {
     const album = albums[i % albums.length];
@@ -74,6 +74,7 @@ function generateMockPhotos(count: number) {
     
     photos.push({
       src: `https://picsum.photos/seed/${seed}/800/600`,
+      thumbSrc: `https://picsum.photos/seed/${seed}/400/300`,
       album: album.name,
       albumTitle: album.title,
       index: index,

@@ -1,14 +1,23 @@
 'use client';
 
 import { useEffect, useCallback, useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import styles from './Lightbox.module.css';
+
+interface ExifInfo {
+  aperture?: string;
+  shutterSpeed?: string;
+  iso?: number;
+}
 
 interface PhotoItem {
   src: string;
   alt: string;
+  photoTitle?: string;
   album?: string;
+  albumTitle?: string;
   index?: string;
+  exif?: ExifInfo;
 }
 
 interface LightboxProps {
@@ -28,8 +37,8 @@ export default function Lightbox({
   onPrev,
   onNext,
 }: LightboxProps) {
+  const router = useRouter();
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [exifData, setExifData] = useState<{ aperture?: string; shutterSpeed?: string; iso?: number } | null>(null);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -65,50 +74,28 @@ export default function Lightbox({
     e.preventDefault();
   };
 
-  // 加载 EXIF 信息
-  useEffect(() => {
-    const currentPhoto = photos[currentIndex];
-    // 如果没有 album 信息，跳过
-    if (!currentPhoto?.album) {
-      setExifData(null);
-      return;
-    }
-
-    async function loadExif() {
-      try {
-        // 从 src 中提取文件名
-        const album = currentPhoto.album || '';
-        const filename = (currentPhoto.src.split('/').pop() || '') as string;
-        const res = await fetch(`/api/photos/${encodeURIComponent(album)}/${encodeURIComponent(filename)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setExifData(data);
-        } else {
-          setExifData(null);
-        }
-      } catch {
-        setExifData(null);
-      }
-    }
-    loadExif();
-  }, [currentIndex, photos]);
-
-  // 格式化 EXIF 显示 - 只显示光圈、快门速度、ISO
-  const formatExif = () => {
-    if (!exifData) return null;
+  // 格式化 EXIF 显示
+  const formatExif = (exif?: ExifInfo): string | null => {
+    if (!exif) return null;
     const parts: string[] = [];
-
-    if (exifData.aperture) parts.push(exifData.aperture);
-    if (exifData.shutterSpeed) parts.push(exifData.shutterSpeed);
-    if (exifData.iso) parts.push(`ISO ${exifData.iso}`);
-
+    if (exif.aperture) parts.push(exif.aperture);
+    if (exif.shutterSpeed) parts.push(exif.shutterSpeed);
+    if (exif.iso) parts.push(`ISO ${exif.iso}`);
     return parts.length > 0 ? parts.join(' · ') : null;
+  };
+
+  // 跳转到影集页面
+  const handleAlbumClick = () => {
+    if (currentPhoto.album && currentPhoto.index) {
+      onClose();
+      router.push(`/album/${encodeURIComponent(currentPhoto.album)}?photo=${encodeURIComponent(currentPhoto.index)}`);
+    }
   };
 
   if (!isOpen || photos.length === 0) return null;
 
   const currentPhoto = photos[currentIndex];
-  const exifDisplay = formatExif();
+  const exifDisplay = formatExif(currentPhoto.exif);
 
   return (
     <div className={styles.overlay} onClick={onClose} onContextMenu={handleContextMenu}>
@@ -144,9 +131,20 @@ export default function Lightbox({
             draggable={false}
             onDragStart={handleDragStart}
           />
-          {/* Info overlay - positioned at bottom of image */}
+          {/* Info overlay - positioned at bottom left */}
           <div className={styles.info}>
-            <p className={styles.title}>{currentPhoto.alt}</p>
+            {currentPhoto.albumTitle && (
+              <button 
+                className={styles.albumLink}
+                onClick={(e) => { e.stopPropagation(); handleAlbumClick(); }}
+              >
+                <span>{currentPhoto.albumTitle}</span>
+                <svg className={styles.arrowIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            )}
+            {currentPhoto.photoTitle && <p className={styles.title}>{currentPhoto.photoTitle}</p>}
             {exifDisplay && <p className={styles.exif}>{exifDisplay}</p>}
           </div>
         </div>
