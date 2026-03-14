@@ -12,6 +12,7 @@
 .container.dark {
   --bg-primary: #1a1a1a;
   --bg-secondary: #242424;
+  --bg-secondary-rgb: 36, 36, 36;
   --bg-card: #2a2a2a;
   --text-primary: #e5e5e5;
   --text-secondary: #999999;
@@ -391,11 +392,12 @@
   .carousel {
     flex: 1;
     min-height: 0;
-    transition: height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s;
+      transition: none; /* 禁用过渡避免跳动 */
   }
 
   .carouselSlide {
     padding: 16px 24px;
+    position: relative; /* 为按钮叠加定位提供参考 */
   }
 
   /* 桌面端控制按钮在移动端隐藏 */
@@ -484,25 +486,51 @@
     );
   }
 
-  /* 移动端控制按钮 - 默认隐藏且不占用空间，点击照片时显示 */
+  /* 移动端底部遮罩 - 从底部到按钮处的平滑渐变 */
+  .main::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+      to top,
+      rgba(var(--bg-secondary-rgb), 0.85) 0%,
+      rgba(var(--bg-secondary-rgb), 0.4) 60%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .showMobileControls .main::after {
+    opacity: 1;
+  }
+
+  /* 移动端控制按钮 - 始终叠加在照片底部 */
   .mobileControls {
+    position: absolute;
+    bottom: 16px; /* 距离底部 16px（原来的 2/3） */
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: var(--space-md);
-    padding: 0;
-    height: 0;
+    height: 44px;
     opacity: 0;
-    overflow: hidden;
-    flex-shrink: 0;
-    transition: height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.2s ease;
   }
 
-  /* 显示状态 */
+  /* 显示状态：仅淡入 */
   .showMobileControls .mobileControls {
-    height: auto;
-    padding: var(--space-sm) 0 24px;
     opacity: 1;
+    pointer-events: auto;
   }
 
   /* 白天模式：无背景圆圈，黑色图标 */
@@ -699,6 +727,7 @@
 @media (max-width: 768px) {
   .carouselSlide {
     padding: 12px 16px;
+    position: relative;
   }
 
   .mobileControls {

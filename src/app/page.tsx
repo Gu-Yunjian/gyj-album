@@ -74,6 +74,7 @@ function generateMockPhotos(count: number): GalleryPhoto[] {
     
     photos.push({
       src: `https://picsum.photos/seed/${seed}/800/600`,
+      mediumSrc: `https://picsum.photos/seed/${seed}/600/450`,
       thumbSrc: `https://picsum.photos/seed/${seed}/400/300`,
       album: album.name,
       albumTitle: album.title,

@@ -18,15 +18,19 @@ import piexif
 # 配置
 ORIGINALS_DIR = Path("originals")
 PHOTOS_DIR = Path("public/photos")
+MEDIUM_DIR = Path("public/medium")  # 中等尺寸图片（首页用）
 THUMBNAILS_DIR = Path("public/thumbnails")
 METADATA_FILE = Path("public/albums.json")
 
 # 压缩参数
-MAX_MAIN_SIZE = 900 * 1024  # 900KB
-MAX_THUMB_SIZE = 150 * 1024  # 150KB
-MAIN_QUALITY = 80
+MAX_MAIN_SIZE = 900 * 1024      # 900KB - 主图（灯箱用）
+MAX_MEDIUM_SIZE = 400 * 1024    # 400KB - 中图（首页瀑布流用）
+MAX_THUMB_SIZE = 150 * 1024     # 150KB - 缩略图（影集页用）
+MAIN_QUALITY = 85
+MEDIUM_QUALITY = 80
 THUMB_QUALITY = 70
-THUMB_MAX_DIMENSION = 400
+MEDIUM_MAX_DIMENSION = 800      # 中图最大边 800px
+THUMB_MAX_DIMENSION = 400       # 缩略图最大边 400px
 
 
 def get_exif_data(image_path):
@@ -78,8 +82,10 @@ def get_exif_data(image_path):
         return None
 
 
-def compress_image(input_path, output_path, max_size, quality, is_thumbnail=False):
-    """压缩图片到指定大小以内"""
+def compress_image(input_path, output_path, max_size, quality, size_type='main'):
+    """压缩图片到指定大小以内
+    size_type: 'main' | 'medium' | 'thumbnail'
+    """
     try:
         img = Image.open(input_path)
 
@@ -97,11 +103,15 @@ def compress_image(input_path, output_path, max_size, quality, is_thumbnail=Fals
         if img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
         
-        # 缩略图：先缩小尺寸
-        if is_thumbnail:
+        # 根据类型调整尺寸
+        if size_type == 'thumbnail':
+            # 缩略图：缩小到 400px
             img.thumbnail((THUMB_MAX_DIMENSION, THUMB_MAX_DIMENSION), Image.LANCZOS)
+        elif size_type == 'medium':
+            # 中图：缩小到 800px
+            img.thumbnail((MEDIUM_MAX_DIMENSION, MEDIUM_MAX_DIMENSION), Image.LANCZOS)
         else:
-            # 主图：如果文件太大，先缩小尺寸
+            # 主图：如果文件太大，适当缩小
             file_size = input_path.stat().st_size
             if file_size > max_size * 2:
                 scale = min(1.0, (max_size * 2 / file_size) ** 0.5)
@@ -120,8 +130,8 @@ def compress_image(input_path, output_path, max_size, quality, is_thumbnail=Fals
             img.save(buffer, format='WEBP', quality=max(50, quality - 15), method=4)
             size = buffer.tell()
         
-        # 如果还是太大，进一步缩小图片
-        if size > max_size and not is_thumbnail:
+        # 如果还是太大，进一步缩小图片（仅主图和中图）
+        if size > max_size and size_type != 'thumbnail':
             img.thumbnail((img.width // 2, img.height // 2), Image.LANCZOS)
             buffer = BytesIO()
             img.save(buffer, format='WEBP', quality=max(40, quality - 20), method=4)
@@ -251,6 +261,7 @@ def process_albums():
             output_name = f"{stem}.webp"
             
             main_path = PHOTOS_DIR / album_name / output_name
+            medium_path = MEDIUM_DIR / album_name / output_name
             thumb_path = THUMBNAILS_DIR / album_name / output_name
             
             album_photos.append(output_name)
@@ -258,6 +269,7 @@ def process_albums():
             # 检查是否需要更新
             needs_update = (
                 not main_path.exists() or 
+                not medium_path.exists() or
                 not thumb_path.exists() or
                 orig_path.stat().st_mtime > main_path.stat().st_mtime
             )
@@ -287,17 +299,29 @@ def process_albums():
                 print(f" Failed")
                 continue
             
+            # 生成中图（首页用）
+            print(f"    Generating medium...", end='')
+            success, medium_size = compress_image(
+                orig_path, medium_path, MAX_MEDIUM_SIZE, MEDIUM_QUALITY, size_type='medium'
+            )
+            if success:
+                print(f" OK {medium_size / 1024:.1f}KB")
+            else:
+                print(f" Warning: Using main image as medium")
+                shutil.copy(main_path, medium_path)
+                medium_size = main_size
+            
             # 生成缩略图
             print(f"    Generating thumbnail...", end='')
             success, thumb_size = compress_image(
-                orig_path, thumb_path, MAX_THUMB_SIZE, THUMB_QUALITY, is_thumbnail=True
+                orig_path, thumb_path, MAX_THUMB_SIZE, THUMB_QUALITY, size_type='thumbnail'
             )
             if success:
                 print(f" OK {thumb_size / 1024:.1f}KB")
             else:
                 print(f" Warning: Using main image as thumbnail")
-                shutil.copy(main_path, thumb_path)
-                thumb_size = main_size
+                shutil.copy(medium_path, thumb_path)
+                thumb_size = medium_size
             
             # 更新照片数据
             key = f"{album_name}/{stem}"
@@ -305,6 +329,7 @@ def process_albums():
                 "filename": output_name,
                 "originalName": orig_path.name,
                 "mainSize": main_size,
+                "mediumSize": medium_size,
                 "thumbSize": thumb_size,
                 "exif": exif_data or {}
             }

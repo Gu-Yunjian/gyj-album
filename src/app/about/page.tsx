@@ -11,7 +11,7 @@ interface AboutFrontmatter {
 }
 
 export const metadata = {
-  title: '关于 | GU-Album',
+  title: '关于 | GU-PROJECTS',
   description: '关于我',
 };
 

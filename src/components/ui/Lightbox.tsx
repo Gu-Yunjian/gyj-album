@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './Lightbox.module.css';
 
 interface ExifInfo {
@@ -133,16 +134,21 @@ export default function Lightbox({
           />
           {/* Info overlay - positioned at bottom left */}
           <div className={styles.info}>
-            {currentPhoto.albumTitle && (
-              <button 
+            {currentPhoto.albumTitle && currentPhoto.album && (
+              <Link 
+                href={`/album/${encodeURIComponent(currentPhoto.album)}?photo=${encodeURIComponent(currentPhoto.index || '')}`}
                 className={styles.albumLink}
-                onClick={(e) => { e.stopPropagation(); handleAlbumClick(); }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onClose();
+                }}
+                prefetch={true}
               >
                 <span>{currentPhoto.albumTitle}</span>
                 <svg className={styles.arrowIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
-              </button>
+              </Link>
             )}
             {currentPhoto.photoTitle && <p className={styles.title}>{currentPhoto.photoTitle}</p>}
             {exifDisplay && <p className={styles.exif}>{exifDisplay}</p>}

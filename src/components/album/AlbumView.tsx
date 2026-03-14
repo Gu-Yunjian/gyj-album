@@ -179,6 +179,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
     setIsPanelOpen(false);
   }, []);
 
+  // 移动端按钮始终叠加显示（不再区分横竖屏）
   const toggleMobileControls = useCallback(() => {
     setShowMobileControls(prev => !prev);
   }, []);
@@ -241,13 +242,18 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
         >
           <div className={styles.carouselContainer}>
             {album.photos.map((photo, index) => (
-              <div key={photo} className={styles.carouselSlide}>
+              <div 
+                key={photo} 
+                className={styles.carouselSlide}
+              >
                 <img 
                   src={`/photos/${album.name}/${photo}`}
                   alt={index === currentIndex ? (currentInfo?.title || album.title) : ''}
                   className={styles.carouselImage}
                   draggable={false}
                   onDragStart={handleDragStart}
+                  loading={Math.abs(index - currentIndex) <= 1 ? 'eager' : 'lazy'}
+                  decoding={Math.abs(index - currentIndex) <= 1 ? 'sync' : 'async'}
                 />
               </div>
             ))}

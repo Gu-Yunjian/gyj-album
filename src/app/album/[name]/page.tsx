@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps) {
   const decodedName = decodeURIComponent(name);
   const album = await getAlbum(decodedName);
   return {
-    title: album ? `${album.title} | GU-Album` : '影集 | GU-Album',
+    title: album ? `${album.title} | GU-PROJECTS` : '影集 | GU-PROJECTS',
     description: album?.subtitle || '摄影作品',
   };
 }

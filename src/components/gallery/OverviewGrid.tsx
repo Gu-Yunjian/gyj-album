@@ -34,7 +34,7 @@ export default function OverviewGrid({ photos, onPhotoClick }: OverviewGridProps
           >
             <div className={styles.imageWrapper}>
               <Image
-                src={photo.src}
+                src={photo.thumbSrc}
                 alt={photo.info?.title || photo.albumTitle}
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"

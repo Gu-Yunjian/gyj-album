@@ -39,7 +39,8 @@ export interface AlbumInfo {
 
 export interface GalleryPhoto {
   src: string;
-  thumbSrc: string;
+  mediumSrc: string;  // 中图（首页瀑布流用）
+  thumbSrc: string;   // 缩略图（影集页用）
   album: string;
   albumTitle: string;
   index: string; // photo stem (filename without extension)
@@ -126,6 +127,7 @@ export async function getAllPhotos(): Promise<GalleryPhoto[]> {
       if (photoData) {
         photos.push({
           src: `/photos/${album.name}/${photoData.filename}`,
+          mediumSrc: `/medium/${album.name}/${photoData.filename}`,
           thumbSrc: `/thumbnails/${album.name}/${photoData.filename}`,
           album: album.name,
           albumTitle: album.title,
@@ -162,6 +164,7 @@ export async function getPhoto(albumName: string, photoStem: string): Promise<Ga
   
   return {
     src: `/photos/${albumName}/${photoData.filename}`,
+    mediumSrc: `/medium/${albumName}/${photoData.filename}`,
     thumbSrc: `/thumbnails/${albumName}/${photoData.filename}`,
     album: albumName,
     albumTitle: album.title,

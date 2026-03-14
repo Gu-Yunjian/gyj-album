@@ -37,7 +37,7 @@ export default function CollectionCard({
     >
       <div className={styles.imageWrapper}>
         <Image
-          src={`/photos/${name}/${cover}`}
+          src={`/medium/${name}/${cover}`}
           alt={title}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"

@@ -1,4 +1,4 @@
-/* GU-Album - UNVEIL Gallery Style */
+/* GU-PROJECTS - UNVEIL Gallery Style */
 
 /* ============================================
    CSS Variables - Light Mode Only
@@ -7,6 +7,7 @@
   /* Colors - Pure minimalist */
   --bg-primary: #FFFFFF;
   --bg-secondary: #FFFFFF;
+  --bg-secondary-rgb: 255, 255, 255;
   --bg-card: #FFFFFF;
 
   --text-primary: #000000;

@@ -4,7 +4,7 @@ import CollectionCard from '@/components/album/CollectionCard';
 import styles from './page.module.css';
 
 export const metadata = {
-  title: '作品集 | GU-Album',
+  title: '作品集 | GU-PROJECTS',
   description: '摄影作品集',
 };
 

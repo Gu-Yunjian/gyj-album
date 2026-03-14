@@ -15,7 +15,7 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "GU-Album | 个人摄影作品集",
+  title: "GU-PROJECTS | 个人摄影作品集",
   description: "个人摄影作品集与信息展示空间",
 };
 

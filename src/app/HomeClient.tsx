@@ -34,6 +34,14 @@ export default function HomeClient({ photos, profile }: HomeClientProps) {
     }));
   }, [photos]);
 
+  // 首页网格照片 - 使用中图（比缩略图清晰，比主图小）
+  const gridPhotos = useMemo(() => {
+    return photos.map(p => ({
+      ...p,
+      thumbSrc: p.mediumSrc,  // 首页用中图替代缩略图
+    }));
+  }, [photos]);
+
   // 打开灯箱
   const openLightbox = (index: number) => {
     setCurrentIndex(index);
@@ -59,7 +67,7 @@ export default function HomeClient({ photos, profile }: HomeClientProps) {
     <main>
       <Navigation />
 
-      <OverviewGrid photos={photos} onPhotoClick={openLightbox} />
+      <OverviewGrid photos={gridPhotos} onPhotoClick={openLightbox} />
 
       <Lightbox
         photos={lightboxPhotos}
