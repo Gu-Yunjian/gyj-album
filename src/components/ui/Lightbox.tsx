@@ -144,7 +144,7 @@ export default function Lightbox({
                 }}
                 prefetch={true}
               >
-                <span>{currentPhoto.albumTitle}</span>
+                <span>来自影集丨{currentPhoto.albumTitle}</span>
                 <svg className={styles.arrowIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 18l6-6-6-6" />
                 </svg>

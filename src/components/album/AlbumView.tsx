@@ -38,7 +38,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(true); // 移动端面板默认展开
   const [scrollY, setScrollY] = useState(0);
   const [showMobileControls, setShowMobileControls] = useState(false); // 移动端控制按钮显示状态
   
