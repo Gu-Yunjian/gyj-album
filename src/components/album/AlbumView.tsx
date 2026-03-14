@@ -325,9 +325,6 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
           onTouchStart={handlePanelTouchStart}
           onTouchEnd={handlePanelTouchEnd}
         >
-          <div className={styles.panelHandle} onClick={togglePanel}>
-            <div className={styles.panelHandleBar}></div>
-          </div>
           <div className={styles.panelContent}>
             {/* 只保留照片维度信息 */}
             <div className={styles.info}>

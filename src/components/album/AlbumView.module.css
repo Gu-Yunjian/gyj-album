@@ -174,9 +174,8 @@
   right: 20px;
 }
 
-/* 移动端控制按钮和面板手柄 - 桌面端隐藏 */
-.mobileControls,
-.panelHandle {
+/* 移动端控制按钮 - 桌面端隐藏 */
+.mobileControls {
   display: none;
 }
 
@@ -567,7 +566,7 @@
     opacity: 0.7;
   }
 
-  /* 侧边栏 - 移动端变为底部可折叠面板 */
+  /* 侧边栏 - 移动端变为底部可折叠面板，磨砂玻璃效果 */
   .sidebar {
     position: fixed;
     bottom: 0;
@@ -576,15 +575,24 @@
     width: 100%;
     min-width: auto;
     border-left: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     height: auto;
     max-height: 60vh;
-    background: var(--bg-primary);
+    /* 磨砂玻璃效果 */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transform: translateY(100%); /* 默认完全收起 */
     transition: transform 0.3s ease;
     z-index: 100;
     padding: 0;
     overflow: hidden;
+  }
+
+  /* 夜间模式下的磨砂玻璃效果 */
+  .dark .sidebar {
+    background: rgba(30, 30, 30, 0.85);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   /* 面板展开状态 */
@@ -638,26 +646,6 @@
     font-size: 14px;
     text-align: center;
     width: 100%;
-  }
-
-  /* 面板拖动手柄 */
-  .panelHandle {
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: var(--bg-primary);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .panelHandleBar {
-    width: 36px;
-    height: 4px;
-    background: var(--text-muted);
-    border-radius: 2px;
-    opacity: 0.5;
   }
 
   .hint {
