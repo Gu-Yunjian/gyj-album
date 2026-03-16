@@ -1,0 +1,309 @@
+/* ============================================
+   Explore Page Styles
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  min-height: 100vh;
+  padding-top: var(--header-height);
+}
+
+/* ============================================
+   Text Section (Left side)
+   ============================================ */
+
+.textSection {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--page-margin);
+  padding-left: calc(var(--page-margin) * 1.5 + 20px);
+  z-index: 10;
+}
+
+.title {
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.02em;
+  position: relative;
+  display: inline-block;
+  cursor: default;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 4px;
+  background: var(--text-primary);
+  transition: width 0.2s ease-out;
+}
+
+.title:hover::after {
+  width: 100%;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  position: relative;
+  display: inline-block;
+  cursor: default;
+}
+
+.subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--text-secondary);
+  transition: width 0.2s ease-out;
+}
+
+.subtitle:hover::after {
+  width: 100%;
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  cursor: pointer;
+  transition: transform 0.2s ease-out;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   Photos Section (Right side)
+   ============================================ */
+
+.photosSection {
+  flex: 0 0 60%;
+  position: relative;
+  min-height: calc(100vh - var(--header-height));
+}
+
+.photosContainer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+/* ============================================
+   Photo Card - Polaroid Style
+   ============================================ */
+
+.photoCard {
+  user-select: none;
+  touch-action: none;
+}
+
+.photoCard:active {
+  cursor: grabbing !important;
+}
+
+.polaroidFrame {
+  transition: box-shadow 0.3s ease;
+}
+
+/* ============================================
+   Lightbox
+   ============================================ */
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightboxBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.lightboxContent {
+  position: relative;
+  z-index: 2001;
+}
+
+.lightboxPolaroid {
+  background: white;
+  padding: 20px 20px 50px 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+}
+
+.lightboxImage {
+  max-width: 60vw;
+  max-height: 60vh;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.lightboxBottom {
+  height: 30px;
+}
+
+/* ============================================
+   Info Card
+   ============================================ */
+
+.infoCard {
+  position: fixed;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  background: #FEF3C7;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2001;
+}
+
+.infoAlbum {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.infoAlbum:hover {
+  color: var(--text-primary);
+}
+
+.infoTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.infoExif {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   Refresh Button
+   ============================================ */
+
+.refreshBtn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all var(--transition-base);
+  z-index: 9999;
+}
+
+.refreshBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.refreshIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.refreshPath {
+  fill: var(--text-primary);
+}
+
+/* ============================================
+   Mobile Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .textSection {
+    flex: none;
+    align-items: center;
+    text-align: center;
+    padding: var(--page-margin-mobile);
+    padding-top: 60px;
+    min-height: 40vh;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: clamp(36px, 12vw, 64px);
+  }
+
+  .photosSection {
+    flex: 1;
+    min-height: 50vh;
+  }
+
+  .lightboxImage {
+    max-width: 80vw;
+    max-height: 50vh;
+  }
+
+  .infoCard {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: 10%;
+    transform: translateX(-50%);
+    width: 180px;
+  }
+
+  .refreshBtn {
+    bottom: 20px;
+    left: 20px;
+    right: auto;
+  }
+}

@@ -44,6 +44,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
   
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isTouchDevice = useRef(false);
+  const mobileThumbnailsRef = useRef<HTMLDivElement>(null);
 
   // Embla Carousel 配置
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -85,7 +86,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
     }
   }, [emblaApi, searchParams, album.photos]);
 
-  // 九宫格滚动同步
+  // 九宫格滚动同步（桌面端）
   useEffect(() => {
     const currentRow = Math.floor(currentIndex / THUMBNAILS_PER_ROW);
     const totalRows = Math.ceil(album.photos.length / THUMBNAILS_PER_ROW);
@@ -101,6 +102,20 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
     
     setScrollY(targetRow * ROW_HEIGHT);
   }, [currentIndex, album.photos.length]);
+
+  // 移动端横向缩略图自动滚动到当前照片
+  useEffect(() => {
+    if (!mobileThumbnailsRef.current) return;
+    
+    const container = mobileThumbnailsRef.current;
+    const thumbnailWidth = 56; // 48px + 8px gap
+    const scrollPosition = currentIndex * thumbnailWidth - container.clientWidth / 2 + thumbnailWidth / 2;
+    
+    container.scrollTo({
+      left: Math.max(0, scrollPosition),
+      behavior: 'smooth'
+    });
+  }, [currentIndex]);
 
   const currentPhoto = album.photos[currentIndex];
   const currentPhotoStem = currentPhoto.replace(/\.[^/.]+$/, '');
@@ -334,7 +349,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
             </div>
             <div className={styles.bottom}>
               {album.photos.length > 1 && (
-                <div className={styles.thumbnailsMobile}>
+                <div className={styles.thumbnailsMobile} ref={mobileThumbnailsRef}>
                   <div className={styles.thumbnailsMobileTrack}>
                     {album.photos.map((photo, index) => (
                       <button 

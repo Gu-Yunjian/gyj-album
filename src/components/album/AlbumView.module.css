@@ -545,6 +545,10 @@
     justify-content: center;
     cursor: pointer;
     transition: opacity 0.2s ease;
+    /* 移除移动端点击高亮 */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
   }
 
   .mobileControlBtn svg {

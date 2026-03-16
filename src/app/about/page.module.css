@@ -6,7 +6,7 @@
 .container {
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--page-margin);
+  padding: var(--space-2xl) 48px; /* 增加左右页边距 */
 }
 
 .header {
@@ -62,6 +62,17 @@
   margin-bottom: var(--space-md);
 }
 
+/* 列表样式修复 */
+.content ul,
+.content ol {
+  padding-left: 24px; /* 给列表符号留出空间 */
+  margin-bottom: var(--space-md);
+}
+
+.content li {
+  margin-bottom: var(--space-sm);
+}
+
 .content a {
   color: var(--text-primary);
   border-bottom: 1px solid var(--text-muted);
@@ -74,6 +85,6 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: var(--space-xl) var(--page-margin-mobile);
+    padding: var(--space-xl) 24px; /* 移动端也增加左右页边距 */
   }
 }

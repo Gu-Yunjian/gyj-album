@@ -137,6 +137,10 @@ export default function AdminPage() {
   const [aboutContent, setAboutContent] = useState('');
   const [aboutLoading, setAboutLoading] = useState(false);
   
+  // 社交按钮配置
+  const [socialButtons, setSocialButtons] = useState<any[]>([]);
+  const [socialLoading, setSocialLoading] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 添加日志
@@ -224,8 +228,54 @@ export default function AdminPage() {
   useEffect(() => {
     if (activeTab === 'about' && !aboutContent) {
       loadAboutContent();
+      loadSocialConfig();
     }
   }, [activeTab, aboutContent, loadAboutContent]);
+
+  // 加载社交按钮配置
+  const loadSocialConfig = async () => {
+    try {
+      const response = await fetch('/content/social.json');
+      if (response.ok) {
+        const data = await response.json();
+        setSocialButtons(data.buttons || []);
+      }
+    } catch (error) {
+      console.error('加载社交配置失败:', error);
+      addLog('❌ 加载社交配置失败');
+    }
+  };
+
+  // 保存社交按钮配置
+  const saveSocialConfig = async () => {
+    addLog('⏳ 保存社交按钮配置...');
+    try {
+      const response = await fetch('/api/admin/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: 'public/content/social.json',
+          content: JSON.stringify({ buttons: socialButtons }, null, 2)
+        })
+      });
+
+      if (response.ok) {
+        addLog('✅ 社交按钮配置已保存');
+        setMessage('✅ 社交按钮配置已保存！记得 git push 部署');
+      } else {
+        throw new Error('保存失败');
+      }
+    } catch (error) {
+      addLog('❌ 保存社交按钮配置失败');
+    }
+  };
+
+  // 更新社交按钮
+  const updateSocialButton = (index: number, field: string, value: string) => {
+    setSocialButtons(prev => prev.map((btn, i) => 
+      i === index ? { ...btn, [field]: value } : btn
+    ));
+  };
 
   // 更新影集信息
   function updateAlbumInfo(albumName: string, field: 'title' | 'subtitle', value: string) {
@@ -1189,6 +1239,116 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* 社交按钮配置 */}
+          <div style={{
+            background: '#f9f9f9',
+            padding: '20px',
+            borderRadius: '8px',
+            marginBottom: '20px'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '15px'
+            }}>
+              <div>
+                <h2 style={{ margin: '0 0 4px 0' }}>编辑社交按钮</h2>
+                <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
+                  配置 About 页面底部的社交联系方式
+                </p>
+              </div>
+              <button
+                onClick={saveSocialConfig}
+                disabled={socialLoading}
+                style={{
+                  padding: '10px 20px',
+                  background: socialLoading ? '#ccc' : '#52c41a',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: socialLoading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {socialLoading ? '保存中...' : '💾 保存'}
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {socialButtons.map((btn, index) => (
+                <div key={btn.id} style={{
+                  background: '#fff',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e8e8e8'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '12px',
+                    fontWeight: 600
+                  }}>
+                    <span style={{ fontSize: '20px' }}>
+                      {btn.icon === 'xiaohongshu' && '🔴'}
+                      {btn.icon === 'bilibili' && '📺'}
+                      {btn.icon === 'email' && '✉️'}
+                      {btn.icon === 'wechat' && '💬'}
+                      {btn.icon === 'qq' && '🐧'}
+                    </span>
+                    {btn.name}
+                    <span style={{
+                      fontSize: '12px',
+                      color: btn.type === 'link' ? '#52c41a' : '#fa8c16',
+                      background: btn.type === 'link' ? '#f6ffed' : '#fff7e6',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      marginLeft: '8px'
+                    }}>
+                      {btn.type === 'link' ? '跳转链接' : '复制文本'}
+                    </span>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    <div>
+                      <label style={{ fontSize: '12px', color: '#666' }}>显示名称</label>
+                      <input
+                        type="text"
+                        value={btn.name}
+                        onChange={e => updateSocialButton(index, 'name', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #d9d9d9',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '12px', color: '#666' }}>
+                        {btn.type === 'link' ? '跳转链接' : '复制内容'}
+                      </label>
+                      <input
+                        type="text"
+                        value={btn.value}
+                        onChange={e => updateSocialButton(index, 'value', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: '1px solid #d9d9d9',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

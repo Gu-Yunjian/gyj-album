@@ -1,0 +1,44 @@
+{
+  "buttons": [
+    {
+      "id": "xiaohongshu",
+      "name": "小红书",
+      "type": "link",
+      "value": "https://xhslink.com/m/2Fc9O7c0QAc",
+      "icon": "xiaohongshu",
+      "color": "#FF2442"
+    },
+    {
+      "id": "bilibili",
+      "name": "哔哩哔哩",
+      "type": "link",
+      "value": "https://space.bilibili.com/24035988",
+      "icon": "bilibili",
+      "color": "#00A1D6"
+    },
+    {
+      "id": "email",
+      "name": "邮箱",
+      "type": "copy",
+      "value": "yunjiangu@foxmail.com",
+      "icon": "email",
+      "color": "#EA4335"
+    },
+    {
+      "id": "wechat",
+      "name": "微信",
+      "type": "copy",
+      "value": "GY15023107991",
+      "icon": "wechat",
+      "color": "#07C160"
+    },
+    {
+      "id": "qq",
+      "name": "QQ",
+      "type": "copy",
+      "value": "102603027",
+      "icon": "qq",
+      "color": "#12B7F5"
+    }
+  ]
+}

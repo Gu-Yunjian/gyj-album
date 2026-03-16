@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import Navigation from '@/components/layout/Navigation';
+import SocialButtons from '@/components/about/SocialButtons';
 import styles from './page.module.css';
 
 interface AboutFrontmatter {
@@ -18,9 +19,11 @@ export const metadata = {
 export default async function AboutPage() {
   // 读取 about.md
   const contentPath = path.join(process.cwd(), 'public/content/about.md');
+  const socialPath = path.join(process.cwd(), 'public/content/social.json');
 
   let ContentComponent: React.ReactNode = null;
   let frontmatter: AboutFrontmatter = {};
+  let socialButtons = [];
 
   try {
     const fileContent = await fs.readFile(contentPath, 'utf-8');
@@ -32,6 +35,15 @@ export default async function AboutPage() {
     frontmatter = fm;
   } catch (e) {
     console.error('Failed to load about.md:', e);
+  }
+
+  // 读取社交按钮配置
+  try {
+    const socialContent = await fs.readFile(socialPath, 'utf-8');
+    const socialData = JSON.parse(socialContent);
+    socialButtons = socialData.buttons || [];
+  } catch (e) {
+    console.error('Failed to load social.json:', e);
   }
 
   return (
@@ -56,6 +68,8 @@ export default async function AboutPage() {
         <article className={styles.content}>
           {ContentComponent}
         </article>
+
+        <SocialButtons buttons={socialButtons} />
       </div>
     </main>
   );

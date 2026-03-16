@@ -11,6 +11,9 @@ export default function Navigation() {
           GU YUN-JIAN PROJECTS
         </Link>
         <nav className={styles.nav}>
+          <Link href="/gallery" className={`${styles.navLink} nav-link`}>
+            画廊
+          </Link>
           <Link href="/collections" className={`${styles.navLink} nav-link`}>
             影集
           </Link>
