@@ -36,14 +36,18 @@ export default function CollectionCard({
       onContextMenu={handleContextMenu}
     >
       <div className={styles.imageWrapper}>
-        <Image
-          src={`/medium/${name}/${cover}`}
-          alt={title}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className={styles.image}
-          draggable={false}
-        />
+        {cover ? (
+          <Image
+            src={`/medium/${name}/${cover}`}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className={styles.image}
+            draggable={false}
+          />
+        ) : (
+          <div className={styles.emptyCover} aria-hidden="true" />
+        )}
       </div>
 
       {/* 右下角悬停信息 */}

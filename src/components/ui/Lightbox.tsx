@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Lightbox.module.css';
@@ -39,6 +39,8 @@ export default function Lightbox({
   onNext,
 }: LightboxProps) {
   const router = useRouter();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -48,14 +50,26 @@ export default function Lightbox({
   }, [onClose, onPrev, onNext]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    }
+    if (!isOpen) return;
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, handleKeyDown]);
 
@@ -99,22 +113,29 @@ export default function Lightbox({
   const exifDisplay = formatExif(currentPhoto.exif);
 
   return (
-    <div className={styles.overlay} onClick={onClose} onContextMenu={handleContextMenu}>
+    <div
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label="照片查看器"
+      onClick={onClose}
+      onContextMenu={handleContextMenu}
+    >
       {/* Close button */}
-      <button className={styles.closeBtn} onClick={onClose}>
+      <button ref={closeButtonRef} className={styles.closeBtn} onClick={onClose} aria-label="关闭灯箱">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
 
       {/* Navigation */}
-      <button className={styles.prevBtn} onClick={(e) => { e.stopPropagation(); onPrev(); }}>
+      <button className={styles.prevBtn} onClick={(e) => { e.stopPropagation(); onPrev(); }} aria-label="上一张照片">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
 
-      <button className={styles.nextBtn} onClick={(e) => { e.stopPropagation(); onNext(); }}>
+      <button className={styles.nextBtn} onClick={(e) => { e.stopPropagation(); onNext(); }} aria-label="下一张照片">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M9 18l6-6-6-6" />
         </svg>

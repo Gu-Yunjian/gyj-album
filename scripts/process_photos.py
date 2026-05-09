@@ -210,6 +210,11 @@ def process_albums():
             print(f"[Info] Loaded existing metadata")
         except:
             albums_data = {"albums": [], "allPhotos": {}}
+
+    existing_order = {}
+    for index, album in enumerate(albums_data.get("albums", [])):
+        existing_order[album.get("name")] = album.get("order", index)
+    next_order = max(existing_order.values(), default=-1) + 1
     
     # 处理每个影集
     updated_albums = []
@@ -233,6 +238,7 @@ def process_albums():
         
         if existing_album:
             album_meta = existing_album
+            album_meta["order"] = existing_order.get(album_name, next_order)
         else:
             # 新影集，创建默认信息
             album_meta = {
@@ -242,8 +248,10 @@ def process_albums():
                 "cover": "",
                 "photos": [],
                 "photoInfos": {},
-                "hasBgm": False
+                "hasBgm": False,
+                "order": next_order
             }
+            next_order += 1
         
         album_photos = []
         photo_infos = album_meta.get("photoInfos", {})
@@ -356,6 +364,8 @@ def process_albums():
             print(f"[Clean] Removing deleted photo: {key}")
             del all_photos[key]
     
+    updated_albums.sort(key=lambda album: album.get("order", 0))
+
     # 保存元数据
     albums_data = {
         "albums": updated_albums,

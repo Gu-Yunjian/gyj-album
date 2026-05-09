@@ -1,222 +1,180 @@
-# Gu Album 项目参考指南
+# Gu Album Project Guide
 
-> 本文档包含最终定稿的部署方案、技术架构和工作流
-> 更新日期：2026-03-13
+> Primary reference for future code changes. If another project document conflicts with this file, update the other document or the code before proceeding.
 
----
+## Product Definition
 
-## 📁 项目架构
+Gu Album is a static personal photography portfolio for GU-PROJECTS. It prioritizes fast browsing, a quiet visual system, and local-first content updates.
 
-```
+The production site is static. Photo processing, metadata editing, and file writes happen locally during development, then generated assets are committed and deployed.
+
+## Authoritative Routes
+
+| Route | Purpose | Data source | Notes |
+| --- | --- | --- | --- |
+| `/` | Welcome/explore entry | `getAllPhotos()` from `public/albums.json` | Shows scattered random photos and buttons to `/gallery` and `/collections`. |
+| `/gallery` | All-photo browsing | `getHomePhotos()` from all albums | Daily seeded ordering, fills with mock photos only if fewer than 30 real photos. |
+| `/collections` | Album list | `getAlbums()` | Shows album cards from `albums[].cover`. |
+| `/album/[name]` | Single album viewer | `getAlbum()` and `getAllPhotosData()` | Static params from album names; decodes URL names. |
+| `/about` | Profile page | `public/content/about.md`, `public/content/social.json` | Markdown frontmatter drives profile metadata. |
+| `/admin` | Local content tool | local API routes and static JSON | Development helper only, not production CMS. |
+
+## Current File Structure
+
+```text
 gu-album/
-├── originals/              # 原图存放（gitignore）
-│   ├── 影集名称/          # 子目录作为影集
-│   └── ...
+├── originals/                 # Source photos, ignored by git
+│   ├── [album-name]/
+│   └── *.jpg                  # Root photos become the "default" album
 ├── public/
-│   ├── photos/            # 压缩后的主图（WebP ≤1MB）
-│   │   └── 影集名称/
-│   ├── thumbnails/        # 缩略图（54×54px）
-│   │   └── 影集名称/
-│   └── albums.json        # 影集元数据（自动生成）
+│   ├── photos/[album]/        # Main WebP images for large views
+│   ├── medium/[album]/        # Medium WebP images for gallery/explore views
+│   ├── thumbnails/[album]/    # Thumbnail-purpose WebP images for album UI
+│   ├── albums.json            # Authoritative album and photo metadata
+│   └── content/
+│       ├── about.md
+│       └── social.json
 ├── scripts/
-│   ├── process_photos.py  # 图片处理脚本
-│   ├── deploy.bat         # Windows 一键部署
-│   └── deploy.ps1         # PowerShell 一键部署
+│   ├── process_photos.py      # Image processing and metadata generation
+│   ├── deploy.bat
+│   └── deploy.ps1
 ├── src/
-│   ├── app/               # Next.js App Router
-│   ├── components/
-│   │   ├── album/AlbumView.tsx      # 影集展示组件
-│   │   ├── gallery/OverviewGrid.tsx # 首页网格
-│   │   └── ui/Lightbox.tsx          # 灯箱组件
-│   └── lib/photos.ts      # 数据读取逻辑
-└── next.config.ts         # 静态导出配置
+│   ├── app/                   # Next.js App Router pages and local API routes
+│   ├── components/            # UI components grouped by feature
+│   └── lib/photos.ts          # Data loading and transformation helpers
+└── next.config.ts             # Static export configuration for production
 ```
 
----
+## Data Model
 
-## 🚀 部署方案
+`public/albums.json` is the deployed content index.
 
-### 平台选择
-- **Cloudflare Pages**（推荐）
-  - 免费额度充足
-  - 全球 CDN 加速
-  - 无需备案
-  - GitHub 自动部署
-
-### 构建设置
-```yaml
-Framework preset: Next.js
-Build command: npm run build
-Build output directory: dist
-```
-
-### 静态导出配置
-```typescript
-// next.config.ts
-const nextConfig = {
-  output: 'export',
-  distDir: 'dist',
-  images: { unoptimized: true },
-}
-```
-
----
-
-## 🖼️ 图片处理工作流
-
-### 1. 添加原图
-```bash
-# 将照片放入对应影集目录
-cp 照片.jpg originals/影集名/
-```
-
-### 2. 运行处理脚本
-```bash
-python scripts/process_photos.py
-```
-**功能**：
-- 压缩主图：WebP 格式，≤1MB
-- 生成缩略图：54×54px（桌面），44×44px（手机）
-- 提取 EXIF：光圈、快门、ISO、相机型号
-- 生成 `albums.json` 元数据
-
-### 3. 编辑影集信息
-访问 `/admin`（密码：`gu123456`）
-- 编辑影集标题、副标题
-- 编辑照片标题、描述
-- 下载 `albums.json` 并放入 `public/` 目录
-
-### 4. 部署
-```bash
-# 一键部署
-scripts\deploy.bat
-
-# 或手动
-git add .
-git commit -m "update photos"
-git push origin main
-```
-
----
-
-## 🎨 关键功能规格
-
-### 影集页（AlbumView）
-
-| 功能 | 规格 |
-|------|------|
-| **照片展示** | Embla Carousel 轮播，自适应居中，无滚动 |
-| **控制按钮** | 桌面：hover 照片区域显示；移动端：默认隐藏，点击照片显示 |
-| **九宫格缩略图** | 3×3 布局，54px/格，鼠标滚轮滑动，平滑过渡 |
-| **EXIF 显示** | 光圈 · 快门 · ISO，使用默认字体 |
-| **响应式** | 桌面：左右布局；平板/手机：上下布局 |
-
-### 移动端自适应布局
-
-| 元素 | 默认状态 | 交互 |
-|------|----------|------|
-| **顶部信息栏** | 隐藏 | 面板展开时显示（渐隐动画） |
-| **控制按钮** | 隐藏 | 点击照片显示，再点击隐藏 |
-| **下面板** | 收起 | 点击展开按钮或上滑展开 |
-| **照片切换** | 左右滑动 | 边界自动回弹 |
-
-### 首页（OverviewGrid）
-- 从所有影集聚合照片
-- 每日随机排序（基于日期种子）
-- 灯箱展示，支持 EXIF 信息显示
-
----
-
-## 📊 数据结构
-
-### albums.json
 ```json
 {
   "albums": [
     {
-      "name": "影集标识",
-      "title": "显示标题",
-      "subtitle": "副标题",
-      "cover": "封面文件名",
-      "photos": ["photo1.webp", "photo2.webp"],
+      "name": "album-id",
+      "title": "Album Title",
+      "subtitle": "Short subtitle",
+      "cover": "photo.webp",
+      "photos": ["photo.webp"],
       "photoInfos": {
-        "photo1": { "title": "", "desc": "", "exif": {} }
+        "photo": {
+          "title": "Photo title",
+          "desc": "Photo description"
+        }
       },
-      "hasBgm": false
+      "hasBgm": false,
+      "order": 0
     }
   ],
   "allPhotos": {
-    "影集名/photo1": {
-      "filename": "photo1.webp",
-      "mainSize": 890000,
-      "thumbSize": 3500,
+    "album-id/photo": {
+      "filename": "photo.webp",
+      "originalName": "photo.jpg",
+      "mainSize": 123456,
+      "mediumSize": 45678,
+      "thumbSize": 12345,
       "exif": {
         "aperture": "f/2.8",
         "shutterSpeed": "1/125s",
-        "iso": 100
+        "iso": 100,
+        "dateTaken": "2024:01:01 12:00:00",
+        "camera": "Camera Model"
       }
     }
   }
 }
 ```
 
----
+Keys in `photoInfos` and `allPhotos` use the photo stem without extension. Frontend display paths are derived from `filename`.
 
-## ⚙️ 技术栈
+## Image Pipeline
 
-- **框架**：Next.js 15 + React 19
-- **语言**：TypeScript
-- **样式**：CSS Modules
-- **轮播**：embla-carousel（3KB，硬件加速）
-- **图片处理**：Python + Pillow + piexif
-- **部署**：Cloudflare Pages（静态导出）
+Run:
 
----
+```bash
+python scripts/process_photos.py
+```
 
-## 📝 关键文件说明
+The script:
 
-| 文件 | 作用 |
-|------|------|
-| `scripts/process_photos.py` | 图片压缩、EXIF提取、生成 albums.json |
-| `src/lib/photos.ts` | 数据读取接口（getAlbums, getAllPhotos 等）|
-| `src/components/album/AlbumView.tsx` | 影集展示页核心组件（Embla Carousel）|
-| `src/app/admin/page.tsx` | 管理后台（影集/照片编辑）|
-| `.gitignore` | 忽略 originals/、node_modules/ 等 |
+- Scans `originals/[album-name]/` as album folders.
+- Treats images directly under `originals/` as the `default` album.
+- Writes main images to `public/photos/[album]/`.
+- Writes medium images to `public/medium/[album]/`.
+- Writes thumbnail-purpose images to `public/thumbnails/[album]/`.
+- Extracts EXIF fields into `public/albums.json`.
+- Preserves existing album and photo titles/descriptions where possible.
 
----
+Current generated image targets:
 
-## 🔧 常见问题
+| Output | Path | Purpose | Script target |
+| --- | --- | --- | --- |
+| Main | `public/photos` | album viewer and lightbox | <= 900KB target |
+| Medium | `public/medium` | gallery and explore cards | <= 400KB target, max side 800px |
+| Thumbnail-purpose | `public/thumbnails` | album thumbnail UI | <= 150KB target, max side 400px |
 
-### 开发模式卡顿
-- 正常现象（React 严格模式、Source Map）
-- 部署后会有 20-40% 性能提升
+UI display sizes are smaller than file dimensions. For example, album thumbnails may render around 48-54px while using files generated with a 400px max side.
 
-### 图片压缩后仍大于 1MB
-- 脚本会自动降低质量重试
-- 极端情况需手动压缩原图后再处理
+## Admin Boundary
 
-### EXIF 提取失败
-- 部分手机拍摄的照片可能缺少 EXIF
-- 不影响整体功能
+`/admin` is a local development convenience:
 
----
+- It uses a hard-coded local password to prevent accidental access.
+- It can write local files through `/api/admin/*` while running `next dev`.
+- It is not a secure authentication system.
+- It is not expected to work as a production CMS after static export.
 
-## 🌐 访问地址
+When documenting or extending admin behavior, call it a local content tool unless the architecture is changed to include a real backend.
 
-- **本地开发**：http://localhost:3000
-- **Admin**：http://localhost:3000/admin（密码：gu123456）
-- **生产环境**：Cloudflare Pages 自动分配的域名
+## Development Commands
 
----
+```bash
+npm run dev
+npm run lint
+npm run build
+python scripts/process_photos.py
+```
 
-## 📌 决策记录（按时间最新优先）
+`npm run build` currently installs with `--legacy-peer-deps` before `next build`, then writes static output to `dist` in production mode.
 
-1. **移动端控制按钮**：默认隐藏，点击照片显示/隐藏
-2. **顶部信息栏**：与面板联动，面板展开时显示
-3. **照片区域动画**：0.8s 惯性动画，按钮显示时自适应
-4. **九宫格滑动**：鼠标滚轮 + 平滑过渡动画
-5. **轮播方案**：embla-carousel（轻量、流畅）
-6. **缩略图选中状态**：边框高亮，无发光效果（避免卡顿）
-7. **EXIF 字体**：使用项目默认字体，不强制 monospace
-8. **影集页布局**：整屏无滚动，照片自适应填充
-9. **图片压缩**：WebP 格式，主图 ≤1MB，缩略图 54×54px
+## Deployment
+
+Cloudflare Pages settings:
+
+```yaml
+Framework preset: Next.js
+Build command: npm run build
+Build output directory: dist
+```
+
+Deploy generated static assets, including:
+
+- `public/albums.json`
+- `public/photos/**`
+- `public/medium/**`
+- `public/thumbnails/**`
+- `public/content/**`
+
+Do not deploy `originals/` as part of the public site.
+
+## Known Deferred Issues
+
+The site is primarily used as an interview portfolio and is expected to have low traffic. The following issues are recorded for future maintenance, but they are not current blockers unless the site becomes more public, more frequently edited, or more security-sensitive.
+
+| Area | Deferred issue | When to revisit |
+| --- | --- | --- |
+| Admin security | `/admin` and `/api/admin/*` are local development tools, not hardened production admin endpoints. They do not provide server-side session auth or CSRF protection. | Revisit before exposing admin routes on any deployed backend or shared network. |
+| Editable about content | `public/content/about.md` is loaded as MDX-capable content. This is acceptable while content is locally trusted, but it is too permissive for untrusted editing. | Revisit if non-developers can edit profile content or if content comes from a remote source. |
+| Upload validation | Admin upload handling should enforce server-side file size and MIME/type validation instead of relying on client behavior. | Revisit before allowing larger batches, shared editing, or remote uploads. |
+| Special filenames | Album and photo paths should be URL-encoded and tested with spaces, punctuation, non-ASCII names, and bracket-like characters. | Revisit before importing albums from mixed sources or preserving arbitrary camera/export filenames. |
+| Explore mobile layout | The explore/welcome layout may need visual verification on narrow mobile screens, especially around overflow and scattered photo positioning. | Revisit during the next visual polish pass with browser screenshots. |
+
+## Current Implementation Principles
+
+- Prefer `public/albums.json` over filesystem scanning at runtime.
+- Keep the public site static and portable.
+- Keep the UI photography-first: restrained controls, generous visual focus, no marketing-style hero unless product direction changes.
+- Keep docs honest about current behavior. Historical fixes and planned ideas must be clearly labeled as such.
+- If code and documentation disagree, verify the code first, then update the stale document or make an intentional code change.

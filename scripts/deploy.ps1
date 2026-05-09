@@ -66,7 +66,7 @@ if ($hasOriginals) {
   
   Write-Host ""
   Write-Host "📝 提交处理后的图片..." -ForegroundColor Yellow
-  git add public/photos.json public/photos/ public/thumbnails/
+  git add public/albums.json public/photos/ public/medium/ public/thumbnails/ public/content/
   git commit -m "chore: process photos" --allow-empty
   git push origin main
 }

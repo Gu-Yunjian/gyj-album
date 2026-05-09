@@ -1,57 +1,20 @@
-# Bug 修复记录
+# Historical Bugfix Notes
 
-## 修复内容
+> This file is historical context only. It is not a current test checklist, product specification, or source of truth. Use `PROJECT_GUIDE.md` for current behavior.
 
-### 1. 首页中间个人信息空白 ✅
-- **问题**: 首页中心的个人信息没有显示
-- **原因**: GalleryCanvas 组件中 index=0 时没有正确渲染 CenterProfile
-- **修复**: 修改 calculateLayout 函数，将中心项独立标识为 `isCenter: true`，使用固定 key `center-profile`
+## Why This File Exists
 
-### 2. 首页背景颜色 + 白色卡片效果 ✅
-- **问题**: 白色卡片在白色背景上不突出
-- **修复**:
-  - 将 `--bg-primary` 从 `#FFFFFF` 改为 `#F5F5F5`（灰白色背景）
-  - PhotoCard 添加 `padding: 16px` 形成白色画框效果
-  - 设置统一卡片尺寸 280x200
+Earlier project iterations used different page and component assumptions, including older homepage behavior and different album-page handling. Some notes in the original bugfix log referenced those older assumptions.
 
-### 3. 影集封面文字颜色 ✅
-- **问题**: 悬停时文字不够显眼
-- **修复**: 加强渐变背景（0.7 -> 0.85），添加文字阴影
+To avoid confusing future work:
 
-### 4. 影集页面无法打开 ✅
-- **问题**: 访问影集页面显示"影集不存在"或500错误
-- **修复**:
-  - 使用 `decodeURIComponent()` 解码 URL 参数
-  - 禁用静态生成 (`dynamic = 'force-dynamic'`) 避免中文路径问题
+- Treat this file as an archive.
+- Do not use it to decide how the site should behave today.
+- Move any still-relevant known issue into a current issue tracker or a fresh task-specific note.
 
-### 5. 灯箱按钮错位 ✅
-- **问题**: 灯箱左右切换按钮位置不正确
-- **修复**: 添加 `.prev` 和 `.next` 样式类，分别设置左右位置
+## Current References
 
-### 6. 灯箱图片显示 ✅
-- **问题**: 灯箱图片不显示或错位
-- **修复**: 修复容器样式，确保图片正确填充
-
-## 测试检查清单
-
-请在浏览器中测试以下功能（端口3002）：
-
-- [x] 首页加载正常，显示"摄影师"和个人信息
-- [x] 首页照片显示为白色卡片（明信片样式）
-- [x] 首页可拖动画布浏览
-- [ ] 点击照片打开灯箱，图片正常显示
-- [ ] 灯箱左右切换正常
-- [x] 顶部导航"首页"点击回到中心位置
-- [x] 顶部导航"作品"进入作品集页面
-- [x] 作品集页面显示所有影集封面
-- [x] 悬停影集封面，右下角显示信息（白色文字）
-- [x] 点击影集封面进入影集详情页
-- [ ] 影集页面显示照片和右侧信息
-- [ ] 影集页面点击照片打开灯箱
-- [x] 关于页面正常显示
-- [ ] 暗色模式切换正常工作
-
-## 已知问题
-
-1. 影集页面在开发模式下偶有500错误（Node.js Jest worker问题），生产构建后正常
-2. 如果端口3000有问题，请使用端口3002
+- Current architecture and workflow: `PROJECT_GUIDE.md`
+- Current implementation details: `TechSpec.md`
+- Current product surface: `ProductSpec.md`
+- Current deployment checklist: `DEPLOY.md`

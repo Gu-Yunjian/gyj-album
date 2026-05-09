@@ -10,22 +10,74 @@ interface ScatteredPhotosProps {
   layoutKey: number;
 }
 
-// PC端配置
-const PC_CONFIG = {
-  photoCount: 15,
-  startX: 0.1,      // 从10%开始（整个右侧区域）
-  endX: 0.8,         // 到80%（页面边缘）
-  startY: 0,      // 从0%开始
-  endY: 0.85,        // 到85%（接近底部）
-  concentration: 0.95, // 集中度：使用95%区域，更充分利用空间
+type LayoutConfig = {
+  photoCount: number;
+  jitterX: number;
+  jitterY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  anchors: Array<{ x: number; y: number }>;
 };
 
-// 移动端配置
-const MOBILE_CONFIG = {
-  photoCount: 6,
-  topRegion: { startY: 0, endY: 0 },
-  bottomRegion: { startY: 0.75, endY: 0.80 },
-  concentration: 0.7, // 集中度
+const DESKTOP_CONFIG: LayoutConfig = {
+  photoCount: 20,
+  jitterX: 0.07,
+  jitterY: 0.055,
+  minX: 0.02,
+  maxX: 0.98,
+  minY: -0.03,
+  maxY: 0.94,
+  anchors: [
+    { x: 0.55, y: 0.45 },
+    { x: 0.47, y: 0.52 },
+    { x: 0.62, y: 0.54 },
+    { x: 0.39, y: 0.60 },
+    { x: 0.70, y: 0.62 },
+    { x: 0.50, y: 0.68 },
+    { x: 0.60, y: 0.72 },
+    { x: 0.42, y: 0.75 },
+    { x: 0.76, y: 0.76 },
+    { x: 0.30, y: 0.48 },
+    { x: 0.82, y: 0.42 },
+    { x: 0.36, y: 0.34 },
+    { x: 0.70, y: 0.31 },
+    { x: 0.52, y: 0.22 },
+    { x: 0.22, y: 0.20 },
+    { x: 0.90, y: 0.18 },
+    { x: 0.16, y: 0.66 },
+    { x: 0.92, y: 0.66 },
+    { x: 0.26, y: 0.88 },
+    { x: 0.82, y: 0.90 },
+  ],
+};
+
+const MOBILE_CONFIG: LayoutConfig = {
+  photoCount: 15,
+  jitterX: 0.09,
+  jitterY: 0.055,
+  minX: -0.14,
+  maxX: 1.02,
+  minY: 0.14,
+  maxY: 0.92,
+  anchors: [
+    { x: 0.06, y: 0.18 },
+    { x: 0.84, y: 0.30 },
+    { x: 0.30, y: 0.44 },
+    { x: 0.96, y: 0.58 },
+    { x: -0.04, y: 0.68 },
+    { x: 0.48, y: 0.76 },
+    { x: 0.18, y: 0.84 },
+    { x: 0.88, y: 0.90 },
+    { x: 0.44, y: 0.22 },
+    { x: 0.12, y: 0.36 },
+    { x: 0.66, y: 0.50 },
+    { x: 0.24, y: 0.62 },
+    { x: 0.78, y: 0.72 },
+    { x: 0.02, y: 0.80 },
+    { x: 0.58, y: 0.88 },
+  ],
 };
 
 // 生成随机初始位置
@@ -40,46 +92,13 @@ function generatePositions(
   for (let i = 0; i < count; i++) {
     let x: number, y: number;
     
-    if (isMobile) {
-      // 移动端：上下区域分布，应用集中度
-      const isTop = i % 2 === 0;
-      const config = MOBILE_CONFIG;
-      
-      // 计算集中后的区域
-      const region = isTop ? config.topRegion : config.bottomRegion;
-      const regionHeight = region.endY - region.startY;
-      const concentratedHeight = regionHeight * config.concentration;
-      const padding = (regionHeight - concentratedHeight) / 2;
-      
-      const actualStartY = region.startY + padding;
-      const actualEndY = region.endY - padding;
-      
-      x = containerWidth * 0.1 + Math.random() * (containerWidth * 0.8);
-      y = containerHeight * (actualStartY + Math.random() * (actualEndY - actualStartY));
-    } else {
-      // PC端：应用集中度
-      const config = PC_CONFIG;
-      
-      // 计算可用范围
-      const rangeX = config.endX - config.startX;
-      const rangeY = config.endY - config.startY;
-      
-      // 应用集中度缩小范围
-      const concentratedRangeX = rangeX * config.concentration;
-      const concentratedRangeY = rangeY * config.concentration;
-      
-      // 计算padding使分布居中
-      const paddingX = (rangeX - concentratedRangeX) / 2;
-      const paddingY = (rangeY - concentratedRangeY) / 2;
-      
-      const actualStartX = config.startX + paddingX;
-      const actualEndX = config.endX - paddingX;
-      const actualStartY = config.startY + paddingY;
-      const actualEndY = config.endY - paddingY;
-      
-      x = containerWidth * (actualStartX + Math.random() * (actualEndX - actualStartX));
-      y = containerHeight * (actualStartY + Math.random() * (actualEndY - actualStartY));
-    }
+    const config = isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG;
+    const anchor = config.anchors[i % config.anchors.length];
+    const offsetX = (Math.random() - 0.5) * config.jitterX;
+    const offsetY = (Math.random() - 0.5) * config.jitterY;
+
+    x = containerWidth * clamp(anchor.x + offsetX, config.minX, config.maxX);
+    y = containerHeight * clamp(anchor.y + offsetY, config.minY, config.maxY);
     
     const rotation = -12 + Math.random() * 24;
     positions.push({ x, y, rotation });
@@ -88,12 +107,29 @@ function generatePositions(
   return positions;
 }
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getInitialZIndex(position: { x: number; y: number }, containerWidth: number, containerHeight: number) {
+  const centerX = containerWidth * 0.52;
+  const centerY = containerHeight * 0.58;
+  const normalizedX = (position.x - centerX) / containerWidth;
+  const normalizedY = (position.y - centerY) / containerHeight;
+  const distanceFromCenter = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
+  const centerLift = Math.round((1 - Math.min(distanceFromCenter / 0.58, 1)) * 28);
+  const randomLift = Math.floor(Math.random() * 10);
+
+  return 20 + centerLift + randomLift;
+}
+
 export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [photoStates, setPhotoStates] = useState<Array<{
     position: { x: number; y: number };
     rotation: number;
+    baseZIndex: number;
     zLevel: number;
   }>>([]);
   const [isReady, setIsReady] = useState(false);
@@ -109,7 +145,7 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
 
   // 获取照片数量
   const getPhotoCount = useCallback(() => {
-    return isMobile ? MOBILE_CONFIG.photoCount : PC_CONFIG.photoCount;
+    return isMobile ? MOBILE_CONFIG.photoCount : DESKTOP_CONFIG.photoCount;
   }, [isMobile]);
 
   // 初始化位置
@@ -126,9 +162,10 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
         const photoCount = getPhotoCount();
         const displayPhotos = photos.slice(0, photoCount);
         const positions = generatePositions(displayPhotos.length, size.width, size.height, isMobile);
-        setPhotoStates(positions.map(p => ({ 
-          position: { x: p.x, y: p.y }, 
+        setPhotoStates(positions.map(p => ({
+          position: { x: p.x, y: p.y },
           rotation: p.rotation,
+          baseZIndex: getInitialZIndex({ x: p.x, y: p.y }, size.width, size.height),
           zLevel: 0 
         })));
         setIsReady(true);
@@ -167,8 +204,8 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
   }, []);
 
   // 计算实际 z-index
-  const getZIndex = (baseIndex: number, zLevel: number) => {
-    return 10 + baseIndex + zLevel * 10;
+  const getZIndex = (baseZIndex: number, zLevel: number) => {
+    return baseZIndex + zLevel * 100;
   };
 
   // 获取当前显示的照片数量
@@ -191,7 +228,8 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
             photo={photo}
             position={state.position}
             rotation={state.rotation}
-            zIndex={getZIndex(index, state.zLevel)}
+            zIndex={getZIndex(state.baseZIndex, state.zLevel)}
+            isMobile={isMobile}
             onPositionChange={(pos) => updatePosition(index, pos)}
             onActivate={() => activatePhoto(index)}
           />

@@ -134,6 +134,12 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
     return parts.length > 0 ? parts.join(' · ') : null;
   };
 
+  const getPhotoButtonLabel = (photo: string, index: number) => {
+    const stem = photo.replace(/\.[^/.]+$/, '');
+    const title = album.photoInfos[stem]?.title;
+    return title ? `跳转到第 ${index + 1} 张照片：${title}` : `跳转到第 ${index + 1} 张照片`;
+  };
+
   const revealControls = useCallback(() => {
     setShowControls(true);
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
@@ -282,8 +288,8 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
         </div>
         
         {album.photos.length > 1 && (<>
-          {currentIndex > 0 && <button className={`${styles.nav} ${styles.navPrev}`} onClick={goToPrev}><CaretLeft size={32} /></button>}
-          {currentIndex < album.photos.length - 1 && <button className={`${styles.nav} ${styles.navNext}`} onClick={goToNext}><CaretRight size={32} /></button>}
+          {currentIndex > 0 && <button className={`${styles.nav} ${styles.navPrev}`} onClick={goToPrev} aria-label="上一张照片"><CaretLeft size={32} /></button>}
+          {currentIndex < album.photos.length - 1 && <button className={`${styles.nav} ${styles.navNext}`} onClick={goToNext} aria-label="下一张照片"><CaretRight size={32} /></button>}
         </>)}
 
         {/* 移动端控制按钮 */}
@@ -324,6 +330,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
                       className={`${styles.thumbnail} ${index === currentIndex ? styles.thumbnailActive : ''}`} 
                       onClick={() => scrollTo(index)}
                       onContextMenu={handleContextMenu}
+                      aria-label={getPhotoButtonLabel(photo, index)}
                     >
                       <Image src={`/thumbnails/${album.name}/${photo}`} alt="" width={54} height={54} className={styles.thumbnailImage} draggable={false} onDragStart={handleDragStart} loading="lazy" />
                     </button>
@@ -357,6 +364,7 @@ export default function AlbumView({ album, allPhotos = {} }: AlbumViewProps) {
                         className={`${styles.thumbnailMobile} ${index === currentIndex ? styles.thumbnailActive : ''}`} 
                         onClick={() => scrollTo(index)}
                         onContextMenu={handleContextMenu}
+                        aria-label={getPhotoButtonLabel(photo, index)}
                       >
                         <Image src={`/thumbnails/${album.name}/${photo}`} alt="" width={48} height={48} className={styles.thumbnailImage} draggable={false} onDragStart={handleDragStart} loading="lazy" />
                       </button>

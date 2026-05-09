@@ -11,6 +11,8 @@ interface ExploreClientProps {
   allPhotos: GalleryPhoto[];
 }
 
+const PHOTO_POOL_SIZE = 20;
+
 // 随机选择 n 张照片
 function getRandomPhotos(photos: GalleryPhoto[], count: number): GalleryPhoto[] {
   const shuffled = [...photos].sort(() => Math.random() - 0.5);
@@ -22,16 +24,16 @@ export default function ExploreClient({ allPhotos }: ExploreClientProps) {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [layoutKey, setLayoutKey] = useState(0);
 
-  // 初始化随机选择10张照片
+  // 初始化随机选择足够覆盖桌面端展示数量的照片
   useEffect(() => {
     if (allPhotos.length > 0) {
-      setPhotos(getRandomPhotos(allPhotos, 15));
+      setPhotos(getRandomPhotos(allPhotos, PHOTO_POOL_SIZE));
     }
   }, [allPhotos]);
 
   // 刷新布局
   const handleRefresh = useCallback(() => {
-    setPhotos(getRandomPhotos(allPhotos, 15));
+    setPhotos(getRandomPhotos(allPhotos, PHOTO_POOL_SIZE));
     setLayoutKey(prev => prev + 1);
   }, [allPhotos]);
 

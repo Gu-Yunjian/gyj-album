@@ -11,8 +11,9 @@
 
 .content {
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   padding-top: var(--header-height);
+  box-sizing: border-box;
 }
 
 /* ============================================
@@ -20,14 +21,15 @@
    ============================================ */
 
 .textSection {
-  flex: 0 0 40%;
+  flex: 0 0 29%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   padding: var(--page-margin);
   padding-left: calc(var(--page-margin) * 1.5 + 20px);
-  z-index: 10;
+  position: relative;
+  z-index: 20;
 }
 
 .title {
@@ -107,9 +109,10 @@
    ============================================ */
 
 .photosSection {
-  flex: 0 0 60%;
+  flex: 0 0 71%;
   position: relative;
-  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100svh - var(--header-height));
+  z-index: 100;
 }
 
 .photosContainer {
@@ -266,16 +269,20 @@
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
+    height: 100svh;
+    min-height: 620px;
   }
 
   .textSection {
-    flex: none;
+    flex: 0 0 38%;
     align-items: center;
     text-align: center;
+    justify-content: flex-end;
     padding: var(--page-margin-mobile);
-    padding-top: 60px;
-    min-height: 40vh;
-    margin-bottom: 20px;
+    padding-top: 28px;
+    padding-bottom: 18px;
+    min-height: 0;
+    margin-bottom: 0;
   }
 
   .title {
@@ -283,8 +290,14 @@
   }
 
   .photosSection {
-    flex: 1;
-    min-height: 50vh;
+    flex: 1 1 62%;
+    width: 100%;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .photosContainer {
+    top: 40px;
   }
 
   .lightboxImage {

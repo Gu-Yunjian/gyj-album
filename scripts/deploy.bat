@@ -76,7 +76,7 @@ if "%NEED_PROCESS%"=="1" (
   
   echo.
   echo 📝 提交处理后的图片...
-  git add public/photos.json public/photos/ public/thumbnails/
+  git add public/albums.json public/photos/ public/medium/ public/thumbnails/ public/content/
   git commit -m "chore: process photos"
   git push origin main
 )

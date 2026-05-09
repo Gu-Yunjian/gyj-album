@@ -30,7 +30,6 @@ export default async function AlbumPage({ params }: PageProps) {
   // 解码 URL 编码的中文目录名
   const decodedName = decodeURIComponent(name);
   const album = await getAlbum(decodedName);
-  const allPhotos = await getAllPhotosData();
 
   if (!album) {
     return (
@@ -41,6 +40,21 @@ export default async function AlbumPage({ params }: PageProps) {
       </main>
     );
   }
+
+  if (album.photos.length === 0) {
+    return (
+      <main className={styles.main}>
+        <div className={styles.notFound}>
+          <div>
+            <h1>影集暂无照片</h1>
+            <p>这个影集已经创建，还没有可展示的照片。</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const allPhotos = await getAllPhotosData();
 
   return (
     <main className={styles.main}>

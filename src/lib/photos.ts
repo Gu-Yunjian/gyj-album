@@ -21,6 +21,7 @@ export interface Photo {
   filename: string;
   originalName: string;
   mainSize: number;
+  mediumSize?: number;
   thumbSize: number;
   exif?: ExifInfo;
   title?: string;
@@ -44,6 +45,8 @@ export interface GalleryPhoto {
   album: string;
   albumTitle: string;
   index: string; // photo stem (filename without extension)
+  width?: number;
+  height?: number;
   info?: PhotoInfo;
   exif?: ExifInfo;
 }
@@ -82,6 +85,93 @@ async function loadDataFromFetch(): Promise<AlbumsData> {
 // 判断是否在服务器端
 function isServer(): boolean {
   return typeof window === 'undefined';
+}
+
+type ImageDimensions = {
+  width: number;
+  height: number;
+};
+
+const imageDimensionCache = new Map<string, ImageDimensions | undefined>();
+
+async function getLocalImageDimensions(publicSrc: string): Promise<ImageDimensions | undefined> {
+  if (!publicSrc.startsWith('/')) return undefined;
+  if (imageDimensionCache.has(publicSrc)) return imageDimensionCache.get(publicSrc);
+
+  try {
+    const filePath = path.join(process.cwd(), 'public', ...publicSrc.split('/').filter(Boolean));
+    const buffer = await fs.readFile(filePath);
+    const dimensions = parseImageDimensions(buffer);
+    imageDimensionCache.set(publicSrc, dimensions);
+    return dimensions;
+  } catch {
+    imageDimensionCache.set(publicSrc, undefined);
+    return undefined;
+  }
+}
+
+function parseImageDimensions(buffer: Buffer): ImageDimensions | undefined {
+  if (buffer.length >= 24 && buffer.toString('ascii', 1, 4) === 'PNG') {
+    return {
+      width: buffer.readUInt32BE(16),
+      height: buffer.readUInt32BE(20),
+    };
+  }
+
+  if (buffer.length >= 30 && buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') {
+    const chunkType = buffer.toString('ascii', 12, 16);
+
+    if (chunkType === 'VP8X') {
+      return {
+        width: 1 + buffer.readUIntLE(24, 3),
+        height: 1 + buffer.readUIntLE(27, 3),
+      };
+    }
+
+    if (chunkType === 'VP8L' && buffer[20] === 0x2f) {
+      const b0 = buffer[21];
+      const b1 = buffer[22];
+      const b2 = buffer[23];
+      const b3 = buffer[24];
+      return {
+        width: 1 + (((b1 & 0x3f) << 8) | b0),
+        height: 1 + (((b3 & 0x0f) << 10) | (b2 << 2) | ((b1 & 0xc0) >> 6)),
+      };
+    }
+
+    if (chunkType === 'VP8 ') {
+      return {
+        width: buffer.readUInt16LE(26) & 0x3fff,
+        height: buffer.readUInt16LE(28) & 0x3fff,
+      };
+    }
+  }
+
+  if (buffer.length >= 4 && buffer[0] === 0xff && buffer[1] === 0xd8) {
+    let offset = 2;
+    const startOfFrameMarkers = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+
+    while (offset + 9 < buffer.length) {
+      if (buffer[offset] !== 0xff) {
+        offset += 1;
+        continue;
+      }
+
+      const marker = buffer[offset + 1];
+      const segmentLength = buffer.readUInt16BE(offset + 2);
+
+      if (startOfFrameMarkers.has(marker)) {
+        return {
+          height: buffer.readUInt16BE(offset + 5),
+          width: buffer.readUInt16BE(offset + 7),
+        };
+      }
+
+      offset += 2 + segmentLength;
+    }
+  }
+
+  return undefined;
 }
 
 /**
@@ -125,13 +215,18 @@ export async function getAllPhotos(): Promise<GalleryPhoto[]> {
       const photoData = data.allPhotos[key];
       
       if (photoData) {
+        const mediumSrc = `/medium/${album.name}/${photoData.filename}`;
+        const dimensions = await getLocalImageDimensions(mediumSrc);
+
         photos.push({
           src: `/photos/${album.name}/${photoData.filename}`,
-          mediumSrc: `/medium/${album.name}/${photoData.filename}`,
+          mediumSrc,
           thumbSrc: `/thumbnails/${album.name}/${photoData.filename}`,
           album: album.name,
           albumTitle: album.title,
           index: stem,
+          width: dimensions?.width,
+          height: dimensions?.height,
           info: album.photoInfos[stem],
           exif: photoData.exif,
         });
@@ -169,6 +264,7 @@ export async function getPhoto(albumName: string, photoStem: string): Promise<Ga
     album: albumName,
     albumTitle: album.title,
     index: photoStem,
+    ...(await getLocalImageDimensions(`/medium/${albumName}/${photoData.filename}`)),
     info: album.photoInfos[photoStem],
     exif: photoData.exif,
   };

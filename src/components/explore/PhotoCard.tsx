@@ -10,8 +10,28 @@ interface PhotoCardProps {
   position: { x: number; y: number };
   rotation: number;
   zIndex: number;
+  isMobile: boolean;
   onPositionChange: (pos: { x: number; y: number }) => void;
   onActivate: () => void;
+}
+
+const MAX_TILT_DEGREES = 9;
+const DESKTOP_IMAGE_AREA = 42000;
+const DESKTOP_MAX_IMAGE_SIDE = 250;
+const MOBILE_IMAGE_AREA = 32000;
+const MOBILE_MAX_IMAGE_SIDE = 215;
+
+function getDisplaySize(naturalWidth: number, naturalHeight: number, isMobile: boolean) {
+  const targetArea = isMobile ? MOBILE_IMAGE_AREA : DESKTOP_IMAGE_AREA;
+  const maxSide = isMobile ? MOBILE_MAX_IMAGE_SIDE : DESKTOP_MAX_IMAGE_SIDE;
+  const areaScale = Math.sqrt(targetArea / (naturalWidth * naturalHeight));
+  const sideScale = Math.min(1, maxSide / Math.max(naturalWidth * areaScale, naturalHeight * areaScale));
+  const scale = areaScale * sideScale;
+
+  return {
+    width: naturalWidth * scale,
+    height: naturalHeight * scale,
+  };
 }
 
 export default function PhotoCard({
@@ -19,10 +39,12 @@ export default function PhotoCard({
   position,
   rotation,
   zIndex,
+  isMobile,
   onPositionChange,
   onActivate,
 }: PhotoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   
   const isDraggingRef = useRef(false);
@@ -34,28 +56,46 @@ export default function PhotoCard({
     const img = new Image();
     img.src = photo.thumbSrc;
     img.onload = () => {
-      const maxWidth = 180;
-      const scale = img.naturalWidth > maxWidth ? maxWidth / img.naturalWidth : 1;
-      setImgSize({
-        width: img.naturalWidth * scale,
-        height: img.naturalHeight * scale,
-      });
+      setImgSize(getDisplaySize(img.naturalWidth, img.naturalHeight, isMobile));
     };
-  }, [photo.thumbSrc]);
+  }, [photo.thumbSrc, isMobile]);
+
+  const updateTilt = useCallback((e: React.PointerEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const relativeX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relativeY = (e.clientY - rect.top) / rect.height - 0.5;
+
+    setTilt({
+      rotateX: -relativeY * MAX_TILT_DEGREES * 2,
+      rotateY: relativeX * MAX_TILT_DEGREES * 2,
+    });
+  }, []);
+
+  const resetTilt = useCallback(() => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+  }, []);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     isDraggingRef.current = true;
     dragStartPos.current = { ...position };
     dragStartMouse.current = { x: e.clientX, y: e.clientY };
+    resetTilt();
     onActivate();
     
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
-  }, [position, onActivate]);
+  }, [position, resetTilt, onActivate]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
+    if (!isDraggingRef.current) {
+      if (isHovered && e.pointerType === 'mouse') {
+        updateTilt(e);
+      }
+      return;
+    }
     
     const deltaX = e.clientX - dragStartMouse.current.x;
     const deltaY = e.clientY - dragStartMouse.current.y;
@@ -66,13 +106,18 @@ export default function PhotoCard({
     };
     
     onPositionChange(newPos);
-  }, [onPositionChange]);
+  }, [isHovered, updateTilt, onPositionChange]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     const target = e.currentTarget;
     target.releasePointerCapture(e.pointerId);
     isDraggingRef.current = false;
   }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    setIsHovered(false);
+    resetTilt();
+  }, [resetTilt]);
 
   if (imgSize.width === 0) return null;
 
@@ -85,19 +130,24 @@ export default function PhotoCard({
         top: position.y,
         zIndex: zIndex,
         cursor: 'grab',
+        transformPerspective: 700,
+        transformStyle: 'preserve-3d',
       }}
-      initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
+      initial={{ opacity: 0, scale: 0.8, rotate: rotation, rotateX: 0, rotateY: 0 }}
       animate={{
         opacity: 1,
-        scale: isHovered ? 1.02 : 1,
+        scale: isHovered ? 1.045 : 1,
         rotate: rotation,
+        rotateX: isHovered ? tilt.rotateX : 0,
+        rotateY: isHovered ? tilt.rotateY : 0,
       }}
+      transformTemplate={(_, generated) => `translate(-50%, -50%) ${generated}`}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+      onHoverEnd={handleHoverEnd}
     >
       <div 
         className={styles.polaroidFrame}

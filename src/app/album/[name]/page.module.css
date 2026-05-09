@@ -8,4 +8,11 @@
   justify-content: center;
   min-height: 100vh;
   text-align: center;
+  color: var(--text-primary);
+}
+
+.notFound p {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
 }

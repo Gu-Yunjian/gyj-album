@@ -59,12 +59,27 @@ const IconMap: Record<string, React.FC> = {
   qq: QQIcon,
 };
 
+const ALLOWED_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+
+function isSafeLink(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return ALLOWED_LINK_PROTOCOLS.has(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export default function SocialButtons({ buttons }: SocialButtonsProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleClick = useCallback(async (button: SocialButton) => {
     if (button.type === 'link') {
-      window.open(button.value, '_blank');
+      if (!isSafeLink(button.value)) {
+        console.warn('Blocked unsafe social link:', button.value);
+        return;
+      }
+      window.open(button.value, '_blank', 'noopener,noreferrer');
     } else {
       try {
         await navigator.clipboard.writeText(button.value);

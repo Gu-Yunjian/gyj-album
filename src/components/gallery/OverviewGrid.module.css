@@ -21,39 +21,63 @@
 }
 
 .grid {
+  --scroll-tilt: 0deg;
+
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 0 16px; /* 左右边距 */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px 16px 0; /* 左右边距 */
   position: relative;
   z-index: 2;
+  perspective: 900px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .card {
+  --hover-scale: 1;
+
+  display: block;
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center;
+  transform: perspective(700px) rotateX(var(--scroll-tilt)) scale(var(--hover-scale));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: transform 0.18s ease-out;
+  will-change: transform;
 }
 
 .card:hover {
-  transform: scale(1.02);
+  --hover-scale: 1.015;
+
+  z-index: 3;
 }
 
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;
   overflow: hidden;
   border-radius: 2px;
   background: #f5f5f5;
+  line-height: 0;
 }
 
 .image {
-  object-fit: cover;
-  transition: transform 0.5s ease, box-shadow 0.3s ease;
-}
-
-.card:hover .image {
-  transform: scale(1.05);
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Hover overlay */
@@ -98,17 +122,15 @@
 /* Desktop - 3 columns */
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    padding: 0 24px; /* 桌面端更大的边距 */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 8px 24px 0; /* 桌面端更大的边距 */
   }
 }
 
-/* Large Desktop - 4 columns */
+/* Large Desktop - 5 columns */
 @media (min-width: 1200px) {
   .grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    padding: 0 32px; /* 大屏更大的边距 */
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 8px 32px 0; /* 大屏更大的边距 */
   }
 }

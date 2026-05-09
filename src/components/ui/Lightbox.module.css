@@ -160,14 +160,23 @@
     right: 16px;
   }
   
-  .prevBtn,
-  .nextBtn {
-    display: none;
-  }
-  
   .content {
     max-width: 95vw;
     max-height: 80vh;
+  }
+
+  .prevBtn,
+  .nextBtn {
+    padding: 12px;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .prevBtn {
+    left: 0;
+  }
+
+  .nextBtn {
+    right: 0;
   }
   
   .imageContainer {

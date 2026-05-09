@@ -17,10 +17,15 @@ export async function POST(request: NextRequest) {
     
     // 如果指定了自定义路径，保存到该路径
     if (data.path && data.content !== undefined) {
-      const targetPath = path.join(ROOT_DIR, data.path);
+      if (typeof data.path !== 'string') {
+        return NextResponse.json({ error: '无效的路径' }, { status: 400 });
+      }
+
+      const targetPath = path.resolve(ROOT_DIR, data.path);
+      const relativePath = path.relative(CONTENT_DIR, targetPath);
       
       // 安全检查：确保路径在 public/content 目录下
-      if (!targetPath.startsWith(CONTENT_DIR)) {
+      if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
         return NextResponse.json({ error: '不允许的路径' }, { status: 403 });
       }
       

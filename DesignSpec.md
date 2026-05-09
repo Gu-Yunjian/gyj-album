@@ -1,354 +1,193 @@
-# GU-Album 设计规范文档
+# GU-Album Design Specification
 
-> 版本: 1.1  
-> 最后更新: 2026-03-13  
-> 适用范围: 所有新增功能和页面设计
+> Visual and interaction rules for the current site. Product facts live in `PROJECT_GUIDE.md`; implementation facts live in `TechSpec.md`.
 
----
+## Design Direction
 
-## 一、设计哲学
+The site should feel like a restrained personal photography exhibition:
 
-### 1.1 核心原则
+- Photos are the primary visual signal.
+- UI controls should be quiet, predictable, and easy to scan.
+- Avoid decorative clutter, marketing-heavy sections, and loud color systems.
+- Maintain strong mobile usability without turning the experience into a generic app shell.
 
-| 原则 | 描述 | 应用示例 |
-|------|------|----------|
-| **极简主义** | 大留白，减少视觉噪音，让照片成为主角 | 导航栏仅保留必要文字链接 |
-| **沉浸体验** | 平滑的交互，不打断浏览节奏 | 照片切换使用 Embla 滑动 |
-| **内容优先** | 弱化 UI 控件，强化内容展示 | 控制按钮默认隐藏 |
-| **一致性** | 统一的视觉语言和交互模式 | 所有页面使用相同的间距系统 |
+## Global Visual System
 
-### 1.2 设计目标
-- 打造一个**专业、克制、有质感**的摄影作品集
-- 让访客专注于摄影作品本身
-- 提供流畅、自然的浏览体验
+### Color
 
----
-
-## 二、色彩系统
-
-### 2.1 亮色模式 (Light Mode)
+Default pages use a light, minimal palette:
 
 ```css
---bg-primary: #FFFFFF;      /* 主背景 - 纯白 */
---bg-secondary: #FFFFFF;    /* 次级背景 */
---bg-card: #FFFFFF;         /* 卡片背景 */
-
---text-primary: #000000;    /* 主文字 */
---text-secondary: rgba(0, 0, 0, 0.5);  /* 次级文字 */
---text-muted: rgba(0, 0, 0, 0.5);      /* 弱化文字 */
-
+--bg-primary: #ffffff;
+--text-primary: #000000;
+--text-secondary: rgba(0, 0, 0, 0.55);
 --border: rgba(0, 0, 0, 0.1);
---shadow: rgba(0, 0, 0, 0.06);
---accent: #000000;
---accent-hover: rgba(0, 0, 0, 0.7);
 ```
 
-### 2.2 暗色/夜间模式 (Dark Mode)
+Album dark mode is local to the album viewer:
 
 ```css
-/* 影集内容页夜间模式变量 */
---bg-primary: #1a1a1a;      /* 主背景 */
---bg-secondary: #242424;    /* 次级背景 */
---bg-card: #2a2a2a;         /* 卡片背景 */
---text-primary: #e5e5e5;    /* 主文字 */
---text-secondary: #999999;  /* 次级文字 */
---text-muted: #666666;      /* 弱化文字 */
+--bg-primary: #1a1a1a;
+--text-primary: #e5e5e5;
+--text-secondary: #999999;
 --border: #3a3a3a;
---shadow: rgba(0, 0, 0, 0.5);
 ```
 
-**注意**: 影集内容页夜间模式下，左侧主展示区背景应为纯黑色 `#000000`
-
-### 2.3 使用规范
-
-| 元素 | 颜色变量 | 说明 |
-|------|----------|------|
-| 页面背景 | `--bg-primary` | 纯白或近黑 |
-| 正文文字 | `--text-primary` | 标题、重要内容 |
-| 辅助文字 | `--text-secondary` | 描述、副标题 |
-| EXIF 信息 | `--text-muted` | 技术参数，最小化视觉权重 |
-| 边框 | `--border` | 极淡的分隔线 |
-| 交互 Hover | `--accent-hover` | 文字链接变色 |
-
----
-
-## 三、字体规范
-
-### 3.1 字体栈
-
-```css
---font-family: var(--font-inter), var(--font-noto), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
-```
-
-- **西文字体**: Inter (300, 400, 500, 600)
-- **中文字体**: Noto Sans SC (300, 400, 500)
-- **备用栈**: 系统字体
-
-### 3.2 字号层级
-
-| 用途 | 桌面端 | 移动端 | 字重 | 行高 |
-|------|--------|--------|------|------|
-| 页面大标题 | 24px | 20px | 500 | 1.3 |
-| 影集标题 | 24px | 20px | 500 | 1.3 |
-| 副标题 | 18px | 15px | 400 | 1.5 |
-| 正文 | 14px | 15px | 400 | 1.6 |
-| 导航文字 | 12px | 12px | 400 | 1.5 |
-| EXIF 信息 | 13px | 14px | 400 | 1.5 |
-| 照片标题 | 18px | 18px | 500 | 1.4 |
-| 照片描述 | 14px | 15px | 400 | 1.6 |
-| 计数器 | 12px | 13px | 400 | 1.5 |
-
-### 3.3 移动端顶部信息栏
-
-- **标题字号**: 20px
-- **副标题字号**: 15px
-- **计数器字号**: 13px
-- **文本对齐**: 居中
-
----
-
-## 四、间距系统
-
-### 4.1 基础间距变量
-
-```css
---space-xs: 4px;
---space-sm: 8px;
---space-md: 16px;
---space-lg: 24px;
---space-xl: 32px;
---space-2xl: 48px;
---space-3xl: 64px;
-```
-
-### 4.2 页面边距
-
-| 断点 | 边距值 |
-|------|--------|
-| PC (>= 1024px) | 48px |
-| 平板 (768px - 1023px) | 24px |
-| 移动端 (< 768px) | 16px |
-
-### 4.3 组件间距
-
-| 组件 | 内边距 | 外边距 |
-|------|--------|--------|
-| 导航栏 | 0 24px | - |
-| 照片卡片间隙 | - | 16px |
-| 影集信息区 | 32px | - |
-| EXIF 信息 | 仅上边距 8px | - |
-| 移动端面板内容 | 24px 32px | - |
-
----
-
-## 五、组件设计规范
-
-### 5.1 导航栏 (Navigation)
-
-**结构**:
-```
-┌─────────────────────────────────────────┐
-│ GU YUN-JIAN PROJECTS    影集    关于    │
-└─────────────────────────────────────────┘
-```
-
-**样式**:
-- 高度: 60px
-- 位置: fixed, top: 0
-- 背景: `rgba(255, 255, 255, 0.8)` + `backdrop-filter: blur(8px)`
-- 底部边框: `box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05)`
-- Z-index: 1000
-
-**交互**:
-- 链接 Hover: 颜色从 `rgba(0,0,0,0.5)` 变为 `#000000`
-- 下划线动画: 宽度从 0 到 100%，时长 200ms
-
-### 5.2 影集内容页布局
-
-**桌面端双栏布局**:
-```
-┌────────────────────┬─────────────────┐
-│                    │  影集标题       │
-│                    │  副标题         │
-│                    │                 │
-│    照片展示区       │  ─────────────  │
-│    (flex: 1)        │  照片标题       │
-│                    │  照片描述       │
-│                    │  EXIF 信息      │
-│                    │                 │
-│                    │  [九宫格导航]   │
-│                    │  1 / 5          │
-└────────────────────┴─────────────────┘
-```
-
-**左侧照片区**:
-- 背景: 亮色 `#FFFFFF`，夜间 `#000000`
-- 使用 Embla Carousel 实现轮播
-- 支持触摸滑动切换
-
-**右侧信息区**:
-- 宽度: 240px (PC)
-- 背景: `--bg-primary`
-- 缩略图: 54×54px，3×3 网格
-
-### 5.3 移动端自适应布局
-
-**单栏布局**:
-```
-┌─────────────────────────────────┐
-│ [顶部信息栏 - 面板展开时显示]    │ ← 渐变遮罩背景
-├─────────────────────────────────┤
-│                                 │
-│      照片展示区 (Embla)         │ ← 左右滑动切换
-│                                 │
-├─────────────────────────────────┤
-│  ✕  ☾  🔊  ▲                   │ ← 控制按钮（点击照片显示）
-├─────────────────────────────────┤
-│ [可折叠面板 - 照片信息+缩略图]   │ ← 上滑展开，下滑收起
-└─────────────────────────────────┘
-```
-
-**控制按钮栏**:
-- 按钮: 关闭(X)、黑夜模式(☾/☀)、音乐(🔊)、展开/收起(▲/▼)
-- 默认: 隐藏（height: 0）
-- 触发: 点击照片区域显示/隐藏
-- 动画: opacity + height，0.3s ease
-
-**顶部信息栏**:
-- 内容: 影集标题、副标题、计数器
-- 默认: 隐藏
-- 触发: 面板展开时显示
-- 动画: opacity 0.25s ease
-- 背景: 渐变遮罩（0-20%纯色，20-60%半透明，60-100%透明）
-
-**下面板**:
-- 内容: 照片标题、描述、EXIF、单行缩略图
-- 默认: 收起（translateY(100%)）
-- 触发: 点击▲按钮或从底部上滑
-- 动画: transform 0.3s ease
-
-### 5.4 EXIF 信息展示
-
-**格式**: `f/8 · 1/60s · ISO 100`
-
-**样式**:
-- 字号: 13px（桌面），14px（移动）
-- 颜色: `--text-muted`
-- **无背景色块**
-- 仅显示光圈、快门速度、ISO 三项
-
----
-
-## 六、动画与过渡
-
-### 6.1 过渡时长
-
-```css
---transition-fast: 150ms ease-out;      /* 微交互 */
---transition-base: 200ms ease-out;      /* 常规 */
---transition-slow: 300ms ease-in-out;   /* 面板展开 */
---transition-inertia: 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 照片区域 */
-```
-
-### 6.2 动画类型
-
-| 场景 | 动画 | 时长 | 缓动 |
-|------|------|------|------|
-| 控制按钮显示 | opacity + height | 300ms | ease |
-| 照片区域调整 | height | 800ms | cubic-bezier（惯性） |
-| 面板展开 | transform: translateY | 300ms | ease-out |
-| 顶部信息栏 | opacity + visibility | 250ms | ease |
-| 九宫格滚动 | transform: translateY | 300ms | ease-out |
-| 轮播滑动 | transform: translateX | 350ms | ease-out |
-
-### 6.3 移动端特殊动画
-
-**控制按钮栏展开**:
-- 默认: height: 0, opacity: 0
-- 展开: height: auto, opacity: 1
-- 过渡: 0.3s ease
-
-**照片区域自适应**:
-- 按钮展开: 照片区域压缩（0.8s 惯性动画）
-- 按钮收起: 照片区域撑满（0.8s 惯性动画）
-
-**顶部信息栏渐显**:
-- 默认: opacity: 0, visibility: hidden
-- 显示: opacity: 1, visibility: visible
-- 过渡: 0.25s ease
-
-**渐变遮罩**:
-- 高度: 140px
-- 渐变: 0-20%纯色，20-60%半透明，60-100%透明
-
----
-
-## 七、响应式设计
-
-### 7.1 断点定义
-
-```css
---mobile: 768px;
---tablet: 1024px;
-```
-
-### 7.2 布局适配
-
-| 页面 | PC | 平板 | 移动端 |
-|------|-----|------|--------|
-| 首页 | 多列瀑布流 | 2-3 列 | 2 列 |
-| 影集列表 | 网格 | 网格 | 单列 |
-| 影集内容 | 双栏 | 单栏（面板折叠） | 单栏（面板折叠） |
-
-### 7.3 移动端特殊处理
-
-- **导航箭头**: 隐藏，使用左右滑动手势
-- **控制按钮**: 默认隐藏，点击照片显示
-- **九宫格**: 改为单行横向滚动
-- **信息面板**: 可折叠，默认收起
-- **顶部信息**: 与面板联动显示/隐藏
-- **照片切换**: 触摸滑动，边界回弹
-
----
-
-## 八、无障碍 (A11y)
-
-### 8.1 色彩对比度
-- 主文字与背景对比度 >= 4.5:1 (WCAG AA)
-- 辅助文字与背景对比度 >= 4.5:1
-
-### 8.2 交互无障碍
-- 所有交互元素支持键盘导航
-- Focus 状态可见（outline: 2px solid）
-- 图片必须有 alt 描述
-
-### 8.3 图片保护
-- 禁止右键菜单
-- 禁止拖拽保存
-- 禁止文本选择
-
----
-
-## 九、设计检查清单
-
-新增功能或页面时，检查以下项目：
-
-- [ ] 颜色使用符合色彩系统规范
-- [ ] 字号使用规范中的层级
-- [ ] 间距使用变量系统中的值
-- [ ] 动画时长和缓动符合规范
-- [ ] 响应式适配各断点
-- [ ] 暗色模式样式已定义（如适用）
-- [ ] 交互状态（hover, focus）已定义
-- [ ] 图片有无障碍 alt 文本
-- [ ] 移动端控制按钮默认隐藏
-- [ ] 面板展开/收起动画流畅
-
----
-
-## 十、参考文件
-
-- 全局样式: `src/app/globals.css`
-- CSS 变量定义: `:root` 选择器
-- 组件样式: `src/components/**/ *.module.css`
-- 轮播实现: `src/components/album/AlbumView.tsx`
+In album dark mode, the primary photo display area should remain pure black or near-black so the image carries the view.
+
+### Typography
+
+Use the project fonts from `src/app/layout.tsx`:
+
+- Inter for Latin text.
+- Noto Sans SC for Chinese text.
+- System sans-serif fallbacks.
+
+Guidelines:
+
+- Keep navigation and metadata small.
+- Use larger type only where the page needs a real title or welcome signal.
+- Do not use oversized marketing hero typography on operational pages such as `/collections` or `/album/[name]`.
+- Avoid negative letter spacing.
+
+### Spacing
+
+Use generous but practical spacing:
+
+- Desktop page margins: around 48px where layout allows.
+- Tablet margins: around 24px.
+- Mobile margins: around 16px.
+- Keep album viewer controls compact so photos remain dominant.
+
+## Page-Level Design
+
+### `/`
+
+Current role: welcome/explore entry.
+
+Design intent:
+
+- Left side introduces the site with short copy and two clear actions.
+- Right side shows scattered photos from the current collection.
+- The refresh control should feel like a lightweight interaction, not a major callout.
+- This page should invite entry; it should not duplicate the complete gallery grid.
+
+### `/gallery`
+
+Current role: all-photo browsing.
+
+Design intent:
+
+- Dense but calm photo grid.
+- Use medium images for useful preview quality.
+- Clicking a photo opens the lightbox.
+- Hover labels should be subtle and only appear when useful metadata exists.
+
+### `/collections`
+
+Current role: album selection.
+
+Design intent:
+
+- Album cards should emphasize cover imagery.
+- Titles/subtitles should be readable without competing with the image.
+- The page should feel like a portfolio index, not a marketing landing page.
+
+### `/album/[name]`
+
+Current role: immersive single-album viewing.
+
+Desktop intent:
+
+- Large photo area plus a compact right-side information panel.
+- Controls appear quietly and do not distract from the current image.
+- Thumbnail grid supports fast navigation.
+
+Mobile intent:
+
+- Photo remains the primary surface.
+- Controls are available on tap.
+- Bottom panel carries photo details and thumbnails.
+- Top album information can appear with the mobile panel when needed.
+
+### `/about`
+
+Current role: profile content.
+
+Design intent:
+
+- Markdown content should remain readable and quiet.
+- Social buttons should be clear links, not dominant promotional blocks.
+
+### `/admin`
+
+Current role: local content tool.
+
+Design intent:
+
+- Utility matters more than portfolio polish.
+- It can be denser and more form-heavy than the public site.
+- Do not use `/admin` styling as precedent for public pages.
+
+## Components
+
+### Navigation
+
+The navigation should expose the main public routes:
+
+- Brand link to `/`.
+- `画廊` -> `/gallery`.
+- `影集` -> `/collections`.
+- `关于` -> `/about`.
+
+It should stay visually light, with small text and unobtrusive hover states.
+
+### Lightbox
+
+Used by `/gallery`.
+
+- Full-screen overlay.
+- Dark background.
+- Clear close and previous/next controls.
+- Keyboard support is expected where implemented.
+
+### Album Viewer
+
+Used by `/album/[name]`.
+
+- Carousel is the central interaction.
+- Do not add a second lightbox interaction unless product direction changes.
+- EXIF display should stay compact: aperture, shutter speed, ISO.
+- Camera/date fields can exist in metadata but should not be forced into the main UI without a design reason.
+
+### Thumbnails
+
+Generated thumbnail-purpose files are larger than their rendered UI size. The design controls the displayed dimensions; the image pipeline controls source-file dimensions.
+
+Desktop album thumbnails should remain compact and grid-like. Mobile thumbnails should support horizontal scanning.
+
+## Motion
+
+Motion should support orientation, not decoration.
+
+- Hover and control fades: short and calm.
+- Panel movement: smooth but not slow.
+- Photo transitions: carousel movement should feel direct.
+- Avoid adding decorative animations to static portfolio pages.
+
+## Accessibility Baseline
+
+- Interactive controls need accessible names.
+- Text should meet reasonable contrast against its background.
+- Controls should be reachable and understandable on mobile.
+- Avoid relying on hover-only information for essential navigation.
+
+## Change Review Checklist
+
+Before accepting a visual change:
+
+- Does the page still make photos the primary visual focus?
+- Does mobile still provide the same core task as desktop?
+- Does the change respect the current route roles in `PROJECT_GUIDE.md`?
+- Does the UI avoid adding decorative visual noise?
+- Are generated image sizes and rendered UI sizes described accurately?

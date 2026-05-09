@@ -1,184 +1,88 @@
-# GU-Album 代码规范
+# GU-Album Code And Documentation Conventions
 
-## 一、项目结构
+## Documentation Rules
 
-```
-gu-album/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # 根布局
-│   ├── page.tsx           # 首页/画廊
-│   ├── globals.css        # 全局样式 + CSS变量
-│   ├── collections/
-│   │   └── page.tsx       # 聚合影集页
+- `PROJECT_GUIDE.md` is the primary reference for current behavior.
+- Do not describe planned or historical behavior as shipped behavior.
+- When documenting content data, use `public/albums.json`.
+- Do not reintroduce `photos.json`, per-album `info.txt`, or `public/home-photos` unless the code is intentionally changed.
+- When mentioning `/admin`, call it a local development content tool, not a production CMS.
+- Keep deployment instructions in `DEPLOY.md`; keep product behavior in `ProductSpec.md`; keep implementation details in `TechSpec.md`.
+
+## Project Structure
+
+```text
+src/
+├── app/                    # Next.js App Router pages and route handlers
+├── components/             # React components grouped by feature
+│   ├── about/
 │   ├── album/
-│   │   └── [name]/
-│   │       └── page.tsx   # 单个影集页
-│   └── about/
-│       └── page.tsx       # 关于页
-├── components/             # React 组件
-│   ├── ui/                # 基础 UI 组件
-│   ├── gallery/           # 画廊相关
-│   ├── album/             # 影集相关
-│   └── layout/            # 布局组件
-├── lib/                    # 工具函数
-│   ├── photos.ts          # 图片处理
-│   ├── exif.ts            # EXIF 提取
-│   └── theme.ts           # 主题管理
-├── public/                 # 静态资源
-│   ├── photos/            # 照片目录
-│   └── content/           # Markdown 内容
-├── styles/                # 样式文件
-└── package.json
+│   ├── explore/
+│   ├── gallery/
+│   ├── layout/
+│   └── ui/
+└── lib/                    # Shared data helpers and utilities
+
+public/
+├── albums.json             # Active metadata
+├── content/                # About and social content
+├── photos/                 # Main generated images
+├── medium/                 # Medium generated images
+└── thumbnails/             # Thumbnail-purpose generated images
+
+scripts/
+└── process_photos.py       # Local image pipeline
 ```
 
----
+## Naming
 
-## 二、命名规范
+- React components: PascalCase, for example `AlbumView.tsx`.
+- CSS Modules: pair with the component or route, for example `AlbumView.module.css`.
+- Utilities: camelCase or concise domain names, for example `photos.ts`.
+- CSS class names in modules: camelCase and semantic names, for example `carouselSlide`.
+- Route files follow Next.js App Router conventions.
 
-### 1. 文件命名
-- **组件文件**: PascalCase (如 `GalleryCanvas.tsx`)
-- **工具文件**: camelCase (如 `photos.ts`)
-- **样式文件**: 与组件同名 (如 `GalleryCanvas.module.css`)
-- **页面文件**: `page.tsx` 或 `page.server.tsx`
+## React And TypeScript
 
-### 2. 组件命名
-- **组件名**: PascalCase
-- **Props 接口**: `ComponentNameProps`
-- **事件处理**: `handleXxx` / `onXxx`
+- Prefer existing local types from `src/lib/photos.ts` for photo and album data.
+- Keep props interfaces near the component using them.
+- Avoid `any`; use explicit types or `unknown` with narrowing.
+- Keep client components focused on interaction state.
+- Keep server components responsible for loading static content and passing serializable props.
 
-### 3. CSS 类名
-- **BEM 风格**: `block__element--modifier`
-- **或**: 简洁语义化命名
+## Styling
 
----
+- Use CSS Modules for component-specific styles.
+- Use global CSS only for resets, fonts, tokens, and truly shared primitives.
+- Preserve the restrained photo-first visual system from `DesignSpec.md`.
+- Do not add broad visual frameworks or new styling systems without a clear product reason.
 
-## 三、组件规范
+## Image Handling
 
-### 1. 组件结构
-```tsx
-// 1. imports
-import { useState } from 'react';
-import styles from './Component.module.css';
+- Use paths derived from `public/albums.json`.
+- Use `public/medium` for gallery/explore preview quality.
+- Use `public/photos` for main viewing.
+- Use `public/thumbnails` for album thumbnail controls.
+- Remember that thumbnail-purpose files can be larger than their rendered UI size.
 
-// 2. types
-interface Props {
-  title: string;
-  onClick?: () => void;
-}
+## Local Admin And APIs
 
-// 3. component
-export default function Component({ title, onClick }: Props) {
-  // 4. hooks + state
-  const [active, setActive] = useState(false);
+- Route handlers under `src/app/api/admin/*` are local development helpers.
+- Do not add production promises to these routes without changing deployment architecture.
+- If a feature needs persistent online writes, document and implement a real backend/auth/storage plan first.
 
-  // 5. handlers
-  const handleClick = () => {
-    setActive(!active);
-    onClick?.();
-  };
+## Git And Generated Content
 
-  // 6. render
-  return (
-    <div className={styles.container}>
-      <button onClick={handleClick}>{title}</button>
-    </div>
-  );
-}
-```
+- `originals/` is source material and should stay out of git.
+- Generated deployable assets under `public/` may need to be committed.
+- Before committing content updates, check that `public/albums.json` and generated image folders are in sync.
 
-### 2. 组件分类
-| 类型 | 位置 | 示例 |
-|------|------|------|
-| 页面 | app/ | page.tsx |
-| 布局 | components/layout/ | Navigation.tsx |
-| 功能 | components/gallery/ | GalleryCanvas.tsx |
-| UI | components/ui/ | Button.tsx |
+## Review Checklist
 
----
+Before finishing a change:
 
-## 四、样式规范
-
-### 1. CSS Modules
-- 使用 `.module.css` 文件
-- 通过 `styles.className` 引用
-
-### 2. CSS 变量
-- 定义在 `app/globals.css`
-- 遵循设计规范的颜色、间距
-- 支持亮/暗色模式
-
-### 3. 响应式
-- 使用 CSS 变量 + media query
-- 避免硬编码断点
-
----
-
-## 五、数据规范
-
-### 1. 照片目录结构
-```
-/public/photos/[AlbumName]/
-├── cover.jpg        # 封面 (可选)
-├── 01.jpg           # 照片
-├── 02.jpg
-├── info.txt         # 元数据
-└── bgm.mp3         # 背景音乐 (可选)
-```
-
-### 2. info.txt 格式 (JSON)
-```json
-{
-  "title": "影集标题",
-  "subtitle": "副标题",
-  "photos": {
-    "01": { "title": "照片标题", "desc": "描述" }
-  }
-}
-```
-
----
-
-## 六、Git 提交规范
-
-### 提交信息格式
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-### Type 类型
-- `feat`: 新功能
-- `fix`: 修复
-- `refactor`: 重构
-- `style`: 样式
-- `docs`: 文档
-
-### 示例
-```
-feat(gallery): 添加无限拖动功能
-
-- 实现可拖动画布
-- 添加惯性滑动效果
-
-Closes #1
-```
-
----
-
-## 七、代码质量
-
-### 1. TypeScript
-- 启用 strict 模式
-- 避免 `any`，使用 `unknown` 替代
-- 优先使用类型推断
-
-### 2. ESLint + Prettier
-- 使用项目默认配置
-- 提交前检查
-
-### 3. 代码审查
-- 功能完成后自检
-- 检查命名、注释、边界情况
+- Does the behavior still match `PROJECT_GUIDE.md`?
+- If not, did you intentionally update both code and docs?
+- Does `npm run lint` pass for code changes?
+- Does `npm run build` pass for route/build changes?
+- For content changes, did `scripts/process_photos.py` produce the expected assets?

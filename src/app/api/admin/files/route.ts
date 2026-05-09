@@ -148,9 +148,11 @@ export async function DELETE(request: NextRequest) {
     // 同时删除处理后的文件（如果存在）
     const stem = filename.replace(/\.[^/.]+$/, '');
     const processedPath = path.join(PUBLIC_DIR, 'photos', album, `${stem}.webp`);
+    const mediumPath = path.join(PUBLIC_DIR, 'medium', album, `${stem}.webp`);
     const thumbnailPath = path.join(PUBLIC_DIR, 'thumbnails', album, `${stem}.webp`);
     
     try { await fs.unlink(processedPath); } catch {}
+    try { await fs.unlink(mediumPath); } catch {}
     try { await fs.unlink(thumbnailPath); } catch {}
 
     return NextResponse.json({ 

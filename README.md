@@ -1,93 +1,73 @@
-# Gu Album - 摄影相册
+# Gu Album
 
-基于 Next.js + Cloudflare Pages 的静态摄影相册。
+Gu Album is a static personal photography portfolio built with Next.js, React, TypeScript, CSS Modules, and a local Python image pipeline. The production site is generated as static files for Cloudflare Pages; content management happens locally before deployment.
 
-## ✨ 特性
+## Current Source Of Truth
 
-- 🖼️ **自动图片压缩**：原图自动压缩为 WebP，主图 ≤1MB，缩略图 ≤200KB
-- 📷 **EXIF 信息展示**：自动提取光圈、快门、ISO、相机型号等
-- 📱 **移动端优化**：Embla Carousel 轮播，触摸滑动，面板折叠交互
-- 🎨 **现代化界面**：响应式设计，支持灯箱浏览，夜间模式
-- 🚀 **Cloudflare Pages 部署**：全球 CDN 加速，国内访问友好
+Use these documents in this order when changing the project:
 
-## 🚀 快速开始
+1. `PROJECT_GUIDE.md` - current product, architecture, data flow, and workflow. Treat this as the primary reference.
+2. `TechSpec.md` - implementation details for routes, data shapes, components, and build behavior.
+3. `DesignSpec.md` - visual and interaction rules.
+4. `DEPLOY.md` - deployment-only checklist.
+5. `CODE_CONVENTION.md` - coding and documentation conventions.
 
-### 环境准备
+`ProductSpec.md` describes the current product surface and separates future ideas from shipped behavior. `CodeExplanation.md` is a plain-language guide, not the authority when it differs from `PROJECT_GUIDE.md`.
 
-```bash
-# 安装 Node.js 依赖
-npm install
+## Site Structure
 
-# 安装 Python 依赖（图片处理用）
-pip install -r scripts/requirements.txt
+- `/` - welcome and explore entry with scattered photos and links to gallery/collections.
+- `/gallery` - all-photo gallery with lightbox browsing.
+- `/collections` - album list.
+- `/album/[name]` - immersive single-album viewer with carousel, thumbnails, EXIF, and dark mode.
+- `/about` - Markdown profile page plus social buttons.
+- `/admin` - local development content tool. It is not a production CMS or security boundary.
+
+## Content Pipeline
+
+```text
+originals/[album]/
+  -> scripts/process_photos.py
+  -> public/photos/[album]/
+  -> public/medium/[album]/
+  -> public/thumbnails/[album]/
+  -> public/albums.json
 ```
 
-### 添加照片
+The frontend reads `public/albums.json`. Do not introduce `photos.json`, `info.txt`, or `home-photos` as active data sources unless the code is changed to support them.
+
+## Quick Start
 
 ```bash
-# 1. 将原图放入 originals/ 目录
-copy your-photos/*.jpg originals/
-
-# 2. 运行处理脚本（压缩 + 提取 EXIF）
-python scripts/process_photos.py
-
-# 3. 本地预览
+npm install
+pip install -r scripts/requirements.txt
 npm run dev
 ```
 
-### 部署
+Add photos by placing source files in `originals/[album-name]/`, then run:
 
 ```bash
-# 一键部署（Windows）
-scripts\deploy.bat
-
-# 或手动
-git add .
-git commit -m "update photos"
-git push origin main
+python scripts/process_photos.py
 ```
 
-## 📁 项目结构
+For local metadata edits, open `/admin` during `npm run dev`. The default password is only a local guard against accidental access.
 
-```
-gu-album/
-├── originals/              # 原图（不提交到 git）
-├── public/
-│   ├── photos/            # 压缩后的主图
-│   ├── thumbnails/        # 缩略图
-│   └── albums.json        # 影集元数据
-├── scripts/
-│   ├── process_photos.py  # 图片处理脚本
-│   ├── deploy.bat         # 一键部署脚本（Windows）
-│   └── deploy.ps1         # 一键部署脚本（PowerShell）
-├── src/
-│   └── app/
-│       ├── admin/         # 管理后台
-│       └── ...
-└── DEPLOY.md              # 详细部署文档
+## Build And Deploy
+
+```bash
+npm run build
 ```
 
-## 🛠️ 技术栈
+Production builds use static export and write to `dist/`. Cloudflare Pages should use:
 
-- **框架**：Next.js 15 + React 19
-- **轮播**：embla-carousel（3KB，硬件加速）
-- **样式**：CSS Modules
-- **部署**：Cloudflare Pages（静态导出）
-- **图片处理**：Python + Pillow + piexif
+```yaml
+Build command: npm run build
+Build output directory: dist
+```
 
-## 📝 详细文档
+## Important Constraints
 
-- [部署说明](./DEPLOY.md) - 完整的工作流指南
-- [设计规范](./DesignSpec.md) - UI/UX 设计规范
-- [技术文档](./TechSpec.md) - 技术架构说明
-- [代码说明](./CodeExplanation.md) - 代码库大白话讲解
-
-## ⚠️ 注意事项
-
-1. **原图不放 git**：原图放在 `originals/` 目录，已添加到 `.gitignore`
-2. **Cloudflare Pages 限制**：单个文件 ≤25MB，总文件数 ≤20,000
-3. **国内访问**：无需备案，使用 Cloudflare 全球节点
-
----
-
-Made with ❤️ by Gu
+- Keep originals out of git; generated WebP assets and `public/albums.json` are deployable content.
+- Treat `public/albums.json` as the only deployed metadata file.
+- Admin API routes are for local development. Static deployment does not provide a real online backend.
+- Preserve the restrained photography-first design unless a product decision explicitly changes it.
