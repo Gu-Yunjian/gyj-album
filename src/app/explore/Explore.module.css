@@ -4,7 +4,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background-color: #FAFAFA;
   position: relative;
   overflow: hidden;
 }
@@ -44,21 +44,6 @@
   cursor: default;
 }
 
-.title::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 4px;
-  background: var(--text-primary);
-  transition: width 0.2s ease-out;
-}
-
-.title:hover::after {
-  width: 100%;
-}
-
 .subtitle {
   font-size: var(--font-size-lg);
   color: var(--text-secondary);
@@ -66,21 +51,6 @@
   position: relative;
   display: inline-block;
   cursor: default;
-}
-
-.subtitle::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--text-secondary);
-  transition: width 0.2s ease-out;
-}
-
-.subtitle:hover::after {
-  width: 100%;
 }
 
 .buttons {

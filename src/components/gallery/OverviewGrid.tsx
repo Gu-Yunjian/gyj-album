@@ -7,7 +7,7 @@ import styles from './OverviewGrid.module.css';
 
 interface OverviewGridProps {
   photos: GalleryPhoto[];
-  onPhotoClick: (index: number) => void;
+  onPhotoClick: (index: number, sourceRect: DOMRect) => void;
 }
 
 interface IndexedPhoto extends GalleryPhoto {
@@ -115,6 +115,12 @@ export default function OverviewGrid({ photos, onPhotoClick }: OverviewGridProps
 
   const photoColumns = useMemo(() => distributePhotos(photos, columnCount), [photos, columnCount]);
 
+  const handlePhotoClick = (event: React.MouseEvent<HTMLButtonElement>, index: number) => {
+    const frame = event.currentTarget.querySelector('[data-photo-frame]');
+    const rect = (frame instanceof HTMLElement ? frame : event.currentTarget).getBoundingClientRect();
+    onPhotoClick(index, rect);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.grid} ref={gridRef}>
@@ -125,10 +131,10 @@ export default function OverviewGrid({ photos, onPhotoClick }: OverviewGridProps
                 key={`${photo.album}-${photo.index}`}
                 type="button"
                 className={styles.card}
-                onClick={() => onPhotoClick(photo.originalIndex)}
+                onClick={(event) => handlePhotoClick(event, photo.originalIndex)}
                 aria-label={`查看${photo.info?.title || photo.albumTitle || '照片'}`}
               >
-                <div className={styles.imageWrapper}>
+                <div className={styles.imageWrapper} data-photo-frame>
                   <Image
                     src={photo.thumbSrc}
                     alt={photo.info?.title || photo.albumTitle}

@@ -2,20 +2,19 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(8px);
-  animation: fadeIn 0.3s ease-out;
+  transition:
+    opacity 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    backdrop-filter 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .closeBtn {
   position: absolute;
   top: 24px;
   right: 24px;
-  z-index: 2001;
-  color: rgba(255, 255, 255, 0.7);
+  z-index: 2002;
+  color: rgba(255, 255, 255, 0.72);
   background: none;
   border: none;
   cursor: pointer;
@@ -27,69 +26,69 @@
   color: #FFFFFF;
 }
 
-.prevBtn,
-.nextBtn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+.imageFrame {
+  position: fixed;
   z-index: 2001;
-  color: rgba(255, 255, 255, 0.5);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 16px;
-  transition: color 0.2s ease;
-}
-
-.prevBtn {
-  left: 16px;
-}
-
-.nextBtn {
-  right: 16px;
-}
-
-.prevBtn:hover,
-.nextBtn:hover {
-  color: #FFFFFF;
-}
-
-.content {
-  position: relative;
-  z-index: 2001;
-  max-width: 85vw;
-  max-height: 85vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: scaleIn 0.3s ease-out;
-}
-
-.imageContainer {
-  position: relative;
-  display: inline-block;
-  max-width: 85vw;
-  max-height: 85vh;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #101010;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  transition:
+    left 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: left, top, width, height;
 }
 
 .image {
+  position: absolute;
+  inset: 0;
   display: block;
-  max-width: 85vw;
-  max-height: 85vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
 }
 
-/* Info overlay - positioned at bottom of the image */
+.previewImage {
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+.previewImageHidden {
+  opacity: 0;
+}
+
+.fullImage {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.fullImageLoaded {
+  opacity: 1;
+}
+
 .info {
   position: absolute;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
+  z-index: 2;
   padding: 20px 24px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
   pointer-events: none;
+  transform: translateY(8px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.infoVisible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .title {
@@ -108,7 +107,6 @@
   margin-top: 4px;
 }
 
-/* 影集标题链接 */
 .albumLink {
   display: inline-flex;
   align-items: center;
@@ -136,65 +134,17 @@
   transition: transform 0.2s ease;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Mobile */
 @media (max-width: 768px) {
   .closeBtn {
     top: 16px;
     right: 16px;
   }
-  
-  .content {
-    max-width: 95vw;
-    max-height: 80vh;
-  }
 
-  .prevBtn,
-  .nextBtn {
-    padding: 12px;
-    color: rgba(255, 255, 255, 0.72);
-  }
-
-  .prevBtn {
-    left: 0;
-  }
-
-  .nextBtn {
-    right: 0;
-  }
-  
-  .imageContainer {
-    max-width: 95vw;
-    max-height: 80vh;
-  }
-  
-  .image {
-    max-width: 95vw;
-    max-height: 80vh;
-  }
-  
   .info {
     padding: 16px;
   }
-  
+
   .title {
     font-size: 14px;
   }
-  
 }

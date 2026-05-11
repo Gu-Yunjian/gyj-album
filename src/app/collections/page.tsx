@@ -29,6 +29,7 @@ export default async function CollectionsPage() {
               title={album.title}
               subtitle={album.subtitle}
               cover={album.cover}
+              photos={album.photos}
               photoCount={album.photos.length}
             />
           ))}

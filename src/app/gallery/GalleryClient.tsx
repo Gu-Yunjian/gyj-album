@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { GalleryPhoto } from '@/lib/photos';
 import Navigation from '@/components/layout/Navigation';
 import OverviewGrid from '@/components/gallery/OverviewGrid';
-import Lightbox from '@/components/ui/Lightbox';
+import Lightbox, { LightboxSourceRect } from '@/components/ui/Lightbox';
 
 interface Profile {
   name?: string;
@@ -20,15 +20,19 @@ interface GalleryClientProps {
 export default function GalleryClient({ photos, profile }: GalleryClientProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [lightboxSourceRect, setLightboxSourceRect] = useState<LightboxSourceRect | null>(null);
 
   const lightboxPhotos = useMemo(() => {
     return photos.map(p => ({
       src: p.src,
+      previewSrc: p.mediumSrc,
       alt: p.info?.title || '',
       photoTitle: p.info?.title || '',
       album: p.album,
       albumTitle: p.albumTitle,
       index: p.index,
+      width: p.width,
+      height: p.height,
       exif: p.exif,
     }));
   }, [photos]);
@@ -40,21 +44,19 @@ export default function GalleryClient({ photos, profile }: GalleryClientProps) {
     }));
   }, [photos]);
 
-  const openLightbox = (index: number) => {
+  const openLightbox = (index: number, sourceRect: DOMRect) => {
+    setLightboxSourceRect({
+      top: sourceRect.top,
+      left: sourceRect.left,
+      width: sourceRect.width,
+      height: sourceRect.height,
+    });
     setCurrentIndex(index);
     setLightboxOpen(true);
   };
 
   const closeLightbox = () => {
     setLightboxOpen(false);
-  };
-
-  const handlePrev = () => {
-    setCurrentIndex(i => (i === 0 ? photos.length - 1 : i - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex(i => (i === photos.length - 1 ? 0 : i + 1));
   };
 
   return (
@@ -67,9 +69,8 @@ export default function GalleryClient({ photos, profile }: GalleryClientProps) {
         photos={lightboxPhotos}
         currentIndex={currentIndex}
         isOpen={lightboxOpen}
+        sourceRect={lightboxSourceRect}
         onClose={closeLightbox}
-        onPrev={handlePrev}
-        onNext={handleNext}
       />
     </main>
   );
