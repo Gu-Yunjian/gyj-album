@@ -7,7 +7,8 @@
   padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 24px;
   z-index: 1000;
   /* 轻微高斯模糊背景 */
   background: rgba(255, 255, 255, 0.8);
@@ -21,6 +22,16 @@
   display: flex;
   align-items: center;
   gap: 32px;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .logo {
@@ -60,6 +71,7 @@
 @media (max-width: 768px) {
   .header {
     padding: 0 16px;
+    gap: 12px;
   }
   
   .left {

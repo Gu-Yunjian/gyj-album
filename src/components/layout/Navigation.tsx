@@ -1,9 +1,14 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import styles from './Navigation.module.css';
 
-export default function Navigation() {
+interface NavigationProps {
+  rightSlot?: ReactNode;
+}
+
+export default function Navigation({ rightSlot }: NavigationProps) {
   return (
     <header className={styles.header}>
       <div className={styles.left}>
@@ -22,6 +27,7 @@ export default function Navigation() {
           </Link>
         </nav>
       </div>
+      {rightSlot && <div className={styles.right}>{rightSlot}</div>}
     </header>
   );
 }
