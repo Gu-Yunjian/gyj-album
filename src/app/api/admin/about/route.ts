@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const ROOT_DIR = path.resolve(process.cwd());
 const ABOUT_MD_PATH = path.join(ROOT_DIR, 'public', 'content', 'about.md');

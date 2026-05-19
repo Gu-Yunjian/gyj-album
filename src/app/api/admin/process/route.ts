@@ -3,7 +3,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 const execAsync = promisify(exec);
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const scriptPath = path.join(ROOT_DIR, 'scripts', 'process_photos.py');
     
     // 执行 Python 脚本
-    const { stdout, stderr } = await execAsync(`python "${scriptPath}"`, {
+    const { stdout, stderr } = await execAsync(`python3 "${scriptPath}"`, {
       cwd: ROOT_DIR,
       timeout: 300000 // 5分钟超时
     });

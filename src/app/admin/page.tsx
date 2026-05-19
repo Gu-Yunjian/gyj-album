@@ -17,11 +17,14 @@ interface PhotoInfo {
 }
 
 interface Photo {
+  id?: string;
   filename: string;
   originalName: string;
   mainSize: number;
+  mediumSize?: number;
   thumbSize: number;
   exif?: ExifInfo;
+  order?: number;
 }
 
 interface Album {
@@ -41,6 +44,55 @@ interface AlbumsData {
 }
 
 const ADMIN_PASSWORD = 'gu123456';
+const ALBUM_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+function getPhotoStem(filename: string) {
+  return filename.replace(/\.[^/.]+$/, '');
+}
+
+function getPhotoKey(albumName: string, filenameOrStem: string) {
+  return `${albumName}/${getPhotoStem(filenameOrStem)}`;
+}
+
+function normalizeAlbumsData(data: AlbumsData): AlbumsData {
+  const nextAllPhotos: Record<string, Photo> = {};
+  const albums = (data.albums || []).map((album, albumIndex) => {
+    const photos = album.photos || [];
+    const validStems = new Set(photos.map(getPhotoStem));
+    const photoInfos = Object.fromEntries(
+      Object.entries(album.photoInfos || {}).filter(([stem]) => validStems.has(stem))
+    );
+    const cover = album.cover && photos.includes(album.cover)
+      ? album.cover
+      : photos[0] || '';
+
+    photos.forEach((filename, photoIndex) => {
+      const key = getPhotoKey(album.name, filename);
+      const existing = data.allPhotos?.[key];
+      nextAllPhotos[key] = {
+        ...existing,
+        id: existing?.id || key,
+        filename,
+        originalName: existing?.originalName || filename,
+        mainSize: existing?.mainSize || 0,
+        mediumSize: existing?.mediumSize,
+        thumbSize: existing?.thumbSize || 0,
+        exif: existing?.exif || {},
+        order: photoIndex,
+      };
+    });
+
+    return {
+      ...album,
+      cover,
+      photos,
+      photoInfos,
+      order: album.order ?? albumIndex,
+    };
+  });
+
+  return { albums, allPhotos: nextAllPhotos };
+}
 
 // 操作日志组件
 function LogPanel({ logs, onClear }: { logs: string[], onClear: () => void }) {
@@ -131,6 +183,7 @@ export default function AdminPage() {
   const [newAlbumName, setNewAlbumName] = useState('');
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
   const [newAlbumSubtitle, setNewAlbumSubtitle] = useState('');
+  const [draggingPhoto, setDraggingPhoto] = useState<{ albumName: string; index: number } | null>(null);
 
   // About 页面编辑
   const [activeTab, setActiveTab] = useState<'albums' | 'about'>('albums');
@@ -167,17 +220,17 @@ export default function AdminPage() {
       const response = await fetch('/albums.json');
       if (response.ok) {
         const data = await response.json();
-        const albumsWithOrder = data.albums.map((album: Album, index: number) => ({
-          ...album,
-          order: album.order ?? index
-        }));
-        setAlbumsData({ ...data, albums: albumsWithOrder });
+        const normalizedData = normalizeAlbumsData(data);
+        setAlbumsData(normalizedData);
+        return normalizedData;
       }
     } catch (error) {
       console.error('Failed to load albums:', error);
       addLog('❌ 加载数据失败');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    return null;
   }, [addLog]);
 
   useEffect(() => {
@@ -185,6 +238,12 @@ export default function AdminPage() {
       loadData();
     }
   }, [isAuthenticated, loadData]);
+
+  useEffect(() => {
+    if (!selectedAlbum) return;
+    const updatedAlbum = albumsData.albums.find(album => album.name === selectedAlbum.name);
+    setSelectedAlbum(updatedAlbum || null);
+  }, [albumsData.albums, selectedAlbum?.name]);
 
   // 加载 About 页面内容
   const loadAboutContent = useCallback(async () => {
@@ -349,14 +408,71 @@ export default function AdminPage() {
     setMessage('✅ 影集排序已调整，记得保存！');
   }
 
+  function updatePhotoOrder(albumName: string, fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) return;
+
+    const album = albumsData.albums.find(item => item.name === albumName);
+    if (!album) return;
+    if (fromIndex < 0 || fromIndex >= album.photos.length) return;
+    if (toIndex < 0 || toIndex >= album.photos.length) return;
+
+    const reorderedPhotos = [...album.photos];
+    const [movedPhoto] = reorderedPhotos.splice(fromIndex, 1);
+    reorderedPhotos.splice(toIndex, 0, movedPhoto);
+
+    setAlbumsData(prev => normalizeAlbumsData({
+      ...prev,
+      albums: prev.albums.map(item =>
+        item.name === albumName
+          ? { ...item, photos: reorderedPhotos }
+          : item
+      )
+    }));
+    setMessage('✅ 照片顺序已调整，记得保存！');
+  }
+
+  function movePhoto(albumName: string, photoIndex: number, direction: 'up' | 'down') {
+    const toIndex = direction === 'up' ? photoIndex - 1 : photoIndex + 1;
+    updatePhotoOrder(albumName, photoIndex, toIndex);
+  }
+
+  function setAlbumCover(albumName: string, filename: string) {
+    setAlbumsData(prev => normalizeAlbumsData({
+      ...prev,
+      albums: prev.albums.map(album =>
+        album.name === albumName
+          ? { ...album, cover: filename }
+          : album
+      )
+    }));
+    setMessage('✅ 影集封面已更新，记得保存！');
+  }
+
+  async function saveAlbumsMetadata(data: AlbumsData) {
+    const response = await fetch('/api/admin/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) throw new Error('保存失败');
+  }
+
   // 创建新影集
   async function handleCreateAlbum() {
-    if (!newAlbumName.trim()) {
+    const albumName = newAlbumName.trim();
+
+    if (!albumName) {
       alert('请输入影集名称');
       return;
     }
 
-    if (albumsData.albums.some(a => a.name === newAlbumName.trim())) {
+    if (!ALBUM_NAME_PATTERN.test(albumName)) {
+      alert('影集名称只能使用英文字母、数字、下划线和短横线');
+      return;
+    }
+
+    if (albumsData.albums.some(a => a.name === albumName)) {
       alert('影集名称已存在');
       return;
     }
@@ -365,7 +481,6 @@ export default function AdminPage() {
 
     // 调用 API 创建目录
     try {
-      const albumName = newAlbumName.trim();
       addLog(`  调用 API: /api/admin/files?album=${albumName}`);
       
       const response = await fetch(`/api/admin/files?album=${encodeURIComponent(albumName)}`);
@@ -378,8 +493,8 @@ export default function AdminPage() {
       addLog('  ✅ 目录创建成功');
 
       const newAlbum: Album = {
-        name: newAlbumName.trim(),
-        title: newAlbumTitle.trim() || newAlbumName.trim(),
+        name: albumName,
+        title: newAlbumTitle.trim() || albumName,
         subtitle: newAlbumSubtitle.trim(),
         cover: '',
         photos: [],
@@ -433,6 +548,11 @@ export default function AdminPage() {
     addLog(`⏳ 上传 ${files.length} 个文件到 ${albumName}...`);
 
     try {
+      const normalizedData = normalizeAlbumsData(albumsData);
+      setAlbumsData(normalizedData);
+      await saveAlbumsMetadata(normalizedData);
+      addLog('✅ 当前影集数据已保存');
+
       const formData = new FormData();
       formData.append('album', albumName);
       Array.from(files).forEach(file => formData.append('files', file));
@@ -456,11 +576,11 @@ export default function AdminPage() {
         setMessage('✅ 上传并处理完成！正在刷新数据...');
         
         // 重新加载数据
-        await loadData();
+        const freshData = await loadData();
         
         // 刷新选中影集
-        if (selectedAlbum?.name === albumName) {
-          const updated = albumsData.albums.find(a => a.name === albumName);
+        if (freshData && selectedAlbum?.name === albumName) {
+          const updated = freshData.albums.find(a => a.name === albumName);
           if (updated) setSelectedAlbum(updated);
         }
       } else {
@@ -492,24 +612,32 @@ export default function AdminPage() {
       if (!response.ok) throw new Error('删除失败');
 
       addLog('✅ 文件已删除');
+      const deletedStem = getPhotoStem(filename);
+      const deletedKey = getPhotoKey(albumName, filename);
       
-      // 更新本地状态
-      setAlbumsData(prev => ({
-        ...prev,
-        albums: prev.albums.map(album =>
+      const nextAllPhotos = { ...albumsData.allPhotos };
+      delete nextAllPhotos[deletedKey];
+
+      const nextData = normalizeAlbumsData({
+        ...albumsData,
+        allPhotos: nextAllPhotos,
+        albums: albumsData.albums.map(album =>
           album.name === albumName
-            ? { ...album, photos: album.photos.filter(p => p !== filename) }
+            ? {
+                ...album,
+                photos: album.photos.filter(p => p !== filename),
+                photoInfos: Object.fromEntries(
+                  Object.entries(album.photoInfos || {}).filter(([stem]) => stem !== deletedStem)
+                ),
+                cover: album.cover === filename ? '' : album.cover,
+              }
             : album
         )
-      }));
+      });
 
-      // 刷新选中影集
-      if (selectedAlbum?.name === albumName) {
-        setSelectedAlbum(prev => prev ? {
-          ...prev,
-          photos: prev.photos.filter(p => p !== filename)
-        } : null);
-      }
+      setAlbumsData(nextData);
+      await saveAlbumsMetadata(nextData);
+      addLog('✅ albums.json 已同步');
 
       setMessage('✅ 照片已删除');
     } catch (error: any) {
@@ -522,13 +650,9 @@ export default function AdminPage() {
     addLog('⏳ 保存 albums.json...');
 
     try {
-      const response = await fetch('/api/admin/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(albumsData)
-      });
-
-      if (!response.ok) throw new Error('保存失败');
+      const normalizedData = normalizeAlbumsData(albumsData);
+      setAlbumsData(normalizedData);
+      await saveAlbumsMetadata(normalizedData);
 
       addLog('✅ 已保存到 public/albums.json');
       setMessage('✅ 保存成功！现在可以 git push 部署了');
@@ -1028,20 +1152,34 @@ export default function AdminPage() {
                   gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                   gap: '16px'
                 }}>
-                  {selectedAlbum.photos.map(photoFilename => {
-                    const stem = photoFilename.replace(/\.[^/.]+$/, '');
+                  {selectedAlbum.photos.map((photoFilename, photoIndex) => {
+                    const stem = getPhotoStem(photoFilename);
                     const photoInfo = getPhotoInfo(selectedAlbum, photoFilename);
                     const fullKey = `${selectedAlbum.name}/${stem}`;
                     const photoData = albumsData.allPhotos[fullKey];
+                    const isCover = selectedAlbum.cover === photoFilename;
                     
                     return (
                       <div
                         key={photoFilename}
+                        onDragOver={e => {
+                          if (draggingPhoto?.albumName === selectedAlbum.name) {
+                            e.preventDefault();
+                          }
+                        }}
+                        onDrop={e => {
+                          e.preventDefault();
+                          if (draggingPhoto?.albumName === selectedAlbum.name) {
+                            updatePhotoOrder(selectedAlbum.name, draggingPhoto.index, photoIndex);
+                            setDraggingPhoto(null);
+                          }
+                        }}
                         style={{
                           background: '#fff',
-                          border: '1px solid #e8e8e8',
+                          border: isCover ? '2px solid #52c41a' : '1px solid #e8e8e8',
                           borderRadius: '8px',
-                          overflow: 'hidden'
+                          overflow: 'hidden',
+                          opacity: draggingPhoto?.albumName === selectedAlbum.name && draggingPhoto.index === photoIndex ? 0.55 : 1
                         }}
                       >
                         {/* 缩略图 */}
@@ -1051,7 +1189,7 @@ export default function AdminPage() {
                           background: '#f5f5f5' 
                         }}>
                           <img
-                            src={`/thumbnails/${selectedAlbum.name}/${photoFilename.replace(/\.[^/.]+$/, '')}.webp`}
+                            src={`/thumbnails/${selectedAlbum.name}/${stem}.webp`}
                             alt={photoFilename}
                             style={{
                               position: 'absolute',
@@ -1065,6 +1203,35 @@ export default function AdminPage() {
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}
                           />
+                          <div style={{
+                            position: 'absolute',
+                            top: '8px',
+                            left: '8px',
+                            display: 'flex',
+                            gap: '6px',
+                            alignItems: 'center'
+                          }}>
+                            <span style={{
+                              padding: '3px 7px',
+                              background: 'rgba(0,0,0,0.62)',
+                              color: '#fff',
+                              borderRadius: '999px',
+                              fontSize: '11px'
+                            }}>
+                              #{photoIndex + 1}
+                            </span>
+                            {isCover && (
+                              <span style={{
+                                padding: '3px 7px',
+                                background: 'rgba(82,196,26,0.92)',
+                                color: '#fff',
+                                borderRadius: '999px',
+                                fontSize: '11px'
+                              }}>
+                                封面
+                              </span>
+                            )}
+                          </div>
                           {/* 删除按钮 */}
                           <button
                             onClick={() => handleDeletePhoto(selectedAlbum.name, photoFilename)}
@@ -1092,6 +1259,79 @@ export default function AdminPage() {
 
                         {/* 信息编辑 */}
                         <div style={{ padding: '12px' }}>
+                          <div style={{
+                            display: 'flex',
+                            gap: '6px',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            marginBottom: '10px'
+                          }}>
+                            <div
+                              draggable
+                              onDragStart={e => {
+                                setDraggingPhoto({ albumName: selectedAlbum.name, index: photoIndex });
+                                e.dataTransfer.effectAllowed = 'move';
+                              }}
+                              onDragEnd={() => setDraggingPhoto(null)}
+                              title="拖拽到其他照片上调整顺序"
+                              style={{
+                                padding: '5px 8px',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                color: '#555',
+                                cursor: 'grab',
+                                userSelect: 'none'
+                              }}
+                            >
+                              ↕ 拖拽排序
+                            </div>
+                            <button
+                              onClick={() => movePhoto(selectedAlbum.name, photoIndex, 'up')}
+                              disabled={photoIndex === 0}
+                              style={{
+                                padding: '5px 8px',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                background: photoIndex === 0 ? '#f5f5f5' : '#fff',
+                                color: photoIndex === 0 ? '#aaa' : '#333',
+                                cursor: photoIndex === 0 ? 'not-allowed' : 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              上移
+                            </button>
+                            <button
+                              onClick={() => movePhoto(selectedAlbum.name, photoIndex, 'down')}
+                              disabled={photoIndex === selectedAlbum.photos.length - 1}
+                              style={{
+                                padding: '5px 8px',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                background: photoIndex === selectedAlbum.photos.length - 1 ? '#f5f5f5' : '#fff',
+                                color: photoIndex === selectedAlbum.photos.length - 1 ? '#aaa' : '#333',
+                                cursor: photoIndex === selectedAlbum.photos.length - 1 ? 'not-allowed' : 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              下移
+                            </button>
+                            <button
+                              onClick={() => setAlbumCover(selectedAlbum.name, photoFilename)}
+                              disabled={isCover}
+                              style={{
+                                padding: '5px 8px',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                background: isCover ? '#f6ffed' : '#fff',
+                                color: isCover ? '#52c41a' : '#333',
+                                cursor: isCover ? 'default' : 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              {isCover ? '当前封面' : '设为封面'}
+                            </button>
+                          </div>
                           <div style={{ 
                             fontSize: '11px', 
                             color: '#999', 

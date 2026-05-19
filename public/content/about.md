@@ -1,7 +1,7 @@
 ---
 name: "辜云剑"
 school: "南京大学"
-slogan: "nothing gold can stay"
+slogan: "远方奔向我"
 ---
 
 你好，欢迎来到我的摄影精选集。
@@ -13,12 +13,3 @@ slogan: "nothing gold can stay"
 目前网站中的影集还不多，因为影集的编排需要时间和偶然生发的灵感。如果你喜欢我的风格和作品，欢迎关注我的社媒账号，我会在其中发布尚未编排的照片和视频。
 
 当然，本人也提供人像约拍服务，收费标准和细则可以添加联系方式咨询。
-
-## 社媒账号
-- 小红书：[@满状态复活的咕](https://xhslink.com/m/2Fc9O7c0QAc)
-- 哔哩哔哩：[@咕咕叨叨](https://space.bilibili.com/24035988)
-
-## 联系方式
-- 邮箱: yunjiangu@foxmail.com
-- 微信: GY15023107991
-- QQ：1026703027

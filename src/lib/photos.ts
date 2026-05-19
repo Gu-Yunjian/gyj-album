@@ -18,6 +18,7 @@ export interface PhotoInfo {
 }
 
 export interface Photo {
+  id?: string;
   filename: string;
   originalName: string;
   mainSize: number;
@@ -26,6 +27,7 @@ export interface Photo {
   exif?: ExifInfo;
   title?: string;
   desc?: string;
+  order?: number;
 }
 
 export interface AlbumInfo {
@@ -36,6 +38,7 @@ export interface AlbumInfo {
   photos: string[]; // photo filenames
   photoInfos: Record<string, PhotoInfo>;
   hasBgm: boolean;
+  order?: number;
 }
 
 export interface GalleryPhoto {
@@ -234,7 +237,7 @@ export async function getAllPhotos(): Promise<GalleryPhoto[]> {
     }
   }
   
-  return photos.sort((a, b) => a.index.localeCompare(b.index));
+  return photos;
 }
 
 /**

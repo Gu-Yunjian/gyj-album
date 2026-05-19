@@ -53,3 +53,5 @@ __pycache__/
 
 # Temporary files
 *.tmp
+.local-server.pid
+.local-server.log

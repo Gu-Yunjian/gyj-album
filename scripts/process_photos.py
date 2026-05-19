@@ -186,6 +186,35 @@ def scan_albums():
     return albums
 
 
+def file_stem(filename):
+    """返回文件名去掉最后一个扩展名后的 stem。"""
+    return Path(filename).stem
+
+
+def sort_photos_with_existing_order(photo_files, existing_album):
+    """保留已有照片顺序，将新照片按文件名追加到末尾。"""
+    detected_by_stem = {}
+    for photo_path in sorted(photo_files):
+        detected_by_stem.setdefault(photo_path.stem, photo_path)
+
+    existing_photos = existing_album.get("photos", []) if existing_album else []
+    ordered = []
+    used_stems = set()
+
+    for filename in existing_photos:
+        stem = file_stem(filename)
+        if stem in detected_by_stem and stem not in used_stems:
+            ordered.append(detected_by_stem[stem])
+            used_stems.add(stem)
+
+    for stem, photo_path in detected_by_stem.items():
+        if stem not in used_stems:
+            ordered.append(photo_path)
+            used_stems.add(stem)
+
+    return ordered
+
+
 def process_albums():
     """主处理函数"""
     print("=" * 60)
@@ -253,6 +282,7 @@ def process_albums():
             }
             next_order += 1
         
+        photo_files = sort_photos_with_existing_order(photo_files, existing_album)
         album_photos = []
         photo_infos = album_meta.get("photoInfos", {})
         
@@ -289,6 +319,17 @@ def process_albums():
                 key = f"{album_name}/{stem}"
                 if key in albums_data.get("allPhotos", {}):
                     all_photos[key] = albums_data["allPhotos"][key]
+                    all_photos[key]["filename"] = output_name
+                    all_photos[key]["originalName"] = orig_path.name
+                else:
+                    all_photos[key] = {
+                        "filename": output_name,
+                        "originalName": orig_path.name,
+                        "mainSize": main_path.stat().st_size if main_path.exists() else 0,
+                        "mediumSize": medium_path.stat().st_size if medium_path.exists() else 0,
+                        "thumbSize": thumb_path.stat().st_size if thumb_path.exists() else 0,
+                        "exif": {}
+                    }
                 continue
             
             print(f"  [Process] {orig_path.name}")
@@ -334,6 +375,7 @@ def process_albums():
             # 更新照片数据
             key = f"{album_name}/{stem}"
             all_photos[key] = {
+                "id": key,
                 "filename": output_name,
                 "originalName": orig_path.name,
                 "mainSize": main_size,
@@ -345,10 +387,20 @@ def process_albums():
             total_processed += 1
         
         # 更新影集元数据
+        current_stems = {file_stem(photo) for photo in album_photos}
         album_meta["photos"] = album_photos
-        album_meta["photoInfos"] = photo_infos
-        if album_photos and not album_meta["cover"]:
+        album_meta["photoInfos"] = {
+            stem: info for stem, info in photo_infos.items() if stem in current_stems
+        }
+        if album_photos and (not album_meta["cover"] or file_stem(album_meta["cover"]) not in current_stems):
             album_meta["cover"] = album_photos[0]
+
+        for order, photo in enumerate(album_photos):
+            stem = file_stem(photo)
+            key = f"{album_name}/{stem}"
+            if key in all_photos:
+                all_photos[key]["id"] = all_photos[key].get("id") or key
+                all_photos[key]["order"] = order
         
         updated_albums.append(album_meta)
     
