@@ -3,7 +3,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 const execAsync = promisify(exec);
 
