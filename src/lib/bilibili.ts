@@ -17,6 +17,20 @@ function isBilibiliHostname(hostname: string) {
   return normalized === 'bilibili.com' || normalized.endsWith('.bilibili.com');
 }
 
+export function isB23Url(rawUrl: string) {
+  try {
+    const url = new URL(rawUrl.trim());
+    return ['http:', 'https:'].includes(url.protocol)
+      && url.hostname.toLowerCase() === 'b23.tv';
+  } catch {
+    return false;
+  }
+}
+
+export function isBilibiliUrl(rawUrl: string) {
+  return parseBilibiliUrl(rawUrl) !== null;
+}
+
 function parsePage(url: URL) {
   const value = url.searchParams.get('p') ?? url.searchParams.get('page') ?? '1';
   const page = Number.parseInt(value, 10);
@@ -74,6 +88,11 @@ export function canonicalizeBilibiliUrl(video: ParsedBilibiliVideo) {
   }
 
   return url.toString();
+}
+
+export function validateResolvedBilibiliUrl(rawUrl: string) {
+  const parsed = parseBilibiliUrl(rawUrl);
+  return parsed ? canonicalizeBilibiliUrl(parsed) : null;
 }
 
 export function buildBilibiliPlayerUrl(video: ParsedBilibiliVideo) {
