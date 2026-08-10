@@ -22,6 +22,9 @@ export default function Navigation({ rightSlot }: NavigationProps) {
           <Link href="/collections" className={`${styles.navLink} nav-link`}>
             影集
           </Link>
+          <Link href="/videos" className={`${styles.navLink} nav-link`}>
+            视频
+          </Link>
           <Link href="/about" className={`${styles.navLink} nav-link`}>
             关于
           </Link>

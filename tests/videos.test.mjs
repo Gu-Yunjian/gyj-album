@@ -43,3 +43,36 @@ test('loads the deployed video configuration through the shared normalizer', asy
   );
   assert.match(source, /normalizeVideoConfig\(JSON\.parse\(raw\)\)/);
 });
+
+test('registers the video route before the about navigation item', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/layout/Navigation.tsx', import.meta.url),
+    'utf8'
+  );
+  const videosIndex = source.indexOf('href="/videos"');
+  const aboutIndex = source.indexOf('href="/about"');
+
+  assert.ok(videosIndex >= 0);
+  assert.ok(videosIndex < aboutIndex);
+});
+
+test('video cards use lazy Bilibili iframes with a fallback link', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/video/VideoCard.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /loading="lazy"/);
+  assert.match(source, /allowFullScreen/);
+  assert.match(source, /在 B 站观看/);
+});
+
+test('video page renders configured cards and an empty state', async () => {
+  const source = await fs.readFile(
+    new URL('../src/app/videos/page.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /<VideoCard/);
+  assert.match(source, /暂时还没有视频/);
+});
