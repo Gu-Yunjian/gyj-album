@@ -605,10 +605,11 @@ export default function AdminPage() {
     addLog(`⏳ 删除 ${filename}...`);
 
     try {
-      const response = await fetch(
-        `/api/admin/files?album=${encodeURIComponent(albumName)}&filename=${encodeURIComponent(filename)}`,
-        { method: 'DELETE' }
-      );
+      const response = await fetch('/api/admin/files', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ album: albumName, filename }),
+      });
 
       if (!response.ok) throw new Error('删除失败');
 
