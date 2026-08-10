@@ -102,6 +102,7 @@ export function buildBilibiliPlayerUrl(video: ParsedBilibiliVideo) {
   url.searchParams.set('high_quality', '1');
   url.searchParams.set('as_wide', '1');
   url.searchParams.set('danmaku', '0');
+  url.searchParams.set('autoplay', '0');
   return url.toString();
 }
 

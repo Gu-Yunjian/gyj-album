@@ -57,7 +57,7 @@ test('builds a player URL with restrained defaults', () => {
       value: 'BV1Sa6cBDEXQ',
       page: 1,
     }),
-    'https://player.bilibili.com/player.html?bvid=BV1Sa6cBDEXQ&page=1&high_quality=1&as_wide=1&danmaku=0'
+    'https://player.bilibili.com/player.html?bvid=BV1Sa6cBDEXQ&page=1&high_quality=1&as_wide=1&danmaku=0&autoplay=0'
   );
 });
 
