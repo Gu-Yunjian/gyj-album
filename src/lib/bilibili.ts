@@ -4,6 +4,11 @@ export type ParsedBilibiliVideo = {
   page: number;
 };
 
+export type VideoEntry = {
+  title: string;
+  url: string;
+};
+
 const BVID_PATTERN = /^BV[0-9A-Za-z]{10}$/;
 const AID_PATH_PATTERN = /^av([0-9]+)$/i;
 
@@ -79,4 +84,36 @@ export function buildBilibiliPlayerUrl(video: ParsedBilibiliVideo) {
   url.searchParams.set('as_wide', '1');
   url.searchParams.set('danmaku', '0');
   return url.toString();
+}
+
+export function normalizeVideoConfig(input: unknown): VideoEntry[] {
+  if (!input || typeof input !== 'object' || !('videos' in input)) {
+    return [];
+  }
+
+  const videos = input.videos;
+
+  if (!Array.isArray(videos)) {
+    return [];
+  }
+
+  return videos.flatMap(item => {
+    if (!item || typeof item !== 'object') {
+      return [];
+    }
+
+    const title = 'title' in item && typeof item.title === 'string'
+      ? item.title.trim()
+      : '';
+    const rawUrl = 'url' in item && typeof item.url === 'string'
+      ? item.url
+      : '';
+    const parsed = parseBilibiliUrl(rawUrl);
+
+    if (!title || !parsed) {
+      return [];
+    }
+
+    return [{ title, url: canonicalizeBilibiliUrl(parsed) }];
+  });
 }
