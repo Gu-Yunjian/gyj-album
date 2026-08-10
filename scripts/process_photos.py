@@ -291,7 +291,31 @@ def process_albums():
             next_order += 1
         
         photo_files = sort_photos_with_existing_order(photo_files, existing_album)
-        album_photos = []
+        existing_photo_order = existing_album.get("photos", []) if existing_album else []
+        detected_stems = {photo_path.stem for photo_path in photo_files}
+        carried_photo_names = []
+
+        # 增量上传或 Git worktree 可能只带来当前批次的原图。若旧照片的三套
+        # 处理产物仍然完整，则沿用已有元数据，而不是把它当成已删除照片。
+        for existing_filename in existing_photo_order:
+            stem = file_stem(existing_filename)
+            if stem in detected_stems:
+                continue
+
+            main_path = PHOTOS_DIR / album_name / f"{stem}.webp"
+            medium_path = MEDIUM_DIR / album_name / f"{stem}.webp"
+            thumb_path = THUMBNAILS_DIR / album_name / f"{stem}.webp"
+            if not (main_path.exists() and medium_path.exists() and thumb_path.exists()):
+                continue
+
+            output_name = f"{stem}.webp"
+            carried_photo_names.append(output_name)
+            key = f"{album_name}/{stem}"
+            existing_photo_data = albums_data.get("allPhotos", {}).get(key)
+            if existing_photo_data:
+                all_photos[key] = existing_photo_data
+
+        processed_photo_names = []
         photo_infos = album_meta.get("photoInfos", {})
         
         processed_stems = set()  # 追踪已处理的照片
@@ -310,7 +334,7 @@ def process_albums():
             medium_path = MEDIUM_DIR / album_name / output_name
             thumb_path = THUMBNAILS_DIR / album_name / output_name
             
-            album_photos.append(output_name)
+            processed_photo_names.append(output_name)
             
             # 检查是否需要更新
             needs_update = (
@@ -394,6 +418,19 @@ def process_albums():
             
             total_processed += 1
         
+        # 先保持原有顺序，再把本次新增照片追加到末尾。
+        available_names = {
+            file_stem(filename): filename
+            for filename in carried_photo_names + processed_photo_names
+        }
+        album_photos = []
+        used_stems = set()
+        for filename in existing_photo_order + processed_photo_names:
+            stem = file_stem(filename)
+            if stem in available_names and stem not in used_stems:
+                album_photos.append(available_names[stem])
+                used_stems.add(stem)
+
         # 更新影集元数据
         current_stems = {file_stem(photo) for photo in album_photos}
         album_meta["photos"] = album_photos
