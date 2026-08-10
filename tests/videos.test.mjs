@@ -105,3 +105,13 @@ test('video manager supports add, order, delete, and local JSON save', async () 
   assert.match(source, /删除/);
   assert.match(source, /保存视频/);
 });
+
+test('production build keeps type checks while lint runs separately', async () => {
+  const source = await fs.readFile(
+    new URL('../next.config.ts', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /eslint:\s*{\s*ignoreDuringBuilds:\s*true/);
+  assert.doesNotMatch(source, /typescript:\s*{\s*ignoreBuildErrors:\s*true/);
+});

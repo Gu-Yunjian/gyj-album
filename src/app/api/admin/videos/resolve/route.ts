@@ -4,7 +4,7 @@ import {
   validateResolvedBilibiliUrl,
 } from '@/lib/bilibili';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export async function POST(request: NextRequest) {
   try {
