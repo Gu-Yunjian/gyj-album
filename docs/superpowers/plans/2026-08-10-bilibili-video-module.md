@@ -31,11 +31,20 @@ node -e "Promise.all([import('eslint-config-next/core-web-vitals.js'), import('e
 
 Expected: output contains `resolved`.
 
-- [ ] **Step 3: Add explicit extensions**
+- [ ] **Step 3: Adapt the Next 15 legacy configs to ESLint 9 flat config**
 
 ```js
-import nextVitals from "eslint-config-next/core-web-vitals.js";
-import nextTs from "eslint-config-next/typescript.js";
+import { FlatCompat } from "@eslint/eslintrc";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const compat = new FlatCompat({
+  baseDirectory: dirname(fileURLToPath(import.meta.url)),
+});
+
+const eslintConfig = defineConfig([
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+]);
 ```
 
 - [ ] **Step 4: Verify ESLint starts**
