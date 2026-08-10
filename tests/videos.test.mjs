@@ -76,3 +76,32 @@ test('video page renders configured cards and an empty state', async () => {
   assert.match(source, /<VideoCard/);
   assert.match(source, /暂时还没有视频/);
 });
+
+test('admin registers video management between albums and about', async () => {
+  const source = await fs.readFile(
+    new URL('../src/app/admin/page.tsx', import.meta.url),
+    'utf8'
+  );
+  const videoTabIndex = source.indexOf("setActiveTab('videos')");
+  const aboutTabIndex = source.indexOf("setActiveTab('about')");
+
+  assert.match(source, /'albums' \| 'videos' \| 'about'/);
+  assert.match(source, /<VideoManager/);
+  assert.ok(videoTabIndex >= 0);
+  assert.ok(videoTabIndex < aboutTabIndex);
+});
+
+test('video manager supports add, order, delete, and local JSON save', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/admin/VideoManager.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /\/api\/admin\/videos\/resolve/);
+  assert.match(source, /public\/content\/videos\.json/);
+  assert.match(source, /添加视频/);
+  assert.match(source, /上移/);
+  assert.match(source, /下移/);
+  assert.match(source, /删除/);
+  assert.match(source, /保存视频/);
+});

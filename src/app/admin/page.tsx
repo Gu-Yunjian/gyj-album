@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import VideoManager from '@/components/admin/VideoManager';
 
 interface ExifInfo {
   aperture?: string;
@@ -186,7 +187,7 @@ export default function AdminPage() {
   const [draggingPhoto, setDraggingPhoto] = useState<{ albumName: string; index: number } | null>(null);
 
   // About 页面编辑
-  const [activeTab, setActiveTab] = useState<'albums' | 'about'>('albums');
+  const [activeTab, setActiveTab] = useState<'albums' | 'videos' | 'about'>('albums');
   const [aboutContent, setAboutContent] = useState('');
   const [aboutLoading, setAboutLoading] = useState(false);
   
@@ -754,21 +755,23 @@ export default function AdminPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h1 style={{ margin: 0 }}>相册管理系统</h1>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={handleSave}
-              disabled={isProcessing}
-              style={{
-                padding: '10px 20px',
-                background: '#52c41a',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-                opacity: isProcessing ? 0.6 : 1
-              }}
-            >
-              💾 保存修改
-            </button>
+            {activeTab === 'albums' && (
+              <button
+                onClick={handleSave}
+                disabled={isProcessing}
+                style={{
+                  padding: '10px 20px',
+                  background: '#52c41a',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isProcessing ? 'not-allowed' : 'pointer',
+                  opacity: isProcessing ? 0.6 : 1
+                }}
+              >
+                💾 保存修改
+              </button>
+            )}
             <button
               onClick={() => setIsAuthenticated(false)}
               style={{
@@ -801,6 +804,22 @@ export default function AdminPage() {
             }}
           >
             📁 影集管理
+          </button>
+          <button
+            onClick={() => setActiveTab('videos')}
+            style={{
+              padding: '12px 24px',
+              background: activeTab === 'videos' ? '#fff' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'videos' ? '2px solid #0070f3' : '2px solid transparent',
+              marginBottom: '-2px',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: activeTab === 'videos' ? '600' : '400',
+              color: activeTab === 'videos' ? '#0070f3' : '#666'
+            }}
+          >
+            🎬 视频管理
           </button>
           <button
             onClick={() => setActiveTab('about')}
@@ -1409,6 +1428,8 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+      ) : activeTab === 'videos' ? (
+        <VideoManager />
       ) : (
         /* About 页面编辑区 */
         <div>
