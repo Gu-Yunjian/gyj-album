@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 const ROOT_DIR = path.resolve(process.cwd());
 const ALBUMS_JSON_PATH = path.join(ROOT_DIR, 'public', 'albums.json');

@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { parseDeletePhotoRequest } from '@/lib/admin-files';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 // 确保在开发环境运行
 const isDevelopment = process.env.NODE_ENV === 'development';
