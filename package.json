@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "npm install --legacy-peer-deps && next build",
     "start": "next start",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --test tests/*.test.mjs",
     "lint": "eslint",
     "build:skip-lint": "next build --no-lint"
   },

@@ -12,7 +12,19 @@
         "1773244921517-qngo9q.webp",
         "1773244921845-ggge7o.webp",
         "1773244921988-r2fl94.webp",
-        "1773244922079-1uoct1.webp"
+        "1773244922079-1uoct1.webp",
+        "32310010.webp",
+        "R89A01031.webp",
+        "R89A0750_2.webp",
+        "R89A4517-Exposure.webp",
+        "R89A5238_1.webp",
+        "R89A5400_1.webp",
+        "R89A9668.webp",
+        "R89A0278___.webp",
+        "R89A1222.webp",
+        "R89A1253.webp",
+        "R89A2297.webp",
+        "R89A2537___.webp"
       ],
       "photoInfos": {},
       "hasBgm": false,
@@ -64,7 +76,7 @@
       "name": "ceshi1",
       "title": "测试",
       "subtitle": "测试",
-      "cover": "independent_photos__111_.webp",
+      "cover": "R89A7734.webp",
       "photos": [
         "independent_photos__103_.webp",
         "independent_photos__104_.webp",
@@ -77,7 +89,13 @@
         "independent_photos__113_.webp",
         "independent_photos__118_.webp",
         "independent_photos__119_.webp",
-        "independent_photos__120_.webp"
+        "independent_photos__120_.webp",
+        "R0009009.webp",
+        "R89A9798.webp",
+        "R89A9668.webp",
+        "R0004835.webp",
+        "mmexport1734336628351.webp",
+        "R89A7734.webp"
       ],
       "photoInfos": {
         "independent_photos__120_": {
@@ -258,6 +276,195 @@
       },
       "id": "111/1773244922079-1uoct1",
       "order": 6
+    },
+    "111/32310010": {
+      "id": "111/32310010",
+      "filename": "32310010.webp",
+      "originalName": "32310010.JPG",
+      "mainSize": 295954,
+      "mediumSize": 62100,
+      "thumbSize": 16880,
+      "exif": {
+        "dateTaken": "                   ",
+        "camera": "QSS-32_33"
+      },
+      "order": 7
+    },
+    "111/R89A01031": {
+      "id": "111/R89A01031",
+      "filename": "R89A01031.webp",
+      "originalName": "R89A01031.jpg",
+      "mainSize": 299068,
+      "mediumSize": 34440,
+      "thumbSize": 9772,
+      "exif": {
+        "aperture": "f/10.0",
+        "shutterSpeed": "1/125s",
+        "iso": 100,
+        "dateTaken": "2023:06:23 17:14:58",
+        "camera": "Canon EOS R6"
+      },
+      "order": 8
+    },
+    "111/R89A0750_2": {
+      "id": "111/R89A0750_2",
+      "filename": "R89A0750_2.webp",
+      "originalName": "R89A0750_2.jpg",
+      "mainSize": 194222,
+      "mediumSize": 16752,
+      "thumbSize": 4380,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/160s",
+        "iso": 100,
+        "dateTaken": "2023:12:30 13:26:15",
+        "camera": "Canon EOS R6"
+      },
+      "order": 9
+    },
+    "111/R89A4517-Exposure": {
+      "id": "111/R89A4517-Exposure",
+      "filename": "R89A4517-Exposure.webp",
+      "originalName": "R89A4517-Exposure.jpg",
+      "mainSize": 457230,
+      "mediumSize": 80280,
+      "thumbSize": 17904,
+      "exif": {
+        "aperture": "f/2.0",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:11:29 10:41:14",
+        "camera": "Canon EOS R6"
+      },
+      "order": 10
+    },
+    "111/R89A5238_1": {
+      "id": "111/R89A5238_1",
+      "filename": "R89A5238_1.webp",
+      "originalName": "R89A5238_1.jpg",
+      "mainSize": 916416,
+      "mediumSize": 68724,
+      "thumbSize": 15642,
+      "exif": {
+        "aperture": "f/7.1",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:12:21 13:37:30",
+        "camera": "Canon EOS R6"
+      },
+      "order": 11
+    },
+    "111/R89A5400_1": {
+      "id": "111/R89A5400_1",
+      "filename": "R89A5400_1.webp",
+      "originalName": "R89A5400_1.jpg",
+      "mainSize": 527364,
+      "mediumSize": 41946,
+      "thumbSize": 10270,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/320s",
+        "iso": 100,
+        "dateTaken": "2024:12:21 17:09:42",
+        "camera": "Canon EOS R6"
+      },
+      "order": 12
+    },
+    "111/R89A9668": {
+      "id": "111/R89A9668",
+      "filename": "R89A9668.webp",
+      "originalName": "R89A9668.jpg",
+      "mainSize": 491488,
+      "mediumSize": 52130,
+      "thumbSize": 15606,
+      "exif": {
+        "aperture": "f/1.8",
+        "shutterSpeed": "1/160s",
+        "iso": 100,
+        "dateTaken": "2024:04:15 17:00:58",
+        "camera": "GRIIIx"
+      },
+      "order": 13
+    },
+    "111/R89A0278___": {
+      "id": "111/R89A0278___",
+      "filename": "R89A0278___.webp",
+      "originalName": "R89A0278___.jpg",
+      "mainSize": 130822,
+      "mediumSize": 19692,
+      "thumbSize": 6744,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/60s",
+        "iso": 400,
+        "dateTaken": "2024:06:16 18:31:10",
+        "camera": "Canon EOS R6"
+      },
+      "order": 14
+    },
+    "111/R89A1222": {
+      "id": "111/R89A1222",
+      "filename": "R89A1222.webp",
+      "originalName": "R89A1222.jpg",
+      "mainSize": 223210,
+      "mediumSize": 26112,
+      "thumbSize": 7978,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/30s",
+        "iso": 100,
+        "dateTaken": "2024:06:18 17:10:49",
+        "camera": "Canon EOS R6"
+      },
+      "order": 15
+    },
+    "111/R89A1253": {
+      "id": "111/R89A1253",
+      "filename": "R89A1253.webp",
+      "originalName": "R89A1253.jpg",
+      "mainSize": 178560,
+      "mediumSize": 24870,
+      "thumbSize": 7836,
+      "exif": {
+        "aperture": "f/4.0",
+        "shutterSpeed": "1/15s",
+        "iso": 100,
+        "dateTaken": "2024:06:18 17:18:28",
+        "camera": "Canon EOS R6"
+      },
+      "order": 16
+    },
+    "111/R89A2297": {
+      "id": "111/R89A2297",
+      "filename": "R89A2297.webp",
+      "originalName": "R89A2297.JPG",
+      "mainSize": 133940,
+      "mediumSize": 11784,
+      "thumbSize": 3528,
+      "exif": {
+        "aperture": "f/2.0",
+        "shutterSpeed": "1/40s",
+        "iso": 1600,
+        "dateTaken": "2024:06:24 16:50:11",
+        "camera": "Canon EOS R6"
+      },
+      "order": 17
+    },
+    "111/R89A2537___": {
+      "id": "111/R89A2537___",
+      "filename": "R89A2537___.webp",
+      "originalName": "R89A2537___.jpg",
+      "mainSize": 190526,
+      "mediumSize": 16430,
+      "thumbSize": 4936,
+      "exif": {
+        "aperture": "f/1.8",
+        "shutterSpeed": "1/40s",
+        "iso": 100,
+        "dateTaken": "2024:06:24 18:21:36",
+        "camera": "GRIIIx"
+      },
+      "order": 18
     },
     "test2/IMG_20251005_132126": {
       "id": "test2/IMG_20251005_132126",
@@ -945,6 +1152,92 @@
       },
       "id": "ceshi1/independent_photos__120_",
       "order": 11
+    },
+    "ceshi1/R0009009": {
+      "id": "ceshi1/R0009009",
+      "filename": "R0009009.webp",
+      "originalName": "R0009009.JPG",
+      "mainSize": 204278,
+      "mediumSize": 25000,
+      "thumbSize": 7206,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/30s",
+        "iso": 200,
+        "dateTaken": "2024:08:11 15:08:40",
+        "camera": "RICOH GR III"
+      },
+      "order": 12
+    },
+    "ceshi1/R89A9798": {
+      "id": "ceshi1/R89A9798",
+      "filename": "R89A9798.webp",
+      "originalName": "R89A9798.jpg",
+      "mainSize": 152968,
+      "mediumSize": 15772,
+      "thumbSize": 4168,
+      "exif": {},
+      "order": 13
+    },
+    "ceshi1/R89A9668": {
+      "id": "ceshi1/R89A9668",
+      "filename": "R89A9668.webp",
+      "originalName": "R89A9668.jpg",
+      "mainSize": 491488,
+      "mediumSize": 52130,
+      "thumbSize": 15606,
+      "exif": {
+        "aperture": "f/1.8",
+        "shutterSpeed": "1/160s",
+        "iso": 100,
+        "dateTaken": "2024:04:15 17:00:58",
+        "camera": "GRIIIx"
+      },
+      "order": 14
+    },
+    "ceshi1/R0004835": {
+      "id": "ceshi1/R0004835",
+      "filename": "R0004835.webp",
+      "originalName": "R0004835.JPG",
+      "mainSize": 757714,
+      "mediumSize": 142870,
+      "thumbSize": 30494,
+      "exif": {
+        "aperture": "f/2.8",
+        "shutterSpeed": "1/160s",
+        "iso": 200,
+        "dateTaken": "2023:11:04 13:29:49",
+        "camera": "RICOH GR III"
+      },
+      "order": 15
+    },
+    "ceshi1/mmexport1734336628351": {
+      "id": "ceshi1/mmexport1734336628351",
+      "filename": "mmexport1734336628351.webp",
+      "originalName": "mmexport1734336628351.jpg",
+      "mainSize": 291406,
+      "mediumSize": 58156,
+      "thumbSize": 10672,
+      "exif": {
+        "dateTaken": "2024:12:16 16:10:28"
+      },
+      "order": 16
+    },
+    "ceshi1/R89A7734": {
+      "id": "ceshi1/R89A7734",
+      "filename": "R89A7734.webp",
+      "originalName": "R89A7734.jpg",
+      "mainSize": 528164,
+      "mediumSize": 15810,
+      "thumbSize": 3780,
+      "exif": {
+        "aperture": "f/8.0",
+        "shutterSpeed": "1/500s",
+        "iso": 100,
+        "dateTaken": "2024:06:05 15:34:11",
+        "camera": "GRIIIx"
+      },
+      "order": 17
     },
     "default/1773242301939-xp32yx": {
       "filename": "1773242301939-xp32yx.webp",

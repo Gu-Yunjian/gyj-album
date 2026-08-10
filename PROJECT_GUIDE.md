@@ -16,6 +16,7 @@ The production site is static. Photo processing, metadata editing, and file writ
 | `/gallery` | All-photo browsing | `getHomePhotos()` from all albums | Daily seeded ordering, fills with mock photos only if fewer than 30 real photos. |
 | `/collections` | Album list | `getAlbums()` | Shows album cards from `albums[].cover`. |
 | `/album/[name]` | Single album viewer | `getAlbum()` and `getAllPhotosData()` | Static params from album names; decodes URL names. |
+| `/videos` | Bilibili video portfolio | `public/content/videos.json` | Uses Bilibili's hosted iframe player and keeps source order. |
 | `/about` | Profile page | `public/content/about.md`, `public/content/social.json` | Markdown frontmatter drives profile metadata. |
 | `/admin` | Local content tool | local API routes and static JSON | Development helper only, not production CMS. |
 
@@ -33,7 +34,8 @@ gu-album/
 │   ├── albums.json            # Authoritative album and photo metadata
 │   └── content/
 │       ├── about.md
-│       └── social.json
+│       ├── social.json
+│       └── videos.json         # Ordered Bilibili titles and canonical links
 ├── scripts/
 │   ├── process_photos.py      # Image processing and metadata generation
 │   ├── deploy.bat
@@ -123,6 +125,8 @@ UI display sizes are smaller than file dimensions. For example, album thumbnails
 
 - It uses a hard-coded local password to prevent accidental access.
 - It can write local files through `/api/admin/*` while running `next dev`.
+- Its video tab can add, reorder, delete, and save Bilibili links in `public/content/videos.json`.
+- It resolves `b23.tv` links locally before saving the canonical Bilibili URL.
 - It is not a secure authentication system.
 - It is not expected to work as a production CMS after static export.
 
@@ -158,6 +162,10 @@ Deploy generated static assets, including:
 - `public/content/**`
 
 Do not deploy `originals/` as part of the public site.
+
+## Video Playback
+
+The video page embeds `https://player.bilibili.com/player.html` with a normalized BV or AV identifier. The site does not download, proxy, or parse Bilibili media streams. This keeps the static deployment small and leaves playback delivery and controls with Bilibili.
 
 ## Known Deferred Issues
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { parseDeletePhotoRequest } from '@/lib/admin-files';
 
 export const dynamic = 'force-dynamic';
 
@@ -124,9 +125,7 @@ export async function DELETE(request: NextRequest) {
   // 注意：生产环境应该添加身份验证
 
   try {
-    const { searchParams } = new URL(request.url);
-    const album = searchParams.get('album');
-    const filename = searchParams.get('filename');
+    const { album, filename } = await parseDeletePhotoRequest(request);
 
     if (!album || !validateAlbumName(album) || !filename) {
       return NextResponse.json({ error: '无效参数' }, { status: 400 });
