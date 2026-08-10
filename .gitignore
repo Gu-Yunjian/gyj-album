@@ -55,3 +55,6 @@ __pycache__/
 *.tmp
 .local-server.pid
 .local-server.log
+
+# Isolated feature worktrees
+.worktrees/
