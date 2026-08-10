@@ -245,9 +245,17 @@ def process_albums():
         existing_order[album.get("name")] = album.get("order", index)
     next_order = max(existing_order.values(), default=-1) + 1
     
-    # 处理每个影集
-    updated_albums = []
-    all_photos = {}
+    # 只替换本次扫描到的影集。工作树或增量上传场景可能只包含部分
+    # originals 目录，未扫描到的影集必须继续保留在元数据中。
+    scanned_album_names = {album["name"] for album in albums}
+    updated_albums = [
+        album for album in albums_data.get("albums", [])
+        if album.get("name") not in scanned_album_names
+    ]
+    all_photos = {
+        key: value for key, value in albums_data.get("allPhotos", {}).items()
+        if key.split("/", 1)[0] not in scanned_album_names
+    }
     total_processed = 0
     total_skipped = 0
     
