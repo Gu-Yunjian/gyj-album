@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 // 确保在开发环境运行
 const isDevelopment = process.env.NODE_ENV === 'development';

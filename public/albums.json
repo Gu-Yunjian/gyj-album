@@ -50,7 +50,6 @@
         "R89A5223.webp",
         "R89A5237.webp",
         "R89A5244.webp",
-        "R89A5638.webp",
         "R89A5890.webp",
         "R89A6721_1___.webp",
         "R89A6753_1___.webp",
@@ -76,7 +75,6 @@
         "independent_photos__111_.webp",
         "independent_photos__112_.webp",
         "independent_photos__113_.webp",
-        "independent_photos__117_.webp",
         "independent_photos__118_.webp",
         "independent_photos__119_.webp",
         "independent_photos__120_.webp"
@@ -84,9 +82,6 @@
       "photoInfos": {
         "independent_photos__120_": {
           "title": "香港"
-        },
-        "independent_photos__117_": {
-          "title": "USJ"
         },
         "independent_photos__118_": {
           "title": "千岛湖",
@@ -680,22 +675,6 @@
       },
       "order": 25
     },
-    "test2/R89A5638": {
-      "id": "test2/R89A5638",
-      "filename": "R89A5638.webp",
-      "originalName": "R89A5638.JPG",
-      "mainSize": 348464,
-      "mediumSize": 43866,
-      "thumbSize": 12642,
-      "exif": {
-        "aperture": "f/1.4",
-        "shutterSpeed": "1/1600s",
-        "iso": 100,
-        "dateTaken": "2025:01:26 14:24:23",
-        "camera": "Canon EOS R6"
-      },
-      "order": 26
-    },
     "test2/R89A5890": {
       "id": "test2/R89A5890",
       "filename": "R89A5890.webp",
@@ -710,7 +689,7 @@
         "dateTaken": "2025:01:26 17:55:35",
         "camera": "Canon EOS R6"
       },
-      "order": 27
+      "order": 26
     },
     "test2/R89A6721_1___": {
       "id": "test2/R89A6721_1___",
@@ -726,7 +705,7 @@
         "dateTaken": "2025:02:10 21:40:55",
         "camera": "Canon EOS R6"
       },
-      "order": 28
+      "order": 27
     },
     "test2/R89A6753_1___": {
       "id": "test2/R89A6753_1___",
@@ -742,7 +721,7 @@
         "dateTaken": "2025:02:10 21:45:09",
         "camera": "Canon EOS R6"
       },
-      "order": 29
+      "order": 28
     },
     "test2/R89A9786": {
       "id": "test2/R89A9786",
@@ -758,7 +737,7 @@
         "dateTaken": "2025:03:16 16:08:50",
         "camera": "Canon EOS R6"
       },
-      "order": 30
+      "order": 29
     },
     "test2/_____20251204222417_23_3": {
       "id": "test2/_____20251204222417_23_3",
@@ -773,7 +752,7 @@
         "iso": 100,
         "dateTaken": "2025:10:04 23:25:24"
       },
-      "order": 31
+      "order": 30
     },
     "ceshi1/independent_photos__103_": {
       "filename": "independent_photos__103_.webp",
@@ -919,22 +898,6 @@
       "id": "ceshi1/independent_photos__113_",
       "order": 8
     },
-    "ceshi1/independent_photos__117_": {
-      "filename": "independent_photos__117_.webp",
-      "originalName": "independent_photos__117_.JPG",
-      "mainSize": 379910,
-      "mediumSize": 57194,
-      "thumbSize": 14768,
-      "exif": {
-        "aperture": "f/2.8",
-        "shutterSpeed": "1/1000s",
-        "iso": 200,
-        "dateTaken": "2024:01:15 13:50:42",
-        "camera": "RICOH GR III"
-      },
-      "id": "ceshi1/independent_photos__117_",
-      "order": 9
-    },
     "ceshi1/independent_photos__118_": {
       "filename": "independent_photos__118_.webp",
       "originalName": "independent_photos__118_.JPG",
@@ -949,7 +912,7 @@
         "camera": "RICOH GR III"
       },
       "id": "ceshi1/independent_photos__118_",
-      "order": 10
+      "order": 9
     },
     "ceshi1/independent_photos__119_": {
       "filename": "independent_photos__119_.webp",
@@ -965,7 +928,7 @@
         "camera": "RICOH GR III"
       },
       "id": "ceshi1/independent_photos__119_",
-      "order": 11
+      "order": 10
     },
     "ceshi1/independent_photos__120_": {
       "filename": "independent_photos__120_.webp",
@@ -981,7 +944,7 @@
         "camera": "RICOH GR III"
       },
       "id": "ceshi1/independent_photos__120_",
-      "order": 12
+      "order": 11
     },
     "default/1773242301939-xp32yx": {
       "filename": "1773242301939-xp32yx.webp",
