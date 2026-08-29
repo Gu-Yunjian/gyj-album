@@ -5,8 +5,10 @@ import {
   canonicalizeBilibiliUrl,
   isB23Url,
   normalizeVideoConfig,
+  parseExternalVideoUrl,
   parseBilibiliUrl,
   type VideoEntry,
+  type VideoProvider,
 } from '@/lib/bilibili';
 
 interface ApiError {
@@ -18,6 +20,7 @@ export default function VideoManager() {
   const [videos, setVideos] = useState<VideoEntry[]>([]);
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [provider, setProvider] = useState<VideoProvider>('bilibili');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -42,7 +45,7 @@ export default function VideoManager() {
     loadVideos();
   }, [loadVideos]);
 
-  async function resolveUrl(rawUrl: string) {
+  async function resolveBilibiliUrl(rawUrl: string) {
     if (!isB23Url(rawUrl)) {
       const parsed = parseBilibiliUrl(rawUrl);
       return parsed ? canonicalizeBilibiliUrl(parsed) : null;
@@ -62,12 +65,16 @@ export default function VideoManager() {
     return result.url;
   }
 
+  function resolveExternalUrl(rawUrl: string) {
+    return parseExternalVideoUrl(rawUrl);
+  }
+
   async function addVideo() {
     const nextTitle = title.trim();
     const rawUrl = url.trim();
 
     if (!nextTitle || !rawUrl) {
-      setMessage('❌ 请填写标题和 B 站链接');
+      setMessage('❌ 请填写标题和视频地址');
       return;
     }
 
@@ -75,10 +82,14 @@ export default function VideoManager() {
     setMessage('');
 
     try {
-      const canonicalUrl = await resolveUrl(rawUrl);
+      const canonicalUrl = provider === 'bilibili'
+        ? await resolveBilibiliUrl(rawUrl)
+        : resolveExternalUrl(rawUrl);
 
       if (!canonicalUrl) {
-        setMessage('❌ 请输入有效的 B 站视频链接');
+        setMessage(provider === 'bilibili'
+          ? '❌ 请输入有效的 B 站视频链接'
+          : '❌ 请输入有效的 HTTPS MP4 地址');
         return;
       }
 
@@ -89,7 +100,7 @@ export default function VideoManager() {
 
       setVideos(previous => [
         ...previous,
-        { title: nextTitle, url: canonicalUrl },
+        { title: nextTitle, url: canonicalUrl, provider },
       ]);
       setTitle('');
       setUrl('');
@@ -177,7 +188,7 @@ export default function VideoManager() {
           <div>
             <h2 style={{ margin: '0 0 4px' }}>视频管理</h2>
             <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
-              添加 B 站视频链接，保存后随静态站点一起部署
+              添加 B 站或外部 MP4 地址，保存后随静态站点一起部署
             </p>
           </div>
           <button
@@ -199,6 +210,22 @@ export default function VideoManager() {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <select
+            value={provider}
+            onChange={event => setProvider(event.target.value as VideoProvider)}
+            aria-label="视频来源"
+            style={{
+              flex: '0 1 150px',
+              minWidth: '150px',
+              padding: '10px 12px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px',
+              background: '#fff',
+            }}
+          >
+            <option value="bilibili">B 站视频</option>
+            <option value="mp4">外部 MP4</option>
+          </select>
           <input
             type="text"
             value={title}
@@ -216,7 +243,9 @@ export default function VideoManager() {
             type="url"
             value={url}
             onChange={event => setUrl(event.target.value)}
-            placeholder="B 站链接（支持 b23.tv）"
+            placeholder={provider === 'bilibili'
+              ? 'B 站链接（支持 b23.tv）'
+              : 'HTTPS MP4 地址（例如 COS 链接）'}
             style={{
               flex: '2 1 360px',
               minWidth: 0,
@@ -238,7 +267,7 @@ export default function VideoManager() {
               cursor: adding ? 'not-allowed' : 'pointer',
             }}
           >
-            {adding ? '解析中...' : '+ 添加视频'}
+            {adding ? '处理中...' : '+ 添加视频'}
           </button>
         </div>
 

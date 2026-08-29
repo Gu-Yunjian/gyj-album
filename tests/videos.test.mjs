@@ -21,6 +21,37 @@ test('keeps valid titled videos in source order', () => {
       {
         title: 'A',
         url: 'https://www.bilibili.com/video/BV1Sa6cBDEXQ/',
+        provider: 'bilibili',
+      },
+    ]
+  );
+});
+
+test('accepts HTTPS MP4 URLs and rejects non-MP4 external URLs', async () => {
+  const { normalizeVideoConfig } = await import('../src/lib/bilibili.ts');
+
+  assert.deepEqual(
+    normalizeVideoConfig({
+      videos: [
+        {
+          title: 'COS video',
+          url: 'https://example.com/video/demo.mp4',
+        },
+        {
+          title: 'Not a video',
+          url: 'https://example.com/video/demo.jpg',
+        },
+        {
+          title: 'Unsafe video',
+          url: 'javascript:alert(1).mp4',
+        },
+      ],
+    }),
+    [
+      {
+        title: 'COS video',
+        url: 'https://example.com/video/demo.mp4',
+        provider: 'mp4',
       },
     ]
   );
@@ -56,7 +87,7 @@ test('registers the video route before the about navigation item', async () => {
   assert.ok(videosIndex < aboutIndex);
 });
 
-test('video cards use lazy Bilibili iframes with a fallback link', async () => {
+test('video cards support lazy Bilibili iframes and native MP4 playback', async () => {
   const source = await fs.readFile(
     new URL('../src/components/video/VideoCard.tsx', import.meta.url),
     'utf8'
@@ -65,6 +96,9 @@ test('video cards use lazy Bilibili iframes with a fallback link', async () => {
   assert.match(source, /loading="lazy"/);
   assert.match(source, /allowFullScreen/);
   assert.match(source, /在 B 站观看/);
+  assert.match(source, /<video/);
+  assert.match(source, /preload="metadata"/);
+  assert.match(source, /playsInline/);
 });
 
 test('video page renders configured cards and an empty state', async () => {
@@ -104,6 +138,8 @@ test('video manager supports add, order, delete, and local JSON save', async () 
   assert.match(source, /下移/);
   assert.match(source, /删除/);
   assert.match(source, /保存视频/);
+  assert.match(source, /外部 MP4/);
+  assert.match(source, /parseExternalVideoUrl/);
 });
 
 test('production build keeps type checks while lint runs separately', async () => {

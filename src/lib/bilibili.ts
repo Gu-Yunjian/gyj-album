@@ -4,9 +4,12 @@ export type ParsedBilibiliVideo = {
   page: number;
 };
 
+export type VideoProvider = 'bilibili' | 'mp4';
+
 export type VideoEntry = {
   title: string;
   url: string;
+  provider: VideoProvider;
 };
 
 const BVID_PATTERN = /^BV[0-9A-Za-z]{10}$/;
@@ -106,6 +109,20 @@ export function buildBilibiliPlayerUrl(video: ParsedBilibiliVideo) {
   return url.toString();
 }
 
+export function parseExternalVideoUrl(rawUrl: string) {
+  try {
+    const url = new URL(rawUrl.trim());
+
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return null;
+    }
+
+    return url.pathname.toLowerCase().endsWith('.mp4') ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function normalizeVideoConfig(input: unknown): VideoEntry[] {
   if (!input || typeof input !== 'object' || !('videos' in input)) {
     return [];
@@ -117,7 +134,7 @@ export function normalizeVideoConfig(input: unknown): VideoEntry[] {
     return [];
   }
 
-  return videos.flatMap(item => {
+  return videos.flatMap((item): VideoEntry[] => {
     if (!item || typeof item !== 'object') {
       return [];
     }
@@ -128,12 +145,35 @@ export function normalizeVideoConfig(input: unknown): VideoEntry[] {
     const rawUrl = 'url' in item && typeof item.url === 'string'
       ? item.url
       : '';
-    const parsed = parseBilibiliUrl(rawUrl);
 
-    if (!title || !parsed) {
+    if (!title) {
       return [];
     }
 
-    return [{ title, url: canonicalizeBilibiliUrl(parsed) }];
+    const requestedProvider = 'provider' in item && item.provider === 'mp4'
+      ? 'mp4'
+      : 'bilibili';
+
+    if (requestedProvider === 'mp4') {
+      const externalUrl = parseExternalVideoUrl(rawUrl);
+      return externalUrl
+        ? [{ title, url: externalUrl, provider: 'mp4' }]
+        : [];
+    }
+
+    const parsed = parseBilibiliUrl(rawUrl);
+
+    if (!parsed) {
+      const externalUrl = parseExternalVideoUrl(rawUrl);
+      return externalUrl
+        ? [{ title, url: externalUrl, provider: 'mp4' }]
+        : [];
+    }
+
+    return [{
+      title,
+      url: canonicalizeBilibiliUrl(parsed),
+      provider: 'bilibili',
+    }];
   });
 }

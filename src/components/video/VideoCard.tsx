@@ -10,22 +10,32 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video }: VideoCardProps) {
-  const parsed = parseBilibiliUrl(video.url);
+  const parsed = video.provider === 'bilibili'
+    ? parseBilibiliUrl(video.url)
+    : null;
 
-  if (!parsed) {
-    return null;
-  }
+  if (video.provider === 'bilibili' && !parsed) return null;
 
   return (
     <article className={styles.card}>
       <div className={styles.frame}>
-        <iframe
-          src={buildBilibiliPlayerUrl(parsed)}
-          title={video.title}
-          loading="lazy"
-          allow="fullscreen; picture-in-picture"
-          allowFullScreen
-        />
+        {video.provider === 'mp4' ? (
+          <video
+            src={video.url}
+            title={video.title}
+            controls
+            preload="metadata"
+            playsInline
+          />
+        ) : (
+          <iframe
+            src={buildBilibiliPlayerUrl(parsed!)}
+            title={video.title}
+            loading="lazy"
+            allow="fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        )}
       </div>
       <div className={styles.meta}>
         <h2 className={styles.title}>{video.title}</h2>
@@ -35,7 +45,7 @@ export default function VideoCard({ video }: VideoCardProps) {
           target="_blank"
           rel="noreferrer"
         >
-          在 B 站观看
+          {video.provider === 'bilibili' ? '在 B 站观看' : '打开视频文件'}
         </a>
       </div>
     </article>
