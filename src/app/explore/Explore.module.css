@@ -106,6 +106,7 @@
 
 .animatedCard {
   transform-origin: center;
+  pointer-events: none;
 }
 
 .polaroidFrame {

@@ -21,6 +21,7 @@ test('home polaroid frame opts out of dark-mode recoloring', async () => {
     'utf8'
   );
 
+  assert.match(source, /\.animatedCard\s*{[^}]*pointer-events:\s*none/);
   assert.match(source, /\.polaroidFrame\s*{[\s\S]*color-scheme:\s*only light/);
   assert.match(source, /\.polaroidFrame\s*{[\s\S]*background-color:\s*#fff/);
   assert.match(source, /\.polaroidFrame\s*{[\s\S]*forced-color-adjust:\s*none/);

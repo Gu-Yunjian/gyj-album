@@ -40,62 +40,82 @@
   color: #FFFFFF;
 }
 
-.mobileSelectLabel {
+.mobileFilter {
   display: none;
   position: relative;
-  width: fit-content;
-  max-width: 42vw;
 }
 
-.mobileSelectSizer {
-  display: block;
-  max-width: 42vw;
-  height: 30px;
-  padding: 8px 28px 0 12px;
-  color: transparent;
-  font-size: 12px;
-  line-height: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.mobileSelect {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  min-width: 0;
-  height: 30px;
-  padding: 0 28px 0 12px;
+.mobileFilterButton {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.14);
-  border-radius: 9999px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.84);
   color: rgba(0, 0, 0, 0.7);
-  font-size: 12px;
-  line-height: 1;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: background-color 160ms ease, border-color 160ms ease;
 }
 
-.mobileSelect::-ms-expand {
-  display: none;
+.mobileFilterButton:hover,
+.mobileFilterButton[aria-expanded='true'] {
+  border-color: rgba(0, 0, 0, 0.32);
+  background: #FFFFFF;
 }
 
-.mobileSelectLabel::after {
+.mobileFilterIcon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.mobileFilterIndicator {
   content: '';
   position: absolute;
-  top: 50%;
-  right: 12px;
+  top: 3px;
+  right: 3px;
   width: 6px;
   height: 6px;
-  border-right: 1.5px solid rgba(0, 0, 0, 0.52);
-  border-bottom: 1.5px solid rgba(0, 0, 0, 0.52);
-  pointer-events: none;
-  transform: translateY(-65%) rotate(45deg);
+  border-radius: 50%;
+  background: #000000;
+}
+
+.mobileFilterMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  min-width: 112px;
+  padding: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  background: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.mobileFilterOption {
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.68);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: right;
+  cursor: pointer;
+}
+
+.mobileFilterOption:hover,
+.mobileFilterOption.active {
+  background: rgba(0, 0, 0, 0.06);
+  color: #000000;
 }
 
 .srOnly {
@@ -127,7 +147,11 @@
     display: none;
   }
 
-  .mobileSelectLabel {
+  .mobileFilter {
     display: block;
+  }
+
+  .mobileFilterButton {
+    display: flex;
   }
 }
