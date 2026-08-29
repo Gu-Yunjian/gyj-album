@@ -16,6 +16,7 @@ interface PhotoCardProps {
 }
 
 const MAX_TILT_DEGREES = 9;
+const HIT_AREA_PADDING = 40;
 const DESKTOP_IMAGE_AREA = 42000;
 const DESKTOP_MAX_IMAGE_SIDE = 250;
 const MOBILE_IMAGE_AREA = 32000;
@@ -127,6 +128,9 @@ export default function PhotoCard({
 
   if (imgSize.width === 0) return null;
 
+  const cardWidth = imgSize.width + 24;
+  const cardHeight = imgSize.height + 44;
+
   return (
     <div
       className={styles.hitArea}
@@ -136,9 +140,12 @@ export default function PhotoCard({
         top: position.y,
         zIndex: zIndex,
         cursor: 'grab',
-        width: imgSize.width + 24,
-        height: imgSize.height + 44,
+        width: cardWidth + HIT_AREA_PADDING * 2,
+        height: cardHeight + HIT_AREA_PADDING * 2,
         transform: 'translate(-50%, -50%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -149,8 +156,8 @@ export default function PhotoCard({
       <motion.div
         className={styles.animatedCard}
         style={{
-          width: '100%',
-          height: '100%',
+          width: cardWidth,
+          height: cardHeight,
           transformPerspective: 700,
           transformStyle: 'preserve-3d',
         }}

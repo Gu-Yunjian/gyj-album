@@ -13,6 +13,11 @@ test('home polaroid cards keep a stable pointer hit area separate from animation
   assert.match(source, /onPointerEnter/);
   assert.match(source, /onPointerLeave={handleHoverEnd}/);
   assert.match(source, /getBoundingClientRect\(\)/);
+  assert.match(source, /const HIT_AREA_PADDING = 40;/);
+  assert.match(source, /width: cardWidth \+ HIT_AREA_PADDING \* 2/);
+  assert.match(source, /height: cardHeight \+ HIT_AREA_PADDING \* 2/);
+  assert.match(source, /const cardWidth = imgSize\.width \+ 24/);
+  assert.match(source, /const cardHeight = imgSize\.height \+ 44/);
 });
 
 test('home polaroid frame opts out of dark-mode recoloring', async () => {
