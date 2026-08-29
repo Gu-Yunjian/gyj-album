@@ -15,7 +15,6 @@ interface PhotoCardProps {
   onActivate: () => void;
 }
 
-const MAX_TILT_DEGREES = 9;
 const HIT_AREA_PADDING = 40;
 const DESKTOP_IMAGE_AREA = 42000;
 const DESKTOP_MAX_IMAGE_SIDE = 250;
@@ -45,7 +44,6 @@ export default function PhotoCard({
   onActivate,
 }: PhotoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   
   const isDraggingRef = useRef(false);
@@ -61,23 +59,6 @@ export default function PhotoCard({
     };
   }, [photo.thumbSrc, isMobile]);
 
-  const updateTilt = useCallback((e: React.PointerEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-
-    const relativeX = (e.clientX - rect.left) / rect.width - 0.5;
-    const relativeY = (e.clientY - rect.top) / rect.height - 0.5;
-
-    setTilt({
-      rotateX: -relativeY * MAX_TILT_DEGREES * 2,
-      rotateY: relativeX * MAX_TILT_DEGREES * 2,
-    });
-  }, []);
-
-  const resetTilt = useCallback(() => {
-    setTilt({ rotateX: 0, rotateY: 0 });
-  }, []);
-
   const handleHoverStart = useCallback((e: React.PointerEvent) => {
     if (e.pointerType === 'mouse') {
       setIsHovered(true);
@@ -89,20 +70,14 @@ export default function PhotoCard({
     isDraggingRef.current = true;
     dragStartPos.current = { ...position };
     dragStartMouse.current = { x: e.clientX, y: e.clientY };
-    resetTilt();
     onActivate();
     
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
-  }, [position, resetTilt, onActivate]);
+  }, [position, onActivate]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) {
-      if (isHovered && e.pointerType === 'mouse') {
-        updateTilt(e);
-      }
-      return;
-    }
+    if (!isDraggingRef.current) return;
     
     const deltaX = e.clientX - dragStartMouse.current.x;
     const deltaY = e.clientY - dragStartMouse.current.y;
@@ -113,7 +88,7 @@ export default function PhotoCard({
     };
     
     onPositionChange(newPos);
-  }, [isHovered, updateTilt, onPositionChange]);
+  }, [onPositionChange]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     const target = e.currentTarget;
@@ -123,8 +98,7 @@ export default function PhotoCard({
 
   const handleHoverEnd = useCallback(() => {
     setIsHovered(false);
-    resetTilt();
-  }, [resetTilt]);
+  }, []);
 
   if (imgSize.width === 0) return null;
 
@@ -158,16 +132,12 @@ export default function PhotoCard({
         style={{
           width: cardWidth,
           height: cardHeight,
-          transformPerspective: 700,
-          transformStyle: 'preserve-3d',
         }}
-        initial={{ opacity: 0, scale: 0.8, rotate: rotation, rotateX: 0, rotateY: 0 }}
+        initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
         animate={{
           opacity: 1,
           scale: isHovered ? 1.045 : 1,
           rotate: rotation,
-          rotateX: isHovered ? tilt.rotateX : 0,
-          rotateY: isHovered ? tilt.rotateY : 0,
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
