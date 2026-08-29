@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GalleryPhoto } from '@/lib/photos';
 import PhotoCard from './PhotoCard';
 import styles from '../../app/explore/Explore.module.css';
@@ -90,15 +91,14 @@ function generatePositions(
   const positions = [];
   
   for (let i = 0; i < count; i++) {
-    let x: number, y: number;
     
     const config = isMobile ? MOBILE_CONFIG : DESKTOP_CONFIG;
     const anchor = config.anchors[i % config.anchors.length];
     const offsetX = (Math.random() - 0.5) * config.jitterX;
     const offsetY = (Math.random() - 0.5) * config.jitterY;
 
-    x = containerWidth * clamp(anchor.x + offsetX, config.minX, config.maxX);
-    y = containerHeight * clamp(anchor.y + offsetY, config.minY, config.maxY);
+    const x = containerWidth * clamp(anchor.x + offsetX, config.minX, config.maxX);
+    const y = containerHeight * clamp(anchor.y + offsetY, config.minY, config.maxY);
     
     const rotation = -12 + Math.random() * 24;
     positions.push({ x, y, rotation });
@@ -125,7 +125,6 @@ function getInitialZIndex(position: { x: number; y: number }, containerWidth: nu
 
 export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosProps) {
   const [isMobile, setIsMobile] = useState(false);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [photoStates, setPhotoStates] = useState<Array<{
     position: { x: number; y: number };
     rotation: number;
@@ -133,7 +132,10 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
     zLevel: number;
   }>>([]);
   const [isReady, setIsReady] = useState(false);
-  const [clickCounter, setClickCounter] = useState(0);
+  const clickCounterRef = useRef(0);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [focusPosition, setFocusPosition] = useState<{ x: number; y: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // 检测移动端
   useEffect(() => {
@@ -148,6 +150,34 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
     return isMobile ? MOBILE_CONFIG.photoCount : DESKTOP_CONFIG.photoCount;
   }, [isMobile]);
 
+  const updateFocusPosition = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    setFocusPosition({
+      x: window.innerWidth / 2 - rect.left,
+      y: window.innerHeight / 2 - rect.top,
+    });
+  }, []);
+
+  const openFocus = useCallback((index: number) => {
+    updateFocusPosition();
+    setFocusedIndex(index);
+  }, [updateFocusPosition]);
+
+  const closeFocus = useCallback(() => {
+    setFocusedIndex(null);
+    setFocusPosition(null);
+  }, []);
+
+  useEffect(() => {
+    if (focusedIndex === null) return;
+
+    updateFocusPosition();
+    window.addEventListener('resize', updateFocusPosition);
+    return () => window.removeEventListener('resize', updateFocusPosition);
+  }, [focusedIndex, updateFocusPosition]);
+
   // 初始化位置
   useEffect(() => {
     const init = () => {
@@ -158,7 +188,6 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
       const size = { width: rect.width, height: rect.height };
       
       if (size.width > 0 && size.height > 0) {
-        setContainerSize(size);
         const photoCount = getPhotoCount();
         const displayPhotos = photos.slice(0, photoCount);
         const positions = generatePositions(displayPhotos.length, size.width, size.height, isMobile);
@@ -169,7 +198,7 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
           zLevel: 0 
         })));
         setIsReady(true);
-        setClickCounter(0);
+        clickCounterRef.current = 0;
       }
     };
     
@@ -190,16 +219,13 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
 
   // 激活照片（提升层级）
   const activatePhoto = useCallback((index: number) => {
-    setClickCounter(prev => {
-      const newCounter = prev + 1;
-      
-      setPhotoStates(photoStates => {
-        const next = [...photoStates];
-        next[index] = { ...next[index], zLevel: newCounter };
-        return next;
-      });
-      
-      return newCounter;
+    const newCounter = clickCounterRef.current + 1;
+    clickCounterRef.current = newCounter;
+
+    setPhotoStates(photoStates => {
+      const next = [...photoStates];
+      next[index] = { ...next[index], zLevel: newCounter };
+      return next;
     });
   }, []);
 
@@ -217,7 +243,21 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
   }
 
   return (
-    <div id="photos-area" className={styles.photosContainer}>
+    <div ref={containerRef} id="photos-area" className={styles.photosContainer}>
+      <AnimatePresence>
+        {focusedIndex !== null && (
+          <motion.button
+            type="button"
+            className={styles.focusBackdrop}
+            aria-label="关闭聚焦"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+            onClick={closeFocus}
+          />
+        )}
+      </AnimatePresence>
       {displayPhotos.map((photo, index) => {
         const state = photoStates[index];
         if (!state) return null;
@@ -232,6 +272,10 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
             isMobile={isMobile}
             onPositionChange={(pos) => updatePosition(index, pos)}
             onActivate={() => activatePhoto(index)}
+            isFocused={focusedIndex === index}
+            focusPosition={focusPosition}
+            onFocus={() => openFocus(index)}
+            onClose={closeFocus}
           />
         );
       })}

@@ -13,9 +13,16 @@ interface PhotoCardProps {
   isMobile: boolean;
   onPositionChange: (pos: { x: number; y: number }) => void;
   onActivate: () => void;
+  isFocused: boolean;
+  focusPosition: { x: number; y: number } | null;
+  onFocus: () => void;
+  onClose: () => void;
 }
 
-const HIT_AREA_PADDING = 40;
+const HIT_AREA_PADDING = 8;
+const HOVER_SCALE = 1.045;
+const FOCUSED_Z_INDEX = 2101;
+const CLICK_DRAG_THRESHOLD = 6;
 const DESKTOP_IMAGE_AREA = 42000;
 const DESKTOP_MAX_IMAGE_SIDE = 250;
 const MOBILE_IMAGE_AREA = 32000;
@@ -42,11 +49,18 @@ export default function PhotoCard({
   isMobile,
   onPositionChange,
   onActivate,
+  isFocused,
+  focusPosition,
+  onFocus,
+  onClose,
 }: PhotoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
-  
+  const [isReturning, setIsReturning] = useState(false);
+
   const isDraggingRef = useRef(false);
+  const hasMovedRef = useRef(false);
+  const wasFocusedRef = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const dragStartMouse = useRef({ x: 0, y: 0 });
 
@@ -59,6 +73,13 @@ export default function PhotoCard({
     };
   }, [photo.thumbSrc, isMobile]);
 
+  useEffect(() => {
+    if (wasFocusedRef.current && !isFocused) {
+      setIsReturning(true);
+    }
+    wasFocusedRef.current = isFocused;
+  }, [isFocused]);
+
   const handleHoverStart = useCallback((e: React.PointerEvent) => {
     if (e.pointerType === 'mouse') {
       setIsHovered(true);
@@ -67,20 +88,29 @@ export default function PhotoCard({
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
+    if (isFocused) return;
+
     isDraggingRef.current = true;
+    hasMovedRef.current = false;
     dragStartPos.current = { ...position };
     dragStartMouse.current = { x: e.clientX, y: e.clientY };
     onActivate();
     
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
-  }, [position, onActivate]);
+  }, [isFocused, position, onActivate]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     
     const deltaX = e.clientX - dragStartMouse.current.x;
     const deltaY = e.clientY - dragStartMouse.current.y;
+
+    if (!hasMovedRef.current && Math.hypot(deltaX, deltaY) < CLICK_DRAG_THRESHOLD) {
+      return;
+    }
+
+    hasMovedRef.current = true;
     
     const newPos = {
       x: dragStartPos.current.x + deltaX,
@@ -92,9 +122,24 @@ export default function PhotoCard({
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     const target = e.currentTarget;
-    target.releasePointerCapture(e.pointerId);
+    if (target.hasPointerCapture(e.pointerId)) {
+      target.releasePointerCapture(e.pointerId);
+    }
     isDraggingRef.current = false;
   }, []);
+
+  const handleClick = useCallback(() => {
+    if (hasMovedRef.current) {
+      hasMovedRef.current = false;
+      return;
+    }
+
+    if (isFocused) {
+      onClose();
+    } else {
+      onFocus();
+    }
+  }, [isFocused, onClose, onFocus]);
 
   const handleHoverEnd = useCallback(() => {
     setIsHovered(false);
@@ -104,26 +149,44 @@ export default function PhotoCard({
 
   const cardWidth = imgSize.width + 24;
   const cardHeight = imgSize.height + 44;
+  const rotationRadians = Math.abs(rotation) * Math.PI / 180;
+  const maxTransformedWidth = HOVER_SCALE * (
+    cardWidth * Math.cos(rotationRadians) + cardHeight * Math.sin(rotationRadians)
+  );
+  const maxTransformedHeight = HOVER_SCALE * (
+    cardWidth * Math.sin(rotationRadians) + cardHeight * Math.cos(rotationRadians)
+  );
+  const hitWidth = Math.max(cardWidth, maxTransformedWidth) + HIT_AREA_PADDING * 2;
+  const hitHeight = Math.max(cardHeight, maxTransformedHeight) + HIT_AREA_PADDING * 2;
 
   return (
-    <div
+    <motion.div
       className={styles.hitArea}
       style={{
         position: 'absolute',
         left: position.x,
         top: position.y,
-        zIndex: zIndex,
-        cursor: 'grab',
-        width: cardWidth + HIT_AREA_PADDING * 2,
-        height: cardHeight + HIT_AREA_PADDING * 2,
+        zIndex: isFocused || isReturning ? FOCUSED_Z_INDEX : zIndex,
+        cursor: isFocused ? 'zoom-out' : 'grab',
+        width: hitWidth,
+        height: hitHeight,
         transform: 'translate(-50%, -50%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
+      animate={{
+        left: isFocused && focusPosition ? focusPosition.x : position.x,
+        top: isFocused && focusPosition ? focusPosition.y : position.y,
+      }}
+      transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+      onAnimationComplete={() => {
+        if (isReturning) setIsReturning(false);
+      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onClick={handleClick}
       onPointerEnter={handleHoverStart}
       onPointerLeave={handleHoverEnd}
     >
@@ -136,7 +199,7 @@ export default function PhotoCard({
         initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
         animate={{
           opacity: 1,
-          scale: isHovered ? 1.045 : 1,
+          scale: isFocused ? 1 : isHovered ? HOVER_SCALE : 1,
           rotate: rotation,
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -173,6 +236,6 @@ export default function PhotoCard({
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
