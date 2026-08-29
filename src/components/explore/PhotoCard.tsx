@@ -77,6 +77,12 @@ export default function PhotoCard({
     setTilt({ rotateX: 0, rotateY: 0 });
   }, []);
 
+  const handleHoverStart = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') {
+      setIsHovered(true);
+    }
+  }, []);
+
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     isDraggingRef.current = true;
@@ -122,64 +128,74 @@ export default function PhotoCard({
   if (imgSize.width === 0) return null;
 
   return (
-    <motion.div
-      className={styles.photoCard}
+    <div
+      className={styles.hitArea}
       style={{
         position: 'absolute',
         left: position.x,
         top: position.y,
         zIndex: zIndex,
         cursor: 'grab',
-        transformPerspective: 700,
-        transformStyle: 'preserve-3d',
+        width: imgSize.width + 24,
+        height: imgSize.height + 44,
+        transform: 'translate(-50%, -50%)',
       }}
-      initial={{ opacity: 0, scale: 0.8, rotate: rotation, rotateX: 0, rotateY: 0 }}
-      animate={{
-        opacity: 1,
-        scale: isHovered ? 1.045 : 1,
-        rotate: rotation,
-        rotateX: isHovered ? tilt.rotateX : 0,
-        rotateY: isHovered ? tilt.rotateY : 0,
-      }}
-      transformTemplate={(_, generated) => `translate(-50%, -50%) ${generated}`}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={handleHoverEnd}
+      onPointerEnter={handleHoverStart}
+      onPointerLeave={handleHoverEnd}
     >
-      <div 
-        className={styles.polaroidFrame}
+      <motion.div
+        className={styles.animatedCard}
         style={{
-          padding: '12px 12px 32px 12px',
-          background: 'white',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.08)',
-          borderRadius: 2,
+          width: '100%',
+          height: '100%',
+          transformPerspective: 700,
+          transformStyle: 'preserve-3d',
         }}
+        initial={{ opacity: 0, scale: 0.8, rotate: rotation, rotateX: 0, rotateY: 0 }}
+        animate={{
+          opacity: 1,
+          scale: isHovered ? 1.045 : 1,
+          rotate: rotation,
+          rotateX: isHovered ? tilt.rotateX : 0,
+          rotateY: isHovered ? tilt.rotateY : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
         <div
+          className={styles.polaroidFrame}
           style={{
-            width: imgSize.width,
-            height: imgSize.height,
-            background: '#f5f5f5',
-            overflow: 'hidden',
+            padding: '12px 12px 32px 12px',
+            background: 'white',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.08)',
+            borderRadius: 2,
           }}
         >
-          <img
-            src={photo.thumbSrc}
-            alt={photo.info?.title || ''}
+          <div
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              display: 'block',
-              pointerEvents: 'none',
+              width: imgSize.width,
+              height: imgSize.height,
+              background: '#f5f5f5',
+              overflow: 'hidden',
             }}
-            draggable={false}
-          />
+          >
+            <img
+              src={photo.thumbSrc}
+              alt={photo.info?.title || ''}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                display: 'block',
+                pointerEvents: 'none',
+              }}
+              draggable={false}
+            />
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

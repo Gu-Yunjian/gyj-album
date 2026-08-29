@@ -95,17 +95,25 @@
    Photo Card - Polaroid Style
    ============================================ */
 
-.photoCard {
+.hitArea {
   user-select: none;
   touch-action: none;
 }
 
-.photoCard:active {
+.hitArea:active {
   cursor: grabbing !important;
+}
+
+.animatedCard {
+  transform-origin: center;
 }
 
 .polaroidFrame {
   transition: box-shadow 0.3s ease;
+  color-scheme: only light;
+  background: #fff !important;
+  background-color: #fff !important;
+  forced-color-adjust: none;
 }
 
 /* ============================================
