@@ -21,7 +21,7 @@ interface PhotoCardProps {
 
 const HIT_AREA_PADDING = 8;
 const HOVER_SCALE = 1.045;
-const FOCUSED_Z_INDEX = 2101;
+const FOCUSED_Z_INDEX = 10001;
 const CLICK_DRAG_THRESHOLD = 6;
 const DESKTOP_IMAGE_AREA = 42000;
 const DESKTOP_MAX_IMAGE_SIDE = 250;

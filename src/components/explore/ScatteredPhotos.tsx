@@ -81,6 +81,8 @@ const MOBILE_CONFIG: LayoutConfig = {
   ],
 };
 
+const FOCUS_BACKDROP_Z_INDEX = 10000;
+
 // 生成随机初始位置
 function generatePositions(
   count: number,
@@ -231,7 +233,7 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
 
   // 计算实际 z-index
   const getZIndex = (baseZIndex: number, zLevel: number) => {
-    return baseZIndex + zLevel * 100;
+    return Math.min(baseZIndex + zLevel * 100, FOCUS_BACKDROP_Z_INDEX - 1);
   };
 
   // 获取当前显示的照片数量

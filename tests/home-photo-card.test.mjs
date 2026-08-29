@@ -96,3 +96,27 @@ test('home focused card releases its temporary top layer after the position retu
     /className={styles\.animatedCard}[\s\S]*?onAnimationComplete=\{\(\) => \{[\s\S]*?isReturning/
   );
 });
+
+test('home focus layer covers the page without letting ordinary cards overtake it', async () => {
+  const componentSource = await fs.readFile(
+    new URL('../src/components/explore/ScatteredPhotos.tsx', import.meta.url),
+    'utf8'
+  );
+  const cardSource = await fs.readFile(
+    new URL('../src/components/explore/PhotoCard.tsx', import.meta.url),
+    'utf8'
+  );
+  const styleSource = await fs.readFile(
+    new URL('../src/app/explore/Explore.module.css', import.meta.url),
+    'utf8'
+  );
+
+  assert.doesNotMatch(styleSource, /\.photosSection\s*{[^}]*z-index:\s*100/);
+  assert.match(styleSource, /\.focusBackdrop\s*{[\s\S]*?z-index:\s*10000/);
+  assert.match(componentSource, /const FOCUS_BACKDROP_Z_INDEX = 10000;/);
+  assert.match(
+    componentSource,
+    /Math\.min\(baseZIndex \+ zLevel \* 100, FOCUS_BACKDROP_Z_INDEX - 1\)/
+  );
+  assert.match(cardSource, /const FOCUSED_Z_INDEX = 10001;/);
+});
