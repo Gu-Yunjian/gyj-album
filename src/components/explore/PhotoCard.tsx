@@ -19,7 +19,7 @@ interface PhotoCardProps {
   onClose: () => void;
 }
 
-const HIT_AREA_PADDING = 8;
+const HIT_AREA_PADDING = 4;
 const HOVER_SCALE = 1.045;
 const FOCUSED_Z_INDEX = 10001;
 const CLICK_DRAG_THRESHOLD = 6;
@@ -41,6 +41,26 @@ function getDisplaySize(naturalWidth: number, naturalHeight: number, isMobile: b
   };
 }
 
+function getRotatedRectClipPath(width: number, height: number, rotation: number, scale: number) {
+  const halfWidth = width * scale / 2;
+  const halfHeight = height * scale / 2;
+  const radians = rotation * Math.PI / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const corners = [
+    [-halfWidth, -halfHeight],
+    [halfWidth, -halfHeight],
+    [halfWidth, halfHeight],
+    [-halfWidth, halfHeight],
+  ].map(([x, y]) => [x * cos - y * sin, x * sin + y * cos]);
+  const minX = Math.min(...corners.map(([x]) => x));
+  const maxX = Math.max(...corners.map(([x]) => x));
+  const minY = Math.min(...corners.map(([, y]) => y));
+  const maxY = Math.max(...corners.map(([, y]) => y));
+
+  return `polygon(${corners.map(([x, y]) => `${((x - minX) / (maxX - minX)) * 100}% ${((y - minY) / (maxY - minY)) * 100}%`).join(', ')})`;
+}
+
 export default function PhotoCard({
   photo,
   position,
@@ -57,6 +77,7 @@ export default function PhotoCard({
   const [isHovered, setIsHovered] = useState(false);
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   const [isReturning, setIsReturning] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const isDraggingRef = useRef(false);
   const hasMovedRef = useRef(false);
@@ -91,6 +112,7 @@ export default function PhotoCard({
     if (isFocused) return;
 
     isDraggingRef.current = true;
+    setIsDragging(true);
     hasMovedRef.current = false;
     dragStartPos.current = { ...position };
     dragStartMouse.current = { x: e.clientX, y: e.clientY };
@@ -126,6 +148,7 @@ export default function PhotoCard({
       target.releasePointerCapture(e.pointerId);
     }
     isDraggingRef.current = false;
+    setIsDragging(false);
   }, []);
 
   const handleClick = useCallback(() => {
@@ -149,15 +172,16 @@ export default function PhotoCard({
 
   const cardWidth = imgSize.width + 24;
   const cardHeight = imgSize.height + 44;
-  const rotationRadians = Math.abs(rotation) * Math.PI / 180;
-  const maxTransformedWidth = HOVER_SCALE * (
-    cardWidth * Math.cos(rotationRadians) + cardHeight * Math.sin(rotationRadians)
-  );
-  const maxTransformedHeight = HOVER_SCALE * (
-    cardWidth * Math.sin(rotationRadians) + cardHeight * Math.cos(rotationRadians)
-  );
-  const hitWidth = Math.max(cardWidth, maxTransformedWidth) + HIT_AREA_PADDING * 2;
-  const hitHeight = Math.max(cardHeight, maxTransformedHeight) + HIT_AREA_PADDING * 2;
+  const visualScale = isFocused || isDragging ? 1 : isHovered ? HOVER_SCALE : 1;
+  const visualRotation = isFocused || isDragging ? 0 : rotation;
+  const hitCardWidth = cardWidth + HIT_AREA_PADDING * 2;
+  const hitCardHeight = cardHeight + HIT_AREA_PADDING * 2;
+  const rotationRadians = Math.abs(visualRotation) * Math.PI / 180;
+  const scaledHitWidth = hitCardWidth * visualScale;
+  const scaledHitHeight = hitCardHeight * visualScale;
+  const hitWidth = scaledHitWidth * Math.cos(rotationRadians) + scaledHitHeight * Math.sin(rotationRadians);
+  const hitHeight = scaledHitWidth * Math.sin(rotationRadians) + scaledHitHeight * Math.cos(rotationRadians);
+  const hitClipPath = getRotatedRectClipPath(hitCardWidth, hitCardHeight, visualRotation, visualScale);
 
   return (
     <motion.div
@@ -171,6 +195,7 @@ export default function PhotoCard({
         width: hitWidth,
         height: hitHeight,
         transform: 'translate(-50%, -50%)',
+        clipPath: hitClipPath,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -186,6 +211,7 @@ export default function PhotoCard({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       onClick={handleClick}
       onPointerEnter={handleHoverStart}
       onPointerLeave={handleHoverEnd}
@@ -199,8 +225,8 @@ export default function PhotoCard({
         initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
         animate={{
           opacity: 1,
-          scale: isFocused ? 1 : isHovered ? HOVER_SCALE : 1,
-          rotate: rotation,
+          scale: visualScale,
+          rotate: visualRotation,
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
