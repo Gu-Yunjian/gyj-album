@@ -13,7 +13,7 @@ export default function Navigation({ rightSlot }: NavigationProps) {
     <header className={styles.header}>
       <div className={styles.left}>
         <Link href="/" className={`${styles.logo} nav-link`}>
-          GU YUN-JIAN PROJECTS
+          GU PROJECTS
         </Link>
         <nav className={styles.nav}>
           <Link href="/gallery" className={`${styles.navLink} nav-link`}>
