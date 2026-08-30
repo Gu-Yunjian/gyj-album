@@ -129,7 +129,7 @@ test('home polaroid rotation resets during focus and drag while its hit shape fo
   );
 
   assert.match(source, /const \[isDragging, setIsDragging\] = useState\(false\);/);
-  assert.match(source, /isFocused \|\| isDragging \|\| isReturning \? 0 : rotation/);
+  assert.match(source, /isFocused \|\| isDragging \? 0 : rotation/);
   assert.match(source, /getRotatedRectClipPath/);
   assert.match(source, /clipPath: hitClipPath/);
   assert.match(source, /onPointerCancel={handlePointerUp}/);
@@ -159,23 +159,31 @@ test('home polaroid randomizes its saved rotation only after drag or focus retur
     new URL('../src/components/explore/ScatteredPhotos.tsx', import.meta.url),
     'utf8'
   );
+  const rotationSource = await fs.readFile(
+    new URL('../src/components/explore/rotation.ts', import.meta.url),
+    'utf8'
+  );
 
   assert.match(source, /onRotationChange/);
   assert.match(source, /getRandomRotation/);
-  assert.match(source, /-12/);
-  assert.match(source, /12/);
   assert.match(source, /hasMovedRef\.current/);
-  assert.match(source, /onAnimationComplete=\{\(\) => \{[\s\S]*?isReturning[\s\S]*?onRotationChange/);
+  assert.doesNotMatch(source, /onAnimationComplete=\{\(\) => \{[\s\S]*?isReturning[\s\S]*?onRotationChange/);
   assert.match(parentSource, /rotation: p\.rotation/);
   assert.match(parentSource, /onRotationChange=\{/);
+  assert.match(parentSource, /getRandomRotation/);
+  assert.match(parentSource, /focusedIndex !== null/);
+  assert.match(parentSource, /getRandomRotation\(next\[focusedIndex\]\.rotation\)/);
+  assert.match(rotationSource, /MIN_ROTATION = -12/);
+  assert.match(rotationSource, /MAX_ROTATION = 12/);
+  assert.match(rotationSource, /nextRotation !== currentRotation/);
 });
 
 test('home polaroid random rotation avoids an identical angle when possible', async () => {
   const source = await fs.readFile(
-    new URL('../src/components/explore/PhotoCard.tsx', import.meta.url),
+    new URL('../src/components/explore/rotation.ts', import.meta.url),
     'utf8'
   );
 
-  assert.match(source, /getRandomRotation\(rotation\)/);
+  assert.match(source, /export function getRandomRotation/);
   assert.match(source, /nextRotation !== currentRotation/);
 });

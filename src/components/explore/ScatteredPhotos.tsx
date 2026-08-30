@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { GalleryPhoto } from '@/lib/photos';
 import PhotoCard from './PhotoCard';
+import { getRandomRotation, MAX_ROTATION, MIN_ROTATION } from './rotation';
 import styles from '../../app/explore/Explore.module.css';
 
 interface ScatteredPhotosProps {
@@ -102,7 +103,7 @@ function generatePositions(
     const x = containerWidth * clamp(anchor.x + offsetX, config.minX, config.maxX);
     const y = containerHeight * clamp(anchor.y + offsetY, config.minY, config.maxY);
     
-    const rotation = -12 + Math.random() * 24;
+    const rotation = MIN_ROTATION + Math.random() * (MAX_ROTATION - MIN_ROTATION);
     positions.push({ x, y, rotation });
   }
   
@@ -168,9 +169,20 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
   }, [updateFocusPosition]);
 
   const closeFocus = useCallback(() => {
+    if (focusedIndex !== null) {
+      setPhotoStates(prev => {
+        const next = [...prev];
+        if (!next[focusedIndex]) return prev;
+        next[focusedIndex] = {
+          ...next[focusedIndex],
+          rotation: getRandomRotation(next[focusedIndex].rotation),
+        };
+        return next;
+      });
+    }
     setFocusedIndex(null);
     setFocusPosition(null);
-  }, []);
+  }, [focusedIndex]);
 
   useEffect(() => {
     if (focusedIndex === null) return;

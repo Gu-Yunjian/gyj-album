@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GalleryPhoto } from '@/lib/photos';
 import styles from '../../app/explore/Explore.module.css';
+import { getRandomRotation } from './rotation';
 
 interface PhotoCardProps {
   photo: GalleryPhoto;
@@ -24,8 +25,6 @@ const HIT_AREA_PADDING = 4;
 const HOVER_SCALE = 1.045;
 const FOCUSED_Z_INDEX = 10001;
 const CLICK_DRAG_THRESHOLD = 6;
-const MIN_ROTATION = -12;
-const MAX_ROTATION = 12;
 const DESKTOP_IMAGE_AREA = 42000;
 const DESKTOP_MAX_IMAGE_SIDE = 250;
 const MOBILE_IMAGE_AREA = 32000;
@@ -62,15 +61,6 @@ function getRotatedRectClipPath(width: number, height: number, rotation: number,
   const maxY = Math.max(...corners.map(([, y]) => y));
 
   return `polygon(${corners.map(([x, y]) => `${((x - minX) / (maxX - minX)) * 100}% ${((y - minY) / (maxY - minY)) * 100}%`).join(', ')})`;
-}
-
-function getRandomRotation(currentRotation: number) {
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const nextRotation = MIN_ROTATION + Math.random() * (MAX_ROTATION - MIN_ROTATION);
-    if (nextRotation !== currentRotation) return nextRotation;
-  }
-
-  return currentRotation <= MIN_ROTATION ? MAX_ROTATION : MIN_ROTATION;
 }
 
 export default function PhotoCard({
@@ -189,7 +179,7 @@ export default function PhotoCard({
   const cardWidth = imgSize.width + 24;
   const cardHeight = imgSize.height + 44;
   const visualScale = isFocused || isDragging ? 1 : isHovered ? HOVER_SCALE : 1;
-  const visualRotation = isFocused || isDragging || isReturning ? 0 : rotation;
+  const visualRotation = isFocused || isDragging ? 0 : rotation;
   const hitCardWidth = cardWidth + HIT_AREA_PADDING * 2;
   const hitCardHeight = cardHeight + HIT_AREA_PADDING * 2;
   const rotationRadians = Math.abs(visualRotation) * Math.PI / 180;
@@ -221,10 +211,7 @@ export default function PhotoCard({
       }}
       transition={{ type: 'spring', stiffness: 260, damping: 30 }}
       onAnimationComplete={() => {
-        if (isReturning) {
-          onRotationChange(getRandomRotation(rotation));
-          setIsReturning(false);
-        }
+        if (isReturning) setIsReturning(false);
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
