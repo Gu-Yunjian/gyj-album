@@ -134,3 +134,18 @@ test('home polaroid rotation resets during focus and drag while its hit shape fo
   assert.match(source, /clipPath: hitClipPath/);
   assert.match(source, /onPointerCancel={handlePointerUp}/);
 });
+
+test('home polaroid hit clipping does not cut off the frame shadow', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/explore/PhotoCard.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /className={styles\.hitShape}/);
+  assert.match(source, /className={styles\.hitShape}[\s\S]*?clipPath: hitClipPath/);
+  const hitAreaBlock = source.match(
+    /<motion\.div\s+className={styles\.hitArea}[\s\S]*?onAnimationComplete/
+  )?.[0];
+  assert.ok(hitAreaBlock);
+  assert.doesNotMatch(hitAreaBlock, /clipPath: hitClipPath/);
+});

@@ -195,7 +195,6 @@ export default function PhotoCard({
         width: hitWidth,
         height: hitHeight,
         transform: 'translate(-50%, -50%)',
-        clipPath: hitClipPath,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -216,6 +215,16 @@ export default function PhotoCard({
       onPointerEnter={handleHoverStart}
       onPointerLeave={handleHoverEnd}
     >
+      <div
+        className={styles.hitShape}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          clipPath: hitClipPath,
+        }}
+      />
       <motion.div
         className={styles.animatedCard}
         style={{

@@ -99,6 +99,13 @@
   touch-action: none;
 }
 
+.hitShape {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
 .hitArea:active {
   cursor: grabbing !important;
 }
