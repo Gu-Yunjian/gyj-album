@@ -231,6 +231,15 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
     });
   }, []);
 
+  const updateRotation = useCallback((index: number, rotation: number) => {
+    setPhotoStates(prev => {
+      const next = [...prev];
+      if (!next[index]) return prev;
+      next[index] = { ...next[index], rotation };
+      return next;
+    });
+  }, []);
+
   // 计算实际 z-index
   const getZIndex = (baseZIndex: number, zLevel: number) => {
     return Math.min(baseZIndex + zLevel * 100, FOCUS_BACKDROP_Z_INDEX - 1);
@@ -273,6 +282,7 @@ export default function ScatteredPhotos({ photos, layoutKey }: ScatteredPhotosPr
             zIndex={getZIndex(state.baseZIndex, state.zLevel)}
             isMobile={isMobile}
             onPositionChange={(pos) => updatePosition(index, pos)}
+            onRotationChange={(rotation) => updateRotation(index, rotation)}
             onActivate={() => activatePhoto(index)}
             isFocused={focusedIndex === index}
             focusPosition={focusPosition}

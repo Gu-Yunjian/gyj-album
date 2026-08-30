@@ -149,3 +149,33 @@ test('home polaroid hit clipping does not cut off the frame shadow', async () =>
   assert.ok(hitAreaBlock);
   assert.doesNotMatch(hitAreaBlock, /clipPath: hitClipPath/);
 });
+
+test('home polaroid randomizes its saved rotation only after drag or focus return', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/explore/PhotoCard.tsx', import.meta.url),
+    'utf8'
+  );
+  const parentSource = await fs.readFile(
+    new URL('../src/components/explore/ScatteredPhotos.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /onRotationChange/);
+  assert.match(source, /getRandomRotation/);
+  assert.match(source, /-12/);
+  assert.match(source, /12/);
+  assert.match(source, /hasMovedRef\.current/);
+  assert.match(source, /onAnimationComplete=\{\(\) => \{[\s\S]*?isReturning[\s\S]*?onRotationChange/);
+  assert.match(parentSource, /rotation: p\.rotation/);
+  assert.match(parentSource, /onRotationChange=\{/);
+});
+
+test('home polaroid random rotation avoids an identical angle when possible', async () => {
+  const source = await fs.readFile(
+    new URL('../src/components/explore/PhotoCard.tsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(source, /getRandomRotation\(rotation\)/);
+  assert.match(source, /nextRotation !== currentRotation/);
+});
