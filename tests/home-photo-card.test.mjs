@@ -129,7 +129,7 @@ test('home polaroid rotation resets during focus and drag while its hit shape fo
   );
 
   assert.match(source, /const \[isDragging, setIsDragging\] = useState\(false\);/);
-  assert.match(source, /isFocused \|\| isDragging \? 0 : rotation/);
+  assert.match(source, /isFocused \|\| isDragging \|\| isReturning \? 0 : rotation/);
   assert.match(source, /getRotatedRectClipPath/);
   assert.match(source, /clipPath: hitClipPath/);
   assert.match(source, /onPointerCancel={handlePointerUp}/);

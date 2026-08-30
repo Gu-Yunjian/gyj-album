@@ -189,7 +189,7 @@ export default function PhotoCard({
   const cardWidth = imgSize.width + 24;
   const cardHeight = imgSize.height + 44;
   const visualScale = isFocused || isDragging ? 1 : isHovered ? HOVER_SCALE : 1;
-  const visualRotation = isFocused || isDragging ? 0 : rotation;
+  const visualRotation = isFocused || isDragging || isReturning ? 0 : rotation;
   const hitCardWidth = cardWidth + HIT_AREA_PADDING * 2;
   const hitCardHeight = cardHeight + HIT_AREA_PADDING * 2;
   const rotationRadians = Math.abs(visualRotation) * Math.PI / 180;
