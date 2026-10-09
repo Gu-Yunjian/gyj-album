@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import VideoManager from '@/components/admin/VideoManager';
+import type { PhotoTag } from '@/lib/photo-tags';
 
 interface ExifInfo {
   aperture?: string;
@@ -26,6 +27,7 @@ interface Photo {
   thumbSize: number;
   exif?: ExifInfo;
   order?: number;
+  tags?: PhotoTag[];
 }
 
 interface Album {

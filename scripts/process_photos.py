@@ -413,7 +413,10 @@ def process_albums():
                 "mainSize": main_size,
                 "mediumSize": medium_size,
                 "thumbSize": thumb_size,
-                "exif": exif_data or {}
+                "exif": exif_data or {},
+                **({"tags": albums_data["allPhotos"][key]["tags"]}
+                   if key in albums_data.get("allPhotos", {})
+                   and "tags" in albums_data["allPhotos"][key] else {})
             }
             
             total_processed += 1

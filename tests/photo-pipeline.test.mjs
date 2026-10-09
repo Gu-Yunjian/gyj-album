@@ -124,3 +124,35 @@ test('photo processing preserves existing processed photos during a partial albu
     await fs.rm(tempDir, { recursive: true, force: true });
   }
 });
+
+test('photo processing keeps curated tags when an image is regenerated', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'gu-album-tags-'));
+
+  try {
+    await fs.mkdir(path.join(tempDir, 'originals', 'portraits'), { recursive: true });
+    await fs.mkdir(path.join(tempDir, 'public'), { recursive: true });
+    await fs.writeFile(path.join(tempDir, 'originals', 'portraits', 'portrait.png'), ONE_PIXEL_PNG);
+    await fs.writeFile(
+      path.join(tempDir, 'public', 'albums.json'),
+      JSON.stringify({
+        albums: [{
+          name: 'portraits', title: '人像习作', subtitle: '', cover: 'portrait.webp',
+          photos: ['portrait.webp'], photoInfos: {}, hasBgm: false, order: 0,
+        }],
+        allPhotos: {
+          'portraits/portrait': {
+            id: 'portraits/portrait', filename: 'portrait.webp',
+            originalName: 'portrait.png', tags: ['人像', '单人'],
+          },
+        },
+      })
+    );
+
+    await execFileAsync('python3', [pipelinePath], { cwd: tempDir });
+
+    const result = JSON.parse(await fs.readFile(path.join(tempDir, 'public', 'albums.json'), 'utf8'));
+    assert.deepEqual(result.allPhotos['portraits/portrait'].tags, ['人像', '单人']);
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
+});

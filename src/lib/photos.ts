@@ -2,6 +2,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import type { PhotoTag } from './photo-tags';
 
 export interface ExifInfo {
   aperture?: string;
@@ -28,6 +29,7 @@ export interface Photo {
   title?: string;
   desc?: string;
   order?: number;
+  tags?: PhotoTag[];
 }
 
 export interface AlbumInfo {
@@ -52,6 +54,7 @@ export interface GalleryPhoto {
   height?: number;
   info?: PhotoInfo;
   exif?: ExifInfo;
+  tags?: PhotoTag[];
 }
 
 export interface AlbumsData {
@@ -232,6 +235,7 @@ export async function getAllPhotos(): Promise<GalleryPhoto[]> {
           height: dimensions?.height,
           info: album.photoInfos[stem],
           exif: photoData.exif,
+          tags: photoData.tags,
         });
       }
     }
@@ -270,6 +274,7 @@ export async function getPhoto(albumName: string, photoStem: string): Promise<Ga
     ...(await getLocalImageDimensions(`/medium/${albumName}/${photoData.filename}`)),
     info: album.photoInfos[photoStem],
     exif: photoData.exif,
+    tags: photoData.tags,
   };
 }
 

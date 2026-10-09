@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { PHOTO_TAGS, type PhotoTag } from '@/lib/photo-tags';
 import styles from './GalleryFilter.module.css';
 
-export const GALLERY_FILTER_TAGS = ['人像', '毕业照', 'cosplay', '情侣', '单人', '多人'] as const;
-
-export type GalleryFilterTag = typeof GALLERY_FILTER_TAGS[number];
+export type GalleryFilterTag = PhotoTag;
 
 interface GalleryFilterProps {
   selectedTags: GalleryFilterTag[];
@@ -47,7 +46,7 @@ export default function GalleryFilter({ selectedTags, onChange }: GalleryFilterP
         >
           全部
         </button>
-        {GALLERY_FILTER_TAGS.map(tag => (
+        {PHOTO_TAGS.map(tag => (
           <button
             type="button"
             key={tag}
@@ -91,7 +90,7 @@ export default function GalleryFilter({ selectedTags, onChange }: GalleryFilterP
             >
               全部
             </button>
-            {GALLERY_FILTER_TAGS.map(tag => (
+            {PHOTO_TAGS.map(tag => (
               <button
                 type="button"
                 role="menuitemradio"

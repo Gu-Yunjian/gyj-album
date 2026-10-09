@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { GalleryPhoto } from '@/lib/photos';
 import Navigation from '@/components/layout/Navigation';
 import GalleryFilter, { GalleryFilterTag } from '@/components/gallery/GalleryFilter';
+import { filterPhotosByTags } from '@/lib/photo-tags';
 import OverviewGrid from '@/components/gallery/OverviewGrid';
 import Lightbox, { LightboxSourceRect } from '@/components/ui/Lightbox';
 
@@ -24,18 +25,9 @@ export default function GalleryClient({ photos, profile }: GalleryClientProps) {
   const [lightboxSourceRect, setLightboxSourceRect] = useState<LightboxSourceRect | null>(null);
   const [selectedTags, setSelectedTags] = useState<GalleryFilterTag[]>([]);
 
-  const taggedPhotos = useMemo(() => {
-    return photos.map((photo, photoIndex) => ({
-      ...photo,
-      tags: getMockTags(photo, photoIndex),
-    }));
-  }, [photos]);
-
   const filteredPhotos = useMemo(() => {
-    if (selectedTags.length === 0) return taggedPhotos;
-
-    return taggedPhotos.filter(photo => selectedTags.some(tag => photo.tags.includes(tag)));
-  }, [selectedTags, taggedPhotos]);
+    return filterPhotosByTags(photos, selectedTags);
+  }, [selectedTags, photos]);
 
   const lightboxPhotos = useMemo(() => {
     return filteredPhotos.map(p => ({
@@ -98,29 +90,4 @@ export default function GalleryClient({ photos, profile }: GalleryClientProps) {
       />
     </main>
   );
-}
-
-function getMockTags(photo: GalleryPhoto, index: number): GalleryFilterTag[] {
-  const text = `${photo.albumTitle} ${photo.info?.title || ''} ${photo.info?.desc || ''}`.toLowerCase();
-  const tags = new Set<GalleryFilterTag>();
-
-  if (/人像|portrait|毕业|cos|情侣|单人|多人/.test(text) || index % 2 === 0) {
-    tags.add('人像');
-  }
-
-  if (/毕业|校园|school|graduate/.test(text) || index % 7 === 0) {
-    tags.add('毕业照');
-  }
-
-  if (/cos|cosplay/.test(text) || index % 11 === 0) {
-    tags.add('cosplay');
-  }
-
-  if (/情侣|couple/.test(text) || index % 5 === 0) {
-    tags.add('情侣');
-  }
-
-  tags.add(index % 3 === 0 ? '多人' : '单人');
-
-  return Array.from(tags);
 }

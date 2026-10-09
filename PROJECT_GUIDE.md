@@ -83,13 +83,16 @@ gu-album/
         "iso": 100,
         "dateTaken": "2024:01:01 12:00:00",
         "camera": "Camera Model"
-      }
+      },
+      "tags": ["人像", "单人", "光影"]
     }
   }
 }
 ```
 
 Keys in `photoInfos` and `allPhotos` use the photo stem without extension. Frontend display paths are derived from `filename`.
+
+The curated collection contains six albums: `portraits` (人像习作), `together` (相遇与同行), `everyday` (人间现场), `architecture` (城与古建), `landscapes` (山海之间), and `details` (光的细部). Photo tags live in each `allPhotos` entry and drive the `/gallery` filter. The allowed vocabulary is defined in `src/lib/photo-tags.ts`; `单人`, `双人`, and `多人` are mutually exclusive when a visible person count is clear. The local admin editor preserves existing tags when saving metadata, but currently does not offer a tag editing control.
 
 ## Image Pipeline
 
@@ -108,6 +111,7 @@ The script:
 - Writes thumbnail-purpose images to `public/thumbnails/[album]/`.
 - Extracts EXIF fields into `public/albums.json`.
 - Preserves existing album and photo titles/descriptions where possible.
+- Preserves curated tags when reprocessing a photo.
 
 Current generated image targets:
 
